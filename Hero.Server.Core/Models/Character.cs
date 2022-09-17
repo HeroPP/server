@@ -4,7 +4,6 @@
     {
         public Guid Id { get; set; }
         public Guid? UserId { get; set; }
-        public List<NodeTree> ActiveNodeTrees { get; set; }
         public List<NodeTree> NodeTrees { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

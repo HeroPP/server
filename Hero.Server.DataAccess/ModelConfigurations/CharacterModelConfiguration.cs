@@ -28,11 +28,6 @@ namespace Hero.Server.Core.ModelConfigurations
                 .HasForeignKey(nodeTree => nodeTree.CharacterId)
                 .OnDelete(DeleteBehavior.SetNull);
             builder
-                .HasMany(charakter => charakter.ActiveNodeTrees)
-                .WithOne(nodeTree => nodeTree.Character)
-                .HasForeignKey(nodeTree => nodeTree.CharacterId)
-                .OnDelete(DeleteBehavior.SetNull);
-            builder
                 .HasMany(charakter => charakter.Abilities)
                 .WithOne(ability => ability.Character)
                 .HasForeignKey(ability => ability.CharacterId)
