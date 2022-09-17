@@ -9,10 +9,12 @@ namespace Hero.Server.DataAccess.Database
         public HeroDbContext(DbContextOptions<HeroDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Character> Characters { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder. ApplyConfigurationsFromAssembly(typeof(HeroDbContext).Assembly);
+            builder.HasDefaultSchema(HeroDbResources.Schema);
+            builder.ApplyConfigurationsFromAssembly(typeof(HeroDbContext).Assembly);
         }
     }
 }

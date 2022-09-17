@@ -1,4 +1,9 @@
+using Hero.Server.DataAccess.Extensions;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDataAccessLayer(builder.Configuration.GetConnectionString("Default"));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

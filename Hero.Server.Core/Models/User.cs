@@ -6,5 +6,7 @@
         /// Unique ID of the User
         /// </summary>
         public Guid Id { get; set; }
+
+        public List<Character> Characters { get; set; }
     }
 }
