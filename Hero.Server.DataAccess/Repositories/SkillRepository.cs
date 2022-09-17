@@ -23,6 +23,7 @@ namespace Hero.Server.DataAccess.Repositories
             this.context = context;
             this.logger = logger;
         }
+
         public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
         {
             try

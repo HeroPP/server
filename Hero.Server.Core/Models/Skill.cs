@@ -27,7 +27,7 @@ namespace Hero.Server.Core.Models
         public double DodgeBoost { get; set; }
         public Ability Ability { get; set; }
 
-        public List<Node>? InNodes { get; set; }
+        public List<Node>? Nodes { get; set; }
         public void Update(Skill skill)
         {
             this.IconUrl= skill.IconUrl;

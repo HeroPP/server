@@ -17,10 +17,10 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.HasKey(x => x.Id);
 
             builder
-    .HasOne(node => node.Skill)
-    .WithMany(skill => skill.InNodes)
-    .HasForeignKey(node => node.SkillId)
-    .OnDelete(DeleteBehavior.SetNull);
+                .HasOne(node => node.Skill)
+                .WithMany(skill => skill.Nodes)
+                .HasForeignKey(node => node.SkillId)
+                .OnDelete(DeleteBehavior.Restrict);
             builder.Property(n => n.Importance).IsRequired();
             builder.Property(n => n.Cost).IsRequired();
             builder.Property(n => n.XPos).IsRequired();

@@ -22,7 +22,6 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-
         public async Task CreateNodeAsync(Node node, CancellationToken cancellationToken = default)
         {
             try
@@ -56,7 +55,6 @@ namespace Hero.Server.DataAccess.Repositories
                 throw;
             }
         }
-
 
         public async Task UpdateNodeAsync(Guid id,Node updatedNode, CancellationToken cancellationToken = default)
         {

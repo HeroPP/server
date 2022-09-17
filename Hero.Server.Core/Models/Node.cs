@@ -39,8 +39,6 @@ namespace Hero.Server.Core.Models
         {
             this.Importance = node.Importance;
             this.Cost = node.Cost;
-            //this.XPos = node.XPos;
-            //this.YPos = node.YPos;
             this.Color = node.Color;
             this.IsUnlocked = node.IsUnlocked;
             this.IsEasyReachable = node.IsEasyReachable;

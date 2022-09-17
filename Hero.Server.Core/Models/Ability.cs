@@ -16,8 +16,8 @@ namespace Hero.Server.Core.Models
         public bool IsPassive { get; set; }
         public string Description { get; set; }
         public List<Skill>? Skills { get; set; }
-
         public Character? Character { get; set; }
+
         public void Update(Ability ability)
         {
             this.IsPassive= ability.IsPassive;

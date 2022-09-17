@@ -20,7 +20,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .HasOne(skill => skill.Ability)
                 .WithMany(ability => ability.Skills)
                 .HasForeignKey(skill => skill.AbilityId)
-    .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

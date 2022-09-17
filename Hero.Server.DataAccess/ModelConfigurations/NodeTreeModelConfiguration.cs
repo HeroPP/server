@@ -20,10 +20,10 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(c => c.Name).IsRequired();
             builder.Property(c => c.Points).IsRequired();
             builder
-.HasMany(nodeTree => nodeTree.AllNodes)
-.WithOne(node => node.NodeTree)
-.HasForeignKey(node => node.NodeTreeId)
-.OnDelete(DeleteBehavior.SetNull);
+                .HasMany(nodeTree => nodeTree.AllNodes)
+                .WithOne(node => node.NodeTree)
+                .HasForeignKey(node => node.NodeTreeId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

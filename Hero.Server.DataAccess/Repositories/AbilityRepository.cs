@@ -23,7 +23,6 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-
         public async Task CreateAbilityAsync(Ability ability, CancellationToken cancellationToken = default)
         {
             try
