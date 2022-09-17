@@ -6,13 +6,3 @@ services:
     build:
       context: .
       dockerfile: Hero.Server/Dockerfile
-  db:
-    container_name: postgres
-    image: postgis/postgis:alpine
-    restart: unless-stopped
-    environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_PASSWORD=postgres
-    ports:
-      - "5432:5432"
