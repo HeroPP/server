@@ -7,7 +7,16 @@ namespace Hero.Server.DataAccess.Database
     {
         public HeroDbContext CreateDbContext(string[] args)
         {
-            string connectionString = args[0];
+            string connectionString;
+            if (0 == args.Length)
+            {
+                connectionString = Environment.GetEnvironmentVariable("ConnectionString__Default");
+            }
+            else
+            {
+                connectionString = args[0];
+            }
+
             if (null == connectionString)
             {
                 throw new ArgumentNullException("Connection string has to be passed as the first argument.");

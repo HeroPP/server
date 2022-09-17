@@ -1,11 +1,6 @@
 ﻿using Hero.Server.Core.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hero.Server.DataAccess.ModelConfigurations
 {
@@ -16,6 +11,8 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.ToTable("NodeTrees");
             builder.HasKey(x => x.Id);
             builder.Property(c => c.Id).HasMaxLength(100);
+            
+            builder.Property(c => c.IsActiveTree).HasDefaultValue(false);
 
             builder.Property(c => c.Name).IsRequired();
             builder.Property(c => c.Points).IsRequired();

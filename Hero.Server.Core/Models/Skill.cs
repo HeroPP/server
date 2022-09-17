@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hero.Server.Core.Models
+﻿namespace Hero.Server.Core.Models
 {
     public class Skill
     {
         public Guid Id { get; set; }
-        public Guid? AbilityId { get; set; }
+        public String AbilityName { get; set; }
         public string IconUrl { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
