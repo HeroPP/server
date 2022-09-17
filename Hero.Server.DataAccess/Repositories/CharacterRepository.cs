@@ -32,6 +32,15 @@ namespace Hero.Server.DataAccess.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+
+        public async Task<Character?> GetCharacterByIdAsync(Guid id, CancellationToken? cancellationToken = default)
+        {
+            return await this.context.Characters
+                .Include(c => c.Abilities)
+                .Include(c => c.NodeTrees)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         public async Task CreateCharacterAsync(Character character, CancellationToken cancellationToken = default)
         {
             try

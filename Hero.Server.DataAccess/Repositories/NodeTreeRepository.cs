@@ -3,7 +3,6 @@ using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Hero.Server.DataAccess.Repositories
