@@ -31,13 +31,13 @@ namespace Hero.Server.Core.Extensions
 
             return character.Resistance + unlockedSkills.Sum(skill => skill.ResistanceBoost);
         }
+
         public static double GetActualOpticalRange(this Character character)
         {
             List<Skill> unlockedSkills = character.GetUnlockedSkills();
 
             return character.OpticalRange + unlockedSkills.Sum(skill => skill.OpticalRangeBoost);
         }
-
 
         public static double GetTotalDamageBoost(this Character character)
         {
@@ -80,7 +80,6 @@ namespace Hero.Server.Core.Extensions
 
             return character.Dodge + unlockedSkills.Sum(skill => skill.DodgeBoost);
         }
-
 
         public static List<Skill> GetUnlockedSkills(this Character character)
         {

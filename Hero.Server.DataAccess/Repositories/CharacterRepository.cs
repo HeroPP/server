@@ -37,7 +37,6 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Characters.ToListAsync(cancellationToken);
         }
 
-
         public async Task<Character?> GetCharacterNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
             return await this.context.Characters
@@ -74,7 +73,6 @@ namespace Hero.Server.DataAccess.Repositories
                     this.logger.LogCharacterDoesNotExist(id);
                     return;
                 }
-
                 this.context.Characters.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -107,7 +105,5 @@ namespace Hero.Server.DataAccess.Repositories
                 throw;
             }
         }
-
-
     }
 }

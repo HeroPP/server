@@ -49,7 +49,6 @@ namespace Hero.Server.Controllers
                 List<Character> characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
 
                 return characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList();
-
             });
         }
 
