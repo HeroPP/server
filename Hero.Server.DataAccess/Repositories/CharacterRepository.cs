@@ -19,7 +19,7 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        private async Task<Character?> GetCharacterById(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Character?> GetCharacterByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Characters.FindAsync(new object[] { id }, cancellationToken);
         }
@@ -30,6 +30,22 @@ namespace Hero.Server.DataAccess.Repositories
                 .Characters
                 .Where(c => c.UserId == userId)
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<Character>> GetAllCharactersAsync(CancellationToken cancellationToken = default)
+        {
+            return await this.context.Characters.ToListAsync(cancellationToken);
+        }
+
+        public async Task<Character?> GetCharacterNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
+        {
+            return await this.context.Characters
+                .Include(c => c.Abilities)
+                .Include(c => c.NodeTrees)
+                .ThenInclude(t => t.AllNodes)
+                .ThenInclude(n => n.Skill)
+                //.ThenInclude(s => s.Ability)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task CreateCharacterAsync(Character character, CancellationToken cancellationToken = default)
@@ -50,14 +66,13 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Character? existing = await this.GetCharacterById(id, cancellationToken);
+                Character? existing = await this.GetCharacterByIdAsync(id, cancellationToken);
 
                 if(null == existing)
                 {
                     this.logger.LogCharacterDoesNotExist(id);
                     return;
                 }
-
                 this.context.Characters.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -72,7 +87,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Character? existing = await this.GetCharacterById(id, cancellationToken);
+                Character? existing = await this.GetCharacterByIdAsync(id, cancellationToken);
 
                 if (null == existing)
                 {

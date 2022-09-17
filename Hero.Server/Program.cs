@@ -7,6 +7,7 @@ builder.Services.AddDataAccessLayer(builder.Configuration.GetConnectionString("D
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(Program));
 
 WebApplication app = builder.Build();
 
