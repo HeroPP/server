@@ -3,7 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>cc620a52-9e7b-4354-b0a9-a7a3d228506f</ProjectGuid>
+    <ProjectGuid>e819f360-e86c-4210-b5ed-38c6a7bce8a5</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>hero.server</DockerServiceName>

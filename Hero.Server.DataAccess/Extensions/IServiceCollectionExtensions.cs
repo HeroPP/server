@@ -14,7 +14,6 @@ namespace Hero.Server.DataAccess.Extensions
             services.AddDbContext<HeroDbContext>(
                 options => options.UseNpgsql(connectionString, pgOptions => pgOptions.MigrationsHistoryTable(HeroDbResources.MigrationsTable, HeroDbResources.Schema)));
 
-            // ToDo: Add Repositiories
             services.AddTransient<IAbilityRepository, AbilityRepository>();
             services.AddTransient<ICharacterRepository, CharacterRepository>();
             services.AddTransient<INodeRepository, NodeRepository>();

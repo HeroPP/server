@@ -10,7 +10,7 @@ namespace Hero.Server.DataAccess.Database
             string connectionString;
             if (0 == args.Length)
             {
-                connectionString = Environment.GetEnvironmentVariable("ConnectionString__Default");
+                connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__Default");
             }
             else
             {

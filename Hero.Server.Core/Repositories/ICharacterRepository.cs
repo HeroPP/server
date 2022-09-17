@@ -10,5 +10,6 @@ namespace Hero.Server.Core.Repositories
         Task DeleteCharacterAsync(Guid id, CancellationToken cancellationToken = default);
         Task<Character?> GetCharacterByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<List<Character>?> GetAllCharactersAsync(CancellationToken cancellationToken = default);
+        Task<Character?> GetCharacterWithNestedByIdAsync(Guid id, CancellationToken? cancellationToken = null);
     }
 }

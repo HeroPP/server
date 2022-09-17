@@ -37,7 +37,7 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Characters.ToListAsync(cancellationToken);
         }
 
-        public async Task<Character?> GetCharacterNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
+        public async Task<Character?> GetCharacterWithNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
             return await this.context.Characters
                 .Include(c => c.Abilities)
