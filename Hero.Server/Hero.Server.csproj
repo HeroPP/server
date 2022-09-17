@@ -20,4 +20,9 @@
     <ProjectReference Include="..\Hero.Server.DataAccess\Hero.Server.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Hero.Server.Core\Hero.Server.Core.csproj" />
+    <ProjectReference Include="..\Hero.Server.DataAccess\Hero.Server.DataAccess.csproj" />
+  </ItemGroup>
+
 </Project>

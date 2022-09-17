@@ -1,11 +1,7 @@
 ﻿using Hero.Server.Core.Models;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hero.Server.DataAccess.ModelConfigurations
 {
@@ -19,7 +15,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder
                 .HasOne(skill => skill.Ability)
                 .WithMany(ability => ability.Skills)
-                .HasForeignKey(skill => skill.AbilityId)
+                .HasForeignKey(skill => skill.AbilityName)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }

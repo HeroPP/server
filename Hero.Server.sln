@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hero.Server", "Hero.Server\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hero.Server.Core", "Hero.Server.Core\Hero.Server.Core.csproj", "{871522D5-F0FE-4F5C-8F28-2E8556B2875C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hero.Server.DataAccess", "Hero.Server.DataAccess\Hero.Server.DataAccess.csproj", "{AC50DA65-ECF9-4D3B-808D-13DD4D2BA0AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hero.Server.DataAccess", "Hero.Server.DataAccess\Hero.Server.DataAccess.csproj", "{AC50DA65-ECF9-4D3B-808D-13DD4D2BA0AE}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{CC620A52-9E7B-4354-B0A9-A7A3D228506F}"
 EndProject

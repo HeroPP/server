@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Hero.Server.Core.Models
+﻿namespace Hero.Server.Core.Models
 {
     public class NodeTree
     {
         public Guid Id { get; set; }
         public Guid? CharacterId { get; set; }
         public string Name { get; set; }
+        public bool IsActiveTree { get; set; }
         public int Points { get; set; }
         public List<Node> AllNodes { get; set; }
         public Character? Character { get; set; }
@@ -19,6 +14,7 @@ namespace Hero.Server.Core.Models
         {
             this.Name = nodeTree.Name;
             this.Points = nodeTree.Points;
+            this.IsActiveTree = nodeTree.IsActiveTree;
         }
     }
 }
