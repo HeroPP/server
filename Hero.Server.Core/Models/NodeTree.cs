@@ -8,21 +8,17 @@ namespace Hero.Server.Core.Models
 {
     public class NodeTree
     {
-        /// <summary>
-        /// Unique ID of the NodeTree
-        /// </summary>
         public Guid Id { get; set; }
-        /// <summary>
-        /// The Name of the NodeTree
-        /// </summary>
+        public Guid? CharacterId { get; set; }
         public string Name { get; set; }
-        /// <summary>
-        /// Available Points in this NodeTree
-        /// </summary>
         public int Points { get; set; }
-        /// <summary>
-        /// List of all Nodes the Tree has.
-        /// </summary>
-        public List<Guid> AllNodes { get; set; }
+        public List<Node> AllNodes { get; set; }
+        public Character? Character { get; set; }
+
+        public void Update(NodeTree nodeTree)
+        {
+            this.Name = nodeTree.Name;
+            this.Points = nodeTree.Points;
+        }
     }
 }
