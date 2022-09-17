@@ -10,6 +10,10 @@ namespace Hero.Server.DataAccess.Database
 
         public DbSet<User> Users { get; set; }
         public DbSet<Character> Characters { get; set; }
+        public DbSet<Ability> Abilities { get; set; }
+        public DbSet<Skill> Skills { get; set; }
+        public DbSet<Node> Nodes { get; set; }
+        public DbSet<NodeTree> NodeTrees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

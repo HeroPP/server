@@ -22,7 +22,21 @@ namespace Hero.Server.Core.ModelConfigurations
             builder.Property(c => c.OpticalRange).IsRequired();
             builder.Property(c => c.Parry).IsRequired();
             builder.Property(c => c.Dodge).IsRequired();
-
+            builder
+        .HasMany(charakter => charakter.NodeTrees)
+        .WithOne(nodeTree => nodeTree.Character)
+        .HasForeignKey(nodeTree => nodeTree.CharacterId)
+        .OnDelete(DeleteBehavior.SetNull);
+            builder
+.HasMany(charakter => charakter.ActiveNodeTrees)
+.WithOne(nodeTree => nodeTree.Character)
+.HasForeignKey(nodeTree => nodeTree.CharacterId)
+.OnDelete(DeleteBehavior.SetNull);
+            builder
+.HasMany(charakter => charakter.Abilities)
+.WithOne(ability => ability.Character)
+.HasForeignKey(ability => ability.CharacterId)
+.OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

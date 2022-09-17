@@ -17,6 +17,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .WithOne(character => character.User)
                 .HasForeignKey(character => character.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
         }
     }
 }

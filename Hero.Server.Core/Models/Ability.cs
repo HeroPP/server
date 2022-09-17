@@ -8,22 +8,20 @@ namespace Hero.Server.Core.Models
 {
     public class Ability
     {
-        /// <summary>
-        /// Unique ID of the Ability
-        /// </summary>
-        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public Guid? CharacterId { get; set; }
         /// <summary>
         /// Indicates if the Ability is a passive Ability or one that can be actively used.
         /// </summary>
         public bool IsPassive { get; set; }
-        /// <summary>
-        /// Name of the Ability
-        /// </summary>
-        public string Name { get; set; }
-        /// <summary>
-        /// Describes the Effekt of the specific Ability. Under which conditions it can be used etc.
-        /// </summary>
         public string Description { get; set; }
+        public List<Skill>? Skills { get; set; }
 
+        public Character? Character { get; set; }
+        public void Update(Ability ability)
+        {
+            this.IsPassive= ability.IsPassive;
+            this.Description= ability.Description;
+        }
     }
 }
