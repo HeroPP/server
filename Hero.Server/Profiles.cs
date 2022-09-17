@@ -13,6 +13,7 @@ namespace Hero.Server
             this.CreateMap<CreateCharacterRequest, Character>();
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
+            this.CreateMap<Ability, AbilityResponse>();
         }
     }
 }

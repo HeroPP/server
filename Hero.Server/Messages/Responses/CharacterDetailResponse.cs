@@ -27,6 +27,5 @@ namespace Hero.Server.Messages.Responses
         public double DamageBuff { get; set; }
         public double Parry { get; set; }
         public double Dodge { get; set; }
-        public List<AbilityInfo> Abilities { get; set; }
     }
 }

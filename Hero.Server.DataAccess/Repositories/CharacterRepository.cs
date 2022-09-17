@@ -40,7 +40,6 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Character?> GetCharacterNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
             return await this.context.Characters
-                .Include(c => c.Abilities)
                 .Include(c => c.NodeTrees)
                 .ThenInclude(t => t.AllNodes)
                 .ThenInclude(n => n.Skill)

@@ -37,7 +37,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Skill? existing = await this.context.Skills.FindAsync(new object[] { id }, cancellationToken);
+                Skill? existing = await GetSkillByIdAsync(id, cancellationToken);
                 if (null == existing)
                 {
                     this.logger.LogSkillDoesNotExist(id);
@@ -58,11 +58,16 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Skills.ToListAsync(cancellationToken);
         }
 
+        public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await this.context.Skills.FindAsync(new object[] { id }, cancellationToken);
+        }
+
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, CancellationToken cancellationToken = default)
         {
             try
             {
-                Skill? existing = await this.context.Skills.FindAsync(new object[] { id }, cancellationToken);
+                Skill? existing = await GetSkillByIdAsync(id, cancellationToken);
 
                 if (null == existing)
                 {
