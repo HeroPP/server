@@ -3,9 +3,9 @@ using Hero.Server.Core.Models;
 
 namespace Hero.Server.Messages.Responses
 {
-    public class CharacterInfo
+    public class CharacterDetailResponse
     {
-        public CharacterInfo(Character character)
+        public CharacterDetailResponse(Character character)
         {
             this.Id = character.Id;
             this.Name = character.Name;
