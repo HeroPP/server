@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hero.Server.Core.Models;
 using Hero.Server.DataAccess.Repositories;
+using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                List<Ability> abilities = (await this.repository.GetAllAbilitiesAsync()).ToList();
+                List<Ability> abilities = (await this.repository.GetAllAbilitiesAsync(this.HttpContext.User.GetUserId())).ToList();
 
                 return abilities.Select(ability => this.mapper.Map<AbilityResponse>(ability)).ToList();
             });
@@ -52,7 +53,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteAbilityAsync(name);
+                await this.repository.DeleteAbilityAsync(name, this.HttpContext.User.GetUserId());
             });
         }
 
@@ -62,7 +63,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
-                await this.repository.UpdateAbilityAsync(name, ability);
+                await this.repository.UpdateAbilityAsync(name, ability, this.HttpContext.User.GetUserId());
             });
         }
 
@@ -72,7 +73,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
-                await this.repository.CreateAbilityAsync(ability);
+                await this.repository.CreateAbilityAsync(ability, this.HttpContext.User.GetUserId());
 
                 return this.mapper.Map<AbilityResponse>(ability);
             });
