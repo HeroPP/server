@@ -4,11 +4,12 @@ using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Route("api/[controller]")]
+    [ApiController, Authorize(Roles = RoleNames.Administrator), Route("api/[controller]")]
     public class AbilitiesController : HeroControllerBase
     {
         private readonly IAbilityRepository repository;
