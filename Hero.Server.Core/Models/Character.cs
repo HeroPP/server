@@ -20,8 +20,6 @@
         public double Dodge { get; set; }
         public List<Ability> Abilities { get; set; }
 
-        public User? User { get; set; }
-
         public void Update(Character updated)
         {
             this.Name = updated.Name;

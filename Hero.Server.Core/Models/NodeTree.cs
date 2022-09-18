@@ -8,7 +8,6 @@
         public bool IsActiveTree { get; set; }
         public int Points { get; set; }
         public List<Node> AllNodes { get; set; }
-        public Character? Character { get; set; }
 
         public void Update(NodeTree nodeTree)
         {
