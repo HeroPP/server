@@ -19,10 +19,11 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
+        public async Task CreateSkillAsync(Skill skill, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
+                skill.UserId = userId;
                 await this.context.Skills.AddAsync(skill, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -33,7 +34,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteSkillAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task DeleteSkillAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -53,23 +54,23 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<IEnumerable<Skill>> GetAllSkillsAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Skill>> GetAllSkillsAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.ToListAsync(cancellationToken);
+            return await this.context.Skills.Where(s => s.UserId == userId).ToListAsync(cancellationToken);
         }
 
         public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Skills.FindAsync(new object[] { id }, cancellationToken);
         }
-
-        public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, CancellationToken cancellationToken = default)
+        
+        public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
                 Skill? existing = await GetSkillByIdAsync(id, cancellationToken);
 
-                if (null == existing)
+                if (null == existing || existing.UserId != userId)
                 {
                     throw new Exception($"The Skill (id: {id}) you're trying to update does not exist.");
                 }

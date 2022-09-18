@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 
 using Hero.Server.Core.Models;
-using Hero.Server.DataAccess.Repositories;
+using Hero.Server.Core.Repositories;
+using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
@@ -10,14 +11,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Authorize(Roles = "Hero,Hero Administrator"), Route("api/[controller]")]
+    [ApiController, Authorize(Roles = RoleNames.User), Route("api/[controller]")]
     public class CharactersController : HeroControllerBase
     {
-        private readonly CharacterRepository repository;
+        private readonly ICharacterRepository repository;
         private readonly IMapper mapper;
         private readonly ILogger<CharactersController> logger;
 
-        public CharactersController(CharacterRepository repository, IMapper mapper, ILogger<CharactersController> logger)
+        public CharactersController(ICharacterRepository repository, IMapper mapper, ILogger<CharactersController> logger)
         {
             this.repository = repository;
             this.mapper = mapper;
@@ -29,7 +30,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Character? character = await this.repository.GetCharacterNestedByIdAsync(id);
+                Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id);
                 if (character != null)
                 {
                     return new CharacterDetailResponse(character);
@@ -40,24 +41,21 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet]
-        public Task<Response<List<CharacterOverviewResponse>>> GetUserCharacterOverviewsAsync()
+        public Task<Response<List<CharacterOverviewResponse>>> GetCharacterOverviewsAsync()
         {
             return this.HandleExceptions(async () =>
             {
-                //Todo getCurrentUser
-                Guid userId = Guid.NewGuid();
-                List<Character> characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
-
-                return characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList();
-            });
-        }
-
-        [HttpGet]
-        public Task<Response<List<CharacterOverviewResponse>>> GetAllCharacterOverviewsAsync()
-        {
-            return this.HandleExceptions(async () =>
-            {
-                List<Character> characters = (await this.repository.GetAllCharactersAsync()).ToList();
+                List<Character> characters;
+                bool isAdministrator = this.HttpContext.User.IsInRole(RoleNames.Administrator);
+                if (isAdministrator)
+                {
+                    characters = await this.repository.GetAllCharactersAsync();
+                }
+                else
+                {
+                    Guid userId = this.HttpContext.User.GetUserId();
+                    characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
+                }
 
                 return characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList();
             });
@@ -68,7 +66,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteCharacterAsync(id);
+                await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId());
             });
         }
 
@@ -78,7 +76,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
-                await this.repository.UpdateCharacterAsync(id, character);
+                await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId());
             });
         }
 
@@ -88,7 +86,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
-                await this.repository.CreateCharacterAsync(character);
+                await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId());
 
                 return this.mapper.Map<CreateCharacterResponse>(character);
             });

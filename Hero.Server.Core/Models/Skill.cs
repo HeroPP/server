@@ -3,6 +3,7 @@
     public class Skill
     {
         public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public String? AbilityName { get; set; }
         public string IconUrl { get; set; }
         public string Name { get; set; }
@@ -20,7 +21,6 @@
         public double DodgeBoost { get; set; }
         public Ability Ability { get; set; }
 
-        public List<Node>? Nodes { get; set; }
         public void Update(Skill skill)
         {
             this.IconUrl= skill.IconUrl;

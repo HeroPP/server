@@ -24,7 +24,7 @@ namespace Hero.Server.Core.ModelConfigurations
             builder.Property(c => c.Dodge).IsRequired();
             builder
                 .HasMany(charakter => charakter.NodeTrees)
-                .WithOne(nodeTree => nodeTree.Character)
+                .WithOne()
                 .HasForeignKey(nodeTree => nodeTree.CharacterId)
                 .OnDelete(DeleteBehavior.SetNull);
         }

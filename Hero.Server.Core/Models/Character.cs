@@ -19,8 +19,6 @@
         public double Parry { get; set; }
         public double Dodge { get; set; }
 
-        public User? User { get; set; }
-
         public void Update(Character updated)
         {
             this.Name = updated.Name;

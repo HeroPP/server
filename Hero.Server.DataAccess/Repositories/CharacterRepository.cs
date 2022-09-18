@@ -37,7 +37,7 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Characters.ToListAsync(cancellationToken);
         }
 
-        public async Task<Character?> GetCharacterNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
+        public async Task<Character?> GetCharacterWithNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
             return await this.context.Characters
                 .Include(c => c.NodeTrees)
@@ -47,10 +47,12 @@ namespace Hero.Server.DataAccess.Repositories
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task CreateCharacterAsync(Character character, CancellationToken cancellationToken = default)
+        public async Task CreateCharacterAsync(Character character, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
+                character.UserId = userId;
+
                 await this.context.Characters.AddAsync(character, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -61,13 +63,13 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteCharacterAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task DeleteCharacterAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
                 Character? existing = await this.GetCharacterByIdAsync(id, cancellationToken);
 
-                if(null == existing)
+                if(null == existing || userId != existing.UserId)
                 {
                     this.logger.LogCharacterDoesNotExist(id);
                     return;
@@ -82,13 +84,13 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdateCharacterAsync(Guid id, Character updatedCharacter, CancellationToken cancellationToken = default)
+        public async Task UpdateCharacterAsync(Guid id, Character updatedCharacter, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
                 Character? existing = await this.GetCharacterByIdAsync(id, cancellationToken);
 
-                if (null == existing)
+                if (null == existing || userId != existing.UserId)
                 {
                     throw new Exception($"The character (id: {id}) you're trying to update does not exist.");
                 }
