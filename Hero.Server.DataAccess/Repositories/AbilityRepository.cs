@@ -38,7 +38,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Ability? existing = await GetAbilityByNameAsync(name, cancellationToken);
+                Ability? existing = await this.GetAbilityByNameAsync(name, cancellationToken);
                 if(null == existing || userId != existing.UserId)
                 {
                     this.logger.LogAbilityDoesNotExist(name);
@@ -68,7 +68,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Ability? existing = await GetAbilityByNameAsync(name, cancellationToken);
+                Ability? existing = await this.GetAbilityByNameAsync(name, cancellationToken);
 
                 if (null == existing || userId != existing.UserId)
                 {

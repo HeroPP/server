@@ -38,7 +38,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Skill? existing = await GetSkillByIdAsync(id, cancellationToken);
+                Skill? existing = await this.GetSkillByIdAsync(id, cancellationToken);
                 if (null == existing)
                 {
                     this.logger.LogSkillDoesNotExist(id);
@@ -68,7 +68,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Skill? existing = await GetSkillByIdAsync(id, cancellationToken);
+                Skill? existing = await this.GetSkillByIdAsync(id, cancellationToken);
 
                 if (null == existing || existing.UserId != userId)
                 {
