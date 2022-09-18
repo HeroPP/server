@@ -18,7 +18,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(c => c.Points).IsRequired();
             builder
                 .HasMany(nodeTree => nodeTree.AllNodes)
-                .WithOne(node => node.NodeTree)
+                .WithOne()
                 .HasForeignKey(node => node.NodeTreeId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

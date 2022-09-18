@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hero.Server.DataAccess.Repositories
 {
-    internal class AbilityRepository : IAbilityRepository
+    public class AbilityRepository : IAbilityRepository
     {
         private readonly HeroDbContext context;
         private readonly ILogger<AbilityRepository> logger;
@@ -38,7 +38,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Ability? existing = await this.context.Abilities.FindAsync(new object[] { name }, cancellationToken);
+                Ability? existing = await this.GetAbilityByNameAsync(name, cancellationToken);
                 if(null == existing || userId != existing.UserId)
                 {
                     this.logger.LogAbilityDoesNotExist(name);
@@ -59,11 +59,16 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Abilities.Where(a => a.UserId == userId).ToListAsync(cancellationToken);
         }
 
+        public async Task<Ability?> GetAbilityByNameAsync(string name, CancellationToken cancellationToken = default)
+        {
+            return await this.context.Abilities.FindAsync(new object[] { name }, cancellationToken);
+        }
+
         public async Task UpdateAbilityAsync(string name, Ability updatedAbility, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
-                Ability? existing = await this.context.Abilities.FindAsync(new object[] { name }, cancellationToken);
+                Ability? existing = await this.GetAbilityByNameAsync(name, cancellationToken);
 
                 if (null == existing || userId != existing.UserId)
                 {
