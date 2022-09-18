@@ -14,6 +14,7 @@
             this.Name = nodeTree.Name;
             this.Points = nodeTree.Points;
             this.IsActiveTree = nodeTree.IsActiveTree;
+            this.AllNodes = nodeTree.AllNodes;
         }
     }
 }
