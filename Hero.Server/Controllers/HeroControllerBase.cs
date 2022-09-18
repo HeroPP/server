@@ -41,7 +41,7 @@ namespace Hero.Server.Controllers
             {
                 response.AddError(ex.ErrorCode, ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 response.AddError((int)EventIds.UnknownErrorOccured, "An unknown error occured, please try again later");
             }
