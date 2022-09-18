@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Authorize(Roles = "Hero"), Route("api/[controller]")]
+    [ApiController, Authorize(Roles = RoleNames.User), Route("api/[controller]")]
     public class CharactersController : HeroControllerBase
     {
         private readonly ICharacterRepository repository;
@@ -45,24 +45,21 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Guid userId = this.HttpContext.User.GetUserId();
-
-                List<Character> characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
+                List<Character> characters;
+                bool isAdministrator = this.HttpContext.User.IsInRole(RoleNames.Administrator);
+                if (isAdministrator)
+                {
+                    characters = await this.repository.GetAllCharactersAsync();
+                }
+                else
+                {
+                    Guid userId = this.HttpContext.User.GetUserId();
+                    characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
+                }
 
                 return characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList();
             });
         }
-
-        //[HttpGet]
-        //public Task<Response<List<CharacterOverviewResponse>>> GetAllCharacterOverviewsAsync()
-        //{
-        //    return this.HandleExceptions(async () =>
-        //    {
-        //        List<Character> characters = (await this.repository.GetAllCharactersAsync()).ToList();
-
-        //        return characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList();
-        //    });
-        //}
 
         [HttpDelete("{id}")]
         public Task<Response> DeleteCharacterAsync(Guid id)
