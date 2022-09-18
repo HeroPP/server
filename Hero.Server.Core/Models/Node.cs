@@ -25,7 +25,6 @@
         public bool IsEasyReachable { get; set; }
         public List<Guid> Precessors { get; set; }
         public List<Guid> Successors { get; set; }
-        public NodeTree? NodeTree { get; set; }
 
         public void Update(Node node)
         {

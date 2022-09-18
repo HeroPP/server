@@ -18,7 +18,6 @@
         //public double DamageBuff { get; set; }
         public double Parry { get; set; }
         public double Dodge { get; set; }
-        public List<Ability> Abilities { get; set; }
 
         public void Update(Character updated)
         {
