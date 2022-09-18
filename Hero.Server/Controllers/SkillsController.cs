@@ -7,6 +7,7 @@ using Hero.Server.Messages.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace Hero.Server.Controllers
 {
