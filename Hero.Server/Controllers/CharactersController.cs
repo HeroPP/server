@@ -41,7 +41,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet]
-        public Task<Response<List<CharacterOverviewResponse>>> GetUserCharacterOverviewsAsync()
+        public Task<Response<List<CharacterOverviewResponse>>> GetCharacterOverviewsAsync()
         {
             return this.HandleExceptions(async () =>
             {
@@ -66,7 +66,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteCharacterAsync(id);
+                await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId());
             });
         }
 
@@ -76,7 +76,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
-                await this.repository.UpdateCharacterAsync(id, character);
+                await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId());
             });
         }
 
@@ -86,7 +86,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
-                await this.repository.CreateCharacterAsync(character);
+                await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId());
 
                 return this.mapper.Map<CreateCharacterResponse>(character);
             });
