@@ -11,17 +11,19 @@ namespace Hero.Server.DataAccess.Repositories
     public class AbilityRepository : IAbilityRepository
     {
         private readonly HeroDbContext context;
+        private readonly IUserRepository userRepository;
         private readonly ILogger<AbilityRepository> logger;
 
-        public AbilityRepository(HeroDbContext context, ILogger<AbilityRepository> logger)
+        public AbilityRepository(HeroDbContext context, IUserRepository userRepository, ILogger<AbilityRepository> logger)
         {
             this.context = context;
+            this.userRepository = userRepository;
             this.logger = logger;
         }
 
         public async Task<Ability?> GetAbilityByNameAsync(string name, Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.context.Users.FindAsync(userId);
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
             return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(g => g.Name == name, cancellationToken);
         }
 
@@ -29,7 +31,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                User? user = await this.context.Users.FindAsync(userId);
+                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
                 if (null != user)
                 {
                     ability.GroupId = user.OwnedGroup.Id;
@@ -67,7 +69,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Ability>> GetAllAbilitiesAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.context.Users.FindAsync(userId);
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
             return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
         }
 

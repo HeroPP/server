@@ -11,17 +11,19 @@ namespace Hero.Server.DataAccess.Repositories
     public class SkillRepository : ISkillRepository
     {
         private readonly HeroDbContext context;
+        private readonly IUserRepository userRepository;
         private readonly ILogger<SkillRepository> logger;
 
-        public SkillRepository(HeroDbContext context, ILogger<SkillRepository> logger)
+        public SkillRepository(HeroDbContext context, IUserRepository userRepository, ILogger<SkillRepository> logger)
         {
             this.context = context;
+            this.userRepository = userRepository;
             this.logger = logger;
         }
 
         public async Task<Skill?> GetSkillByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.context.Users.FindAsync(userId, cancellationToken);   
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
 
             return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
@@ -30,7 +32,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                User? user = await this.context.Users.FindAsync(userId, cancellationToken);
+                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
                 if (null != user)
                 {
                     skill.GroupId = user.OwnedGroup.Id;
@@ -68,7 +70,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Skill>> GetAllSkillsAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.context.Users.FindAsync(userId, cancellationToken);
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
             return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
         }
 
