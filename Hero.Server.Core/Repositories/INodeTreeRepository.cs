@@ -7,5 +7,7 @@ namespace Hero.Server.Core.Repositories
         Task CreateNodeTreeAsync(NodeTree nodeTree, CancellationToken cancellationToken = default);
         Task UpdateNodeTreeAsync(Guid id, NodeTree updatedNodeTree, CancellationToken cancellationToken = default);
         Task DeleteNodeTreeAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<NodeTree?> GetNodeTreeByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<List<NodeTree>> GetAllNodeTreesOfCharacterAsync(Guid charId, CancellationToken cancellationToken = default);
     }
 }
