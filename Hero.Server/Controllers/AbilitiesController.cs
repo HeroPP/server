@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Hero.Server.Core.Models;
-using Hero.Server.DataAccess.Repositories;
+using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
@@ -11,11 +11,11 @@ namespace Hero.Server.Controllers
     [ApiController, Route("api/[controller]")]
     public class AbilitiesController : HeroControllerBase
     {
-        private readonly AbilityRepository repository;
+        private readonly IAbilityRepository repository;
         private readonly IMapper mapper;
         private readonly ILogger<AbilitiesController> logger;
 
-        public AbilitiesController(AbilityRepository repository, IMapper mapper, ILogger<AbilitiesController> logger)
+        public AbilitiesController(IAbilityRepository repository, IMapper mapper, ILogger<AbilitiesController> logger)
         {
             this.repository = repository;
             this.mapper = mapper;

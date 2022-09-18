@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Hero.Server.Core.Models;
-using Hero.Server.DataAccess.Repositories;
+using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
@@ -11,11 +11,11 @@ namespace Hero.Server.Controllers
     [ApiController, Route("api/[controller]")]
     public class SkillsController : HeroControllerBase
     {
-        private readonly SkillRepository repository;
+        private readonly ISkillRepository repository;
         private readonly IMapper mapper;
         private readonly ILogger<SkillsController> logger;
 
-        public SkillsController(SkillRepository repository, IMapper mapper, ILogger<SkillsController> logger)
+        public SkillsController(ISkillRepository repository, IMapper mapper, ILogger<SkillsController> logger)
         {
             this.repository = repository;
             this.mapper = mapper;
