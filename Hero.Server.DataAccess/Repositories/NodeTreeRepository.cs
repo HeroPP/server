@@ -2,7 +2,7 @@
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Hero.Server.DataAccess.Repositories
@@ -18,10 +18,25 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
+        public async Task<List<NodeTree>> GetAllNodeTreesOfCharacterAsync(Guid charId, CancellationToken cancellationToken = default)
+        {
+            return await this.context.NodeTrees.Where(c => c.CharacterId == charId).ToListAsync(cancellationToken);
+        }
+
+        public async Task<NodeTree?> GetNodeTreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await this.context.NodeTrees
+                .Include(c => c.AllNodes)
+                .ThenInclude(n => n.Skill)
+                .ThenInclude(s => s.Ability)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
         public async Task CreateNodeTreeAsync(NodeTree nodeTree, CancellationToken cancellationToken = default)
         {
             try
             {
+                nodeTree.Id = Guid.NewGuid();
                 await this.context.NodeTrees.AddAsync(nodeTree, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -65,6 +80,8 @@ namespace Hero.Server.DataAccess.Repositories
                     throw new Exception($"The nodeTree (id: {id}) you're trying to update does not exist.");
                 }
 
+                //Todo testen: Nodes löschen/updaten/einfügen Verhalten bezüglich NodeTree und DB.
+                existing.AllNodes.Clear();
                 existing.Update(updatedNodeTree);
 
                 this.context.NodeTrees.Update(existing);

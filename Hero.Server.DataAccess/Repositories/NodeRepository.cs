@@ -22,6 +22,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
+                node.Id = Guid.NewGuid();
                 await this.context.Nodes.AddAsync(node, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }

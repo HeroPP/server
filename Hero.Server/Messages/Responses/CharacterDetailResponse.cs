@@ -11,6 +11,16 @@ namespace Hero.Server.Messages.Responses
             this.Name = character.Name;
             this.Description = character.Description;
             this.HealthPoints = character.GetActualHealthPoints();
+            this.LightPoints = character.GetActualLightPoints();
+            this.MovementSpeed = character.GetActualMovementSpeed();
+            this.Resistance = character.GetActualResistance();
+            this.OpticalRange = character.GetActualOpticalRange();
+            this.MeleeDamageBuff = character.GetTotalMeleeDamageBoost();
+            this.RangeDamageBuff = character.GetTotalRangeDamageBoost();
+            this.LightDamageBuff = character.GetTotalLightDamageBoost();
+            this.DamageBuff = character.GetTotalDamageBoost();
+            this.Parry = character.GetActualParry();
+            this.Dodge = character.GetActualDodge();
         }
 
         public Guid Id { get; set; }
