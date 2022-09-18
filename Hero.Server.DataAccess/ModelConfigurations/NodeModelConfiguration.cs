@@ -14,7 +14,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
 
             builder
                 .HasOne(node => node.Skill)
-                .WithMany(skill => skill.Nodes)
+                .WithMany()
                 .HasForeignKey(node => node.SkillId)
                 .OnDelete(DeleteBehavior.Restrict);
             builder.Property(n => n.Importance).IsRequired();
