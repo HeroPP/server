@@ -4,78 +4,81 @@ using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Route("api/[controller]")]
+    [ApiController, Authorize(Roles = RoleNames.Administrator), Route("api/[controller]")]
     public class AbilitiesController : HeroControllerBase
     {
         private readonly IAbilityRepository repository;
         private readonly IMapper mapper;
-        private readonly ILogger<AbilitiesController> logger;
 
-        public AbilitiesController(IAbilityRepository repository, IMapper mapper, ILogger<AbilitiesController> logger)
+        public AbilitiesController(IAbilityRepository repository, IMapper mapper, ILogger<AbilitiesController> logger) 
+            : base(logger)
         {
             this.repository = repository;
             this.mapper = mapper;
-            this.logger = logger;
         }
 
         [HttpGet("{name}")]
-        public Task<Response<AbilityResponse?>> GetAbilityByIdAsync(string name)
+        public Task<IActionResult> GetAbilityByIdAsync(string name)
         {
             return this.HandleExceptions(async () =>
             {
-                Ability? ability = await this.repository.GetAbilityByNameAsync(name);
+                Ability? ability = await this.repository.GetAbilityByNameAsync(name, this.HttpContext.User.GetUserId());
                 if (ability != null)
                 {
-                    return this.mapper.Map<AbilityResponse>(ability);
+                    return this.Ok(this.mapper.Map<AbilityResponse>(ability));
                 }
 
-                return null;
+                return this.BadRequest();
             });
         }
 
         [HttpGet]
-        public Task<Response<List<AbilityResponse>>> GetAllAbilitiesAsync()
+        public Task<IActionResult> GetAllAbilitiesAsync()
         {
             return this.HandleExceptions(async () =>
             {
                 List<Ability> abilities = (await this.repository.GetAllAbilitiesAsync(this.HttpContext.User.GetUserId())).ToList();
 
-                return abilities.Select(ability => this.mapper.Map<AbilityResponse>(ability)).ToList();
+                return this.Ok(abilities.Select(ability => this.mapper.Map<AbilityResponse>(ability)).ToList());
             });
         }
 
         [HttpDelete("{name}")]
-        public Task<Response> DeleteAbilityAsync(string name)
+        public Task<IActionResult> DeleteAbilityAsync(string name)
         {
             return this.HandleExceptions(async () =>
             {
                 await this.repository.DeleteAbilityAsync(name, this.HttpContext.User.GetUserId());
+                return this.Ok();
             });
         }
 
         [HttpPut("{name}")]
-        public Task<Response> UpdateAbilityAsync(string name, [FromBody] CreateAbilityRequest request)
+        public Task<IActionResult> UpdateAbilityAsync(string name, [FromBody] CreateAbilityRequest request)
         {
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
                 await this.repository.UpdateAbilityAsync(name, ability, this.HttpContext.User.GetUserId());
+                return this.Ok();
             });
         }
 
         [HttpPost]
-        public Task<Response<AbilityResponse>> CreateAbilityAsync([FromBody] CreateAbilityRequest request)
+        public Task<IActionResult> CreateAbilityAsync([FromBody] CreateAbilityRequest request)
         {
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
                 await this.repository.CreateAbilityAsync(ability, this.HttpContext.User.GetUserId());
 
-                return this.mapper.Map<AbilityResponse>(ability);
+                return this.Ok(this.mapper.Map<AbilityResponse>(ability));
             });
         }
 

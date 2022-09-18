@@ -19,13 +19,25 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
+        public async Task<Skill?> GetSkillByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        {
+            User? user = await this.context.Users.FindAsync(userId, cancellationToken);   
+
+            return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+        }
+
         public async Task CreateSkillAsync(Skill skill, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
-                skill.UserId = userId;
-                await this.context.Skills.AddAsync(skill, cancellationToken);
-                await this.context.SaveChangesAsync(cancellationToken);
+                User? user = await this.context.Users.FindAsync(userId, cancellationToken);
+                if (null != user)
+                {
+                    skill.GroupId = user.OwnedGroup.Id;
+                    await this.context.Skills.AddAsync(skill, cancellationToken);
+                    await this.context.SaveChangesAsync(cancellationToken);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -38,7 +50,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                Skill? existing = await this.GetSkillByIdAsync(id, cancellationToken);
+                Skill? existing = await this.GetSkillByIdAsync(id, userId, cancellationToken);
                 if (null == existing)
                 {
                     this.logger.LogSkillDoesNotExist(id);
@@ -56,21 +68,18 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Skill>> GetAllSkillsAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.Where(s => s.UserId == userId).ToListAsync(cancellationToken);
+            User? user = await this.context.Users.FindAsync(userId, cancellationToken);
+            return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
         }
 
-        public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await this.context.Skills.FindAsync(new object[] { id }, cancellationToken);
-        }
         
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
-                Skill? existing = await this.GetSkillByIdAsync(id, cancellationToken);
+                Skill? existing = await this.GetSkillByIdAsync(id, userId, cancellationToken);
 
-                if (null == existing || existing.UserId != userId)
+                if (null == existing)
                 {
                     throw new Exception($"The Skill (id: {id}) you're trying to update does not exist.");
                 }

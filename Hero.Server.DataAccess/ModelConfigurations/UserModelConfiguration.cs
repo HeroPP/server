@@ -17,18 +17,6 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .WithOne()
                 .HasForeignKey(character => character.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
-
-            builder
-                .HasMany(user => user.Abilities)
-                .WithOne()
-                .HasForeignKey(ability => ability.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder
-                .HasMany(user => user.Skills)
-                .WithOne()
-                .HasForeignKey(skill => skill.UserId);
-
         }
     }
 }

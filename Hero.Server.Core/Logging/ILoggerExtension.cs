@@ -21,5 +21,8 @@ namespace Hero.Server.Core.Logging
         public static partial void LogNodeTreeDoesNotExist(this ILogger logger, Guid nodeTreeId);
         [LoggerMessage((int)EventIds.SkillDoesNotExist, LogLevel.Error, "The skill (id: {SkillId}) you're trying to delete does not exist.")]
         public static partial void LogSkillDoesNotExist(this ILogger logger, Guid skillId);
+
+        [LoggerMessage((int)EventIds.GroupCreated, LogLevel.Information, "The group {GroupName} was created successfully.")]
+        public static partial void LogGroupCreatedSuccessfully(this ILogger logger, string groupName);
     }
 }
