@@ -5,6 +5,7 @@ using Hero.Server.DataAccess.Database;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Xml.Linq;
 
 namespace Hero.Server.DataAccess.Repositories
 {
@@ -24,6 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 skill.UserId = userId;
+                skill.Id = Guid.NewGuid();
                 await this.context.Skills.AddAsync(skill, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }

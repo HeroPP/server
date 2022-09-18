@@ -52,7 +52,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 character.UserId = userId;
-
+                character.Id = Guid.NewGuid();
                 await this.context.Characters.AddAsync(character, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }

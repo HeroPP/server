@@ -36,6 +36,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
+                nodeTree.Id = Guid.NewGuid();
                 await this.context.NodeTrees.AddAsync(nodeTree, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -79,6 +80,8 @@ namespace Hero.Server.DataAccess.Repositories
                     throw new Exception($"The nodeTree (id: {id}) you're trying to update does not exist.");
                 }
 
+                //Todo testen: Nodes löschen/updaten/einfügen Verhalten bezüglich NodeTree und DB.
+                existing.AllNodes.Clear();
                 existing.Update(updatedNodeTree);
 
                 this.context.NodeTrees.Update(existing);
