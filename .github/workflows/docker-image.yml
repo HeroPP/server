@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
- IMAGE_NAME: server
-
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -18,7 +15,7 @@ jobs:
       with:
         file: Hero.Server/Dockerfile
         push: true
-        tags: ${IMAGE_NAME}:latest
+        tags: heropp/server:latest
         github-token:  ${{ github.token }}
 
       
