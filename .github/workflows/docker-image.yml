@@ -32,7 +32,7 @@ jobs:
       with:
         file: Hero.Server/Dockerfile
         push: true
-        tags: heropp/server:latest
-        github-token:  ${{ github.token }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
 
       
