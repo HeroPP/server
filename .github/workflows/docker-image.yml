@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Build and Publish Image
 
 on:
   push:
@@ -10,7 +10,6 @@ env:
  IMAGE_NAME: server
 
 jobs:
-
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -19,6 +18,7 @@ jobs:
       with:
         file: Hero.Server/Dockerfile
         push: true
+        tags: latest
         github-token:  ${{ github.token }}
 
       
