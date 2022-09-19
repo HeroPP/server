@@ -1,4 +1,6 @@
-﻿using Hero.Server.Core.Logging;
+﻿using Hero.Server.Core;
+using Hero.Server.Core.Exceptions;
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
@@ -11,11 +13,13 @@ namespace Hero.Server.DataAccess.Repositories
     public class CharacterRepository : ICharacterRepository
     {
         private readonly HeroDbContext context;
+        private readonly IUserRepository userRepository;
         private readonly ILogger<CharacterRepository> logger;
 
-        public CharacterRepository(HeroDbContext context, ILogger<CharacterRepository> logger)
+        public CharacterRepository(HeroDbContext context, IUserRepository userRepository, ILogger<CharacterRepository> logger)
         {
             this.context = context;
+            this.userRepository = userRepository;
             this.logger = logger;
         }
 
@@ -51,8 +55,17 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                character.UserId = userId;
-                character.Id = Guid.NewGuid();
+                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+                character.UserId = user!.Id;
+                
+                if (user.GroupId == null)
+                {
+                    throw new BaseException((int)EventIds.CannotCreateCharacterOutsideOfAGroup, "A character cannot be created without a associated group.");
+                }
+
+                character.GroupId = user.GroupId.Value;
+
+
                 await this.context.Characters.AddAsync(character, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }

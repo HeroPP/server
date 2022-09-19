@@ -75,7 +75,6 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
         }
 
-        
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, Guid userId, CancellationToken cancellationToken = default)
         {
             try

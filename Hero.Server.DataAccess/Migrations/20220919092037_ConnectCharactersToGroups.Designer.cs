@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220919092037_ConnectCharactersToGroups")]
+    partial class ConnectCharactersToGroups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,7 +62,7 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<double>("Dodge")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("GroupId")
+                    b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("HealthPoints")
@@ -86,7 +88,7 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<double>("Resistance")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -303,14 +305,12 @@ namespace Hero.Server.DataAccess.Migrations
                     b.HasOne("Hero.Server.Core.Models.Group", null)
                         .WithMany("Characters")
                         .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Hero.Server.Core.Models.User", null)
                         .WithMany("Characters")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>

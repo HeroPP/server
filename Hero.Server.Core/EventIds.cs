@@ -30,5 +30,6 @@
         GroupCreationFailed = 1700,
         GroupCreated = 1701,
         InvalidInvitationCode = 1702,
+        CannotCreateCharacterOutsideOfAGroup = 1703,
     }
 }

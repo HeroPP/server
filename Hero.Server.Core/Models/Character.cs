@@ -3,7 +3,8 @@
     public class Character
     {
         public Guid Id { get; set; }
-        public Guid? UserId { get; set; }
+        public Guid UserId { get; set; }
+        public Guid GroupId { get; set; }
         public List<NodeTree> NodeTrees { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -12,10 +13,6 @@
         public double MovementSpeed { get; set; }
         public double Resistance { get; set; }
         public double OpticalRange { get; set; }
-        //public double MeleeDamageBuff { get; set; }
-        //public double RangeDamageBuff { get; set; }
-        //public double LightDamageBuff { get; set; }
-        //public double DamageBuff { get; set; }
         public double Parry { get; set; }
         public double Dodge { get; set; }
 
