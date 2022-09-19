@@ -65,7 +65,6 @@ namespace Hero.Server.DataAccess.Repositories
 
                 character.GroupId = user.GroupId.Value;
 
-
                 await this.context.Characters.AddAsync(character, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
