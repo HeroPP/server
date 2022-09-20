@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220918230151_MoveSkillsAndAbilitiesToGroup")]
+    partial class MoveSkillsAndAbilitiesToGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,9 +42,14 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<bool>("IsPassive")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Name");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Abilities", "Hero");
                 });
@@ -59,9 +66,6 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.Property<double>("Dodge")
                         .HasColumnType("double precision");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("HealthPoints")
                         .HasColumnType("integer");
@@ -86,12 +90,10 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<double>("Resistance")
                         .HasColumnType("double precision");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
 
                     b.HasIndex("UserId");
 
@@ -264,11 +266,16 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<double>("ResistanceBoost")
                         .HasColumnType("double precision");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AbilityName");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Skills", "Hero");
                 });
@@ -296,21 +303,18 @@ namespace Hero.Server.DataAccess.Migrations
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Hero.Server.Core.Models.User", null)
+                        .WithMany("Abilities")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>
                 {
-                    b.HasOne("Hero.Server.Core.Models.Group", null)
-                        .WithMany("Characters")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Hero.Server.Core.Models.User", null)
                         .WithMany("Characters")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
@@ -362,6 +366,10 @@ namespace Hero.Server.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Hero.Server.Core.Models.User", null)
+                        .WithMany("Skills")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Ability");
                 });
 
@@ -382,8 +390,6 @@ namespace Hero.Server.DataAccess.Migrations
                 {
                     b.Navigation("Abilities");
 
-                    b.Navigation("Characters");
-
                     b.Navigation("Skills");
 
                     b.Navigation("Users");
@@ -396,10 +402,14 @@ namespace Hero.Server.DataAccess.Migrations
 
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
                 {
+                    b.Navigation("Abilities");
+
                     b.Navigation("Characters");
 
                     b.Navigation("OwnedGroup")
                         .IsRequired();
+
+                    b.Navigation("Skills");
                 });
 #pragma warning restore 612, 618
         }

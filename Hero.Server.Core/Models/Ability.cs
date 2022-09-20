@@ -3,7 +3,7 @@
     public class Ability
     {
         public string Name { get; set; }
-        public Guid UserId { get; set; }
+        public Guid GroupId { get; set; }
         /// <summary>
         /// Indicates if the Ability is a passive Ability or one that can be actively used.
         /// </summary>

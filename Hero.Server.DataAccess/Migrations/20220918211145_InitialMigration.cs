@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -15,15 +14,18 @@ namespace Hero.Server.DataAccess.Migrations
                 name: "Hero");
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "Abilities",
                 schema: "Hero",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false)
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsPassive = table.Column<bool>(type: "boolean", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Abilities", x => x.Name);
                 });
 
             migrationBuilder.CreateTable(
@@ -46,35 +48,6 @@ namespace Hero.Server.DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Characters", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Characters_Users_UserId",
-                        column: x => x.UserId,
-                        principalSchema: "Hero",
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Abilities",
-                schema: "Hero",
-                columns: table => new
-                {
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    CharacterId = table.Column<Guid>(type: "uuid", nullable: true),
-                    IsPassive = table.Column<bool>(type: "boolean", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Abilities", x => x.Name);
-                    table.ForeignKey(
-                        name: "FK_Abilities_Characters_CharacterId",
-                        column: x => x.CharacterId,
-                        principalSchema: "Hero",
-                        principalTable: "Characters",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -101,11 +74,47 @@ namespace Hero.Server.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Groups",
+                schema: "Hero",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    InviteCode = table.Column<string>(type: "character varying(12)", maxLength: 12, nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Groups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                schema: "Hero",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    GroupId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_Groups_GroupId",
+                        column: x => x.GroupId,
+                        principalSchema: "Hero",
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Skills",
                 schema: "Hero",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     AbilityName = table.Column<string>(type: "character varying(100)", nullable: false),
                     IconUrl = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
@@ -132,6 +141,13 @@ namespace Hero.Server.DataAccess.Migrations
                         principalTable: "Abilities",
                         principalColumn: "Name",
                         onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Skills_Users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "Hero",
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -172,16 +188,23 @@ namespace Hero.Server.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Abilities_CharacterId",
+                name: "IX_Abilities_UserId",
                 schema: "Hero",
                 table: "Abilities",
-                column: "CharacterId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Characters_UserId",
                 schema: "Hero",
                 table: "Characters",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Groups_OwnerId",
+                schema: "Hero",
+                table: "Groups",
+                column: "OwnerId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Nodes_NodeTreeId",
@@ -206,10 +229,57 @@ namespace Hero.Server.DataAccess.Migrations
                 schema: "Hero",
                 table: "Skills",
                 column: "AbilityName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Skills_UserId",
+                schema: "Hero",
+                table: "Skills",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_GroupId",
+                schema: "Hero",
+                table: "Users",
+                column: "GroupId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Abilities_Users_UserId",
+                schema: "Hero",
+                table: "Abilities",
+                column: "UserId",
+                principalSchema: "Hero",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Characters_Users_UserId",
+                schema: "Hero",
+                table: "Characters",
+                column: "UserId",
+                principalSchema: "Hero",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Groups_Users_OwnerId",
+                schema: "Hero",
+                table: "Groups",
+                column: "OwnerId",
+                principalSchema: "Hero",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Groups_Users_OwnerId",
+                schema: "Hero",
+                table: "Groups");
+
             migrationBuilder.DropTable(
                 name: "Nodes",
                 schema: "Hero");
@@ -223,15 +293,19 @@ namespace Hero.Server.DataAccess.Migrations
                 schema: "Hero");
 
             migrationBuilder.DropTable(
-                name: "Abilities",
-                schema: "Hero");
-
-            migrationBuilder.DropTable(
                 name: "Characters",
                 schema: "Hero");
 
             migrationBuilder.DropTable(
+                name: "Abilities",
+                schema: "Hero");
+
+            migrationBuilder.DropTable(
                 name: "Users",
+                schema: "Hero");
+
+            migrationBuilder.DropTable(
+                name: "Groups",
                 schema: "Hero");
         }
     }

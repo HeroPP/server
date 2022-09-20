@@ -25,5 +25,11 @@
 
         // NodeTree Events: 16XX
         NodeTreeDoesNotExist = 1601,
+
+        // Group Events: 17XX
+        GroupCreationFailed = 1700,
+        GroupCreated = 1701,
+        InvalidInvitationCode = 1702,
+        CannotCreateCharacterOutsideOfAGroup = 1703,
     }
 }

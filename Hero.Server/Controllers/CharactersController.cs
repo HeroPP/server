@@ -17,32 +17,31 @@ namespace Hero.Server.Controllers
     {
         private readonly ICharacterRepository repository;
         private readonly IMapper mapper;
-        private readonly ILogger<CharactersController> logger;
 
         public CharactersController(ICharacterRepository repository, IMapper mapper, ILogger<CharactersController> logger)
+            : base(logger)
         {
             this.repository = repository;
             this.mapper = mapper;
-            this.logger = logger;
         }
 
         [HttpGet("{id}")]
-        public Task<Response<CharacterDetailResponse?>> GetCharacterDetailByIdAsync(Guid id)
+        public Task<IActionResult> GetCharacterDetailByIdAsync(Guid id)
         {
             return this.HandleExceptions(async () =>
             {
                 Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id);
                 if (character != null)
                 {
-                    return new CharacterDetailResponse(character);
+                    return this.Ok(new CharacterDetailResponse(character));
                 }
 
-                return null;
+                return this.BadRequest();
             });
         }
 
         [HttpGet]
-        public Task<Response<List<CharacterOverviewResponse>>> GetCharacterOverviewsAsync()
+        public Task<IActionResult> GetCharacterOverviewsAsync()
         {
             return this.HandleExceptions(async () =>
             {
@@ -58,38 +57,40 @@ namespace Hero.Server.Controllers
                     characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
                 }
 
-                return characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList();
+                return this.Ok(characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList());
             });
         }
 
         [HttpDelete("{id}")]
-        public Task<Response> DeleteCharacterAsync(Guid id)
+        public Task<IActionResult> DeleteCharacterAsync(Guid id)
         {
             return this.HandleExceptions(async () =>
             {
                 await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId());
+                return this.Ok();
             });
         }
 
         [HttpPut("{id}")]
-        public Task<Response> UpdateCharacterAsync(Guid id, [FromBody] CreateCharacterRequest request)
+        public Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CreateCharacterRequest request)
         {
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
                 await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId());
+                return this.Ok();
             });
         }
 
         [HttpPost]
-        public Task<Response<CreateCharacterResponse>> CreateCharacterAsync([FromBody] CreateCharacterRequest request)
+        public Task<IActionResult> CreateCharacterAsync([FromBody] CreateCharacterRequest request)
         {
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
                 await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId());
 
-                return this.mapper.Map<CreateCharacterResponse>(character);
+                return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
             });
         }
     }

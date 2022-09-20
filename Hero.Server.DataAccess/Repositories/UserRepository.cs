@@ -43,6 +43,7 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Users
+                .Include(u => u.OwnedGroup)
                 .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
         }
 

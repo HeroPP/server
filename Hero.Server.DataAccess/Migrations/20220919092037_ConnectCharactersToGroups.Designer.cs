@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    [Migration("20220917202214_RemoveTheAbiliesFromTheCharacter")]
-    partial class RemoveTheAbiliesFromTheCharacter
+    [Migration("20220919092037_ConnectCharactersToGroups")]
+    partial class ConnectCharactersToGroups
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,10 +36,15 @@ namespace Hero.Server.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsPassive")
                         .HasColumnType("boolean");
 
                     b.HasKey("Name");
+
+                    b.HasIndex("GroupId");
 
                     b.ToTable("Abilities", "Hero");
                 });
@@ -56,6 +61,9 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.Property<double>("Dodge")
                         .HasColumnType("double precision");
+
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("HealthPoints")
                         .HasColumnType("integer");
@@ -85,9 +93,38 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GroupId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Characters", "Hero");
+                });
+
+            modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("InviteCode")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("character varying(12)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId")
+                        .IsUnique();
+
+                    b.ToTable("Groups", "Hero");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Node", b =>
@@ -191,6 +228,9 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<double>("DodgeBoost")
                         .HasColumnType("double precision");
 
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("HealthPointsBoost")
                         .HasColumnType("integer");
 
@@ -230,6 +270,8 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.HasIndex("AbilityName");
 
+                    b.HasIndex("GroupId");
+
                     b.ToTable("Skills", "Hero");
                 });
 
@@ -239,63 +281,96 @@ namespace Hero.Server.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("GroupId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
 
                     b.ToTable("Users", "Hero");
                 });
 
+            modelBuilder.Entity("Hero.Server.Core.Models.Ability", b =>
+                {
+                    b.HasOne("Hero.Server.Core.Models.Group", null)
+                        .WithMany("Abilities")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>
                 {
-                    b.HasOne("Hero.Server.Core.Models.User", "User")
+                    b.HasOne("Hero.Server.Core.Models.Group", null)
+                        .WithMany("Characters")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Hero.Server.Core.Models.User", null)
                         .WithMany("Characters")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
 
-                    b.Navigation("User");
+            modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
+                {
+                    b.HasOne("Hero.Server.Core.Models.User", "Owner")
+                        .WithOne("OwnedGroup")
+                        .HasForeignKey("Hero.Server.Core.Models.Group", "OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Node", b =>
                 {
-                    b.HasOne("Hero.Server.Core.Models.NodeTree", "NodeTree")
+                    b.HasOne("Hero.Server.Core.Models.NodeTree", null)
                         .WithMany("AllNodes")
                         .HasForeignKey("NodeTreeId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Hero.Server.Core.Models.Skill", "Skill")
-                        .WithMany("Nodes")
+                        .WithMany()
                         .HasForeignKey("SkillId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("NodeTree");
 
                     b.Navigation("Skill");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.NodeTree", b =>
                 {
-                    b.HasOne("Hero.Server.Core.Models.Character", "Character")
+                    b.HasOne("Hero.Server.Core.Models.Character", null)
                         .WithMany("NodeTrees")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Skill", b =>
                 {
                     b.HasOne("Hero.Server.Core.Models.Ability", "Ability")
-                        .WithMany("Skills")
+                        .WithMany()
                         .HasForeignKey("AbilityName")
                         .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("Hero.Server.Core.Models.Group", null)
+                        .WithMany("Skills")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Ability");
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.Ability", b =>
+            modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
                 {
-                    b.Navigation("Skills");
+                    b.HasOne("Hero.Server.Core.Models.Group", null)
+                        .WithMany("Users")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>
@@ -303,19 +378,28 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Navigation("NodeTrees");
                 });
 
+            modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
+                {
+                    b.Navigation("Abilities");
+
+                    b.Navigation("Characters");
+
+                    b.Navigation("Skills");
+
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("Hero.Server.Core.Models.NodeTree", b =>
                 {
                     b.Navigation("AllNodes");
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.Skill", b =>
-                {
-                    b.Navigation("Nodes");
-                });
-
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
                 {
                     b.Navigation("Characters");
+
+                    b.Navigation("OwnedGroup")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

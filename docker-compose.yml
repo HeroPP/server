@@ -8,3 +8,5 @@ services:
       dockerfile: Hero.Server/Dockerfile
     environment:
       - ConnectionStrings__Default=${ConnectionStrings__Default}
+      - Services__Keycloak__Username=${Services__Keycloak__Username}
+      - Services__Keycloak__Password=${Services__Keycloak__Password}
