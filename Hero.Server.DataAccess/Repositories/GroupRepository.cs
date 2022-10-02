@@ -22,14 +22,16 @@ namespace Hero.Server.DataAccess.Repositories
         private const string AdminGroupName = "Administrator";
 
         private readonly IKeycloakService service;
+        private readonly IUserRepository userRepository;
         private readonly HeroDbContext context;
         private readonly ILogger<GroupRepository> logger;
         private readonly KeycloakOptions options;
         private readonly RoleMappingOptions roleMappings;
 
-        public GroupRepository(IKeycloakService service, IOptions<KeycloakOptions> options, IOptions<RoleMappingOptions> roleMappings, HeroDbContext context, ILogger<GroupRepository> logger)
+        public GroupRepository(IKeycloakService service, IUserRepository userRepository, IOptions<KeycloakOptions> options, IOptions<RoleMappingOptions> roleMappings, HeroDbContext context, ILogger<GroupRepository> logger)
         {
             this.service = service;
+            this.userRepository = userRepository;
             this.context = context;
             this.logger = logger;
             this.options = options.Value;
@@ -62,6 +64,18 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 throw new BaseException((int)EventIds.InvalidInvitationCode, "The given invitation code is not valid.");
             }
+        }
+
+        public async Task<Group?> GetGroupAdminInfoAsync(Guid userId)
+        {
+            Group? group = null;
+            User? user = await this.userRepository.GetUserByIdAsync(userId);
+            if (null != user)
+            {
+                group = user.OwnedGroup;
+            }
+
+            return group;
         }
 
         public async Task<string?> CreateGroup(string groupName, Guid ownerId, CancellationToken cancellationToken = default)
