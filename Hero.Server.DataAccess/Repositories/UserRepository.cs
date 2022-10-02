@@ -19,7 +19,7 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        public async Task<User> CreateUserAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<User> CreateUserIfNotExistAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -28,8 +28,11 @@ namespace Hero.Server.DataAccess.Repositories
                     Id = id,
                 };
 
-                await this.context.Users.AddAsync(user, cancellationToken);
-                await this.context.SaveChangesAsync(cancellationToken);
+                if (this.context.Users.Find(id) == null)
+                {
+                    await this.context.Users.AddAsync(user, cancellationToken);
+                    await this.context.SaveChangesAsync(cancellationToken);
+                }
 
                 return user;
             }
@@ -44,6 +47,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             return await this.context.Users
                 .Include(u => u.OwnedGroup)
+                .ThenInclude(g => g.Users)
                 .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
         }
 
