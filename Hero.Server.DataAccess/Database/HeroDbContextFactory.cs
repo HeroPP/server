@@ -23,6 +23,7 @@ namespace Hero.Server.DataAccess.Database
             }
 
             DbContextOptionsBuilder<HeroDbContext> builder = new ();
+            builder.EnableSensitiveDataLogging();
             builder.UseNpgsql(connectionString, options => options.MigrationsHistoryTable(HeroDbResources.MigrationsTable, HeroDbResources.Schema));
 
             return new HeroDbContext(builder.Options);

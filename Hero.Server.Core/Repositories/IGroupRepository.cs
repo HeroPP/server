@@ -1,4 +1,6 @@
-﻿namespace Hero.Server.Core.Repositories
+﻿using Hero.Server.Core.Models;
+
+namespace Hero.Server.Core.Repositories
 {
     public interface IGroupRepository
     {
@@ -7,5 +9,6 @@
         Task<bool> JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default);
         Task<bool> LeaveGroup(Guid userId, CancellationToken cancellationToken = default);
         Task<bool> DeleteGroup(Guid groupId, Guid userId, CancellationToken cancellationToken = default);
+        Task<Group?> GetGroupAdminInfoAsync(Guid userId);
     }
 }

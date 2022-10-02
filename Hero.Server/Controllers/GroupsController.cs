@@ -1,5 +1,6 @@
 ﻿using Hero.Server.Core;
 using Hero.Server.Core.Logging;
+using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
@@ -21,6 +22,22 @@ namespace Hero.Server.Controllers
             this.repository = repository;
         }
 
+
+        [HttpGet, Authorize(Roles = RoleNames.Administrator)]
+        public async Task<IActionResult> GetGroupAdminInfo()
+        {
+            return await this.HandleExceptions(async () =>
+            {
+                Group? group = await this.repository.GetGroupAdminInfoAsync(this.HttpContext.User.GetUserId());
+                if (null == group) 
+                {
+                    return this.BadRequest();
+                }
+
+                return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateGroup([FromBody]GroupRequest request)
         {
@@ -33,12 +50,13 @@ namespace Hero.Server.Controllers
                     // ToDo: Generate invitation code.
                     this.logger.LogGroupCreatedSuccessfully(request.Name);
 
-                    return this.Ok(new { InvitationCode = code});
+                    return this.Ok();
                 }
 
                 return this.BadRequest(new ErrorResponse((int)EventIds.GroupCreationFailed, "The group you want to create already exists, please choose another name."));
             });
         }
+
 
         [HttpPost("{id}/join/{code}")]
         public async Task<IActionResult> JoinGroup(Guid id, string code)
