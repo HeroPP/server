@@ -37,6 +37,16 @@ namespace Hero.Server.Controllers
                 return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
             });
         }
+        
+        [HttpGet("users"), Authorize(Roles = RoleNames.Administrator)]
+        public async Task<IActionResult> GetAllUsersInGroup()
+        {
+            return await this.HandleExceptions(async () =>
+            {
+                List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId());
+                return this.Ok(users);
+            });
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreateGroup([FromBody]GroupRequest request)

@@ -10,5 +10,6 @@ namespace Hero.Server.Core.Repositories
         Task<bool> LeaveGroup(Guid userId, CancellationToken cancellationToken = default);
         Task<bool> DeleteGroup(Guid groupId, Guid userId, CancellationToken cancellationToken = default);
         Task<Group?> GetGroupAdminInfoAsync(Guid userId);
+        Task<List<UserInfo>> GetAllUsersInGroupAsync(Guid userId);
     }
 }
