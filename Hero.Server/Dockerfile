@@ -5,7 +5,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["NuGet.Config", "."]
+COPY ["nuget.config", "."]
 COPY ["Hero.Server/Hero.Server.csproj", "Hero.Server/"]
 COPY ["Hero.Server.Core/Hero.Server.Core.csproj", "Hero.Server.Core/"]
 COPY ["Hero.Server.Identity/Hero.Server.Identity.csproj", "Hero.Server.Identity/"]
