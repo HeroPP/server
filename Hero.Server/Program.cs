@@ -19,7 +19,10 @@ builder.Services.AddSwaggerForAuthentication();
 WebApplication app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options => {
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    options.RoutePrefix = string.Empty; 
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

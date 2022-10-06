@@ -78,6 +78,26 @@ namespace Hero.Server.DataAccess.Repositories
             return group;
         }
 
+        public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId)
+        {
+            List<Core.Models.UserInfo> users = new();
+            User? user = await this.userRepository.GetUserByIdAsync(userId);
+            if (null != user)
+            {
+                if (null == user.OwnedGroup)
+                {
+                    throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
+                }
+
+                await this.service.Initialize(options);
+                List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Groups.GetAllUsersInGroup(user.OwnedGroup.Id.ToString());
+
+                users = userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username}).ToList();
+            }
+
+            return users;
+        }
+
         public async Task<string?> CreateGroup(string groupName, Guid ownerId, CancellationToken cancellationToken = default)
         {
             string? code = null;
