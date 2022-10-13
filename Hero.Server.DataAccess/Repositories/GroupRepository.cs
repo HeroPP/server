@@ -23,16 +23,14 @@ namespace Hero.Server.DataAccess.Repositories
         private const string AdminGroupName = "Administrator";
 
         private readonly IKeycloakService service;
-        private readonly IUserRepository userRepository;
         private readonly HeroDbContext context;
         private readonly ILogger<GroupRepository> logger;
         private readonly KeycloakOptions options;
         private readonly MappingOptions mappings;
 
-        public GroupRepository(IKeycloakService service, IUserRepository userRepository, IOptions<KeycloakOptions> options, IOptions<MappingOptions> mappings, HeroDbContext context, ILogger<GroupRepository> logger)
+        public GroupRepository(IKeycloakService service, IOptions<KeycloakOptions> options, IOptions<MappingOptions> mappings, HeroDbContext context, ILogger<GroupRepository> logger)
         {
             this.service = service;
-            this.userRepository = userRepository;
             this.context = context;
             this.logger = logger;
             this.options = options.Value;
@@ -55,19 +53,20 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<Group?> GetGroupAdminInfoAsync(Guid userId)
-        {
-            return await this.context.Groups.FirstOrDefaultAsync(g => g.OwnerId == userId);
-        }
-
-        public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId)
+        public async Task<Group> GetGroupByUserId(Guid userId)
         {
             Group? group = await this.context.Groups.FirstOrDefaultAsync(g => g.OwnerId == userId);
-
             if (null == group)
             {
                 throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
             }
+
+            return group;
+        }
+
+        public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId)
+        {
+            Group? group = await this.GetGroupByUserId(userId);
 
             await this.service.Initialize(options);
             List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Groups.GetAllUsersInGroup(group.Name.ToString());
@@ -101,11 +100,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<string> GenerateInviteCode(Guid groupId, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.FindAsync(groupId, cancellationToken);
-            if (null == group)
-            {
-                throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
-            }
+            Group? group = await this.GetGroupByUserId(groupId);
 
             group.InviteCode = this.GenerateInvitationCode();
             await this.context.SaveChangesAsync(cancellationToken);

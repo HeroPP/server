@@ -28,7 +28,7 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                Group? group = await this.repository.GetGroupAdminInfoAsync(this.HttpContext.User.GetUserId());
+                Group? group = await this.repository.GetGroupByUserId(this.HttpContext.User.GetUserId());
                 if (null == group) 
                 {
                     return this.BadRequest();

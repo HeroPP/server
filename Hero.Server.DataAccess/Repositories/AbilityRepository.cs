@@ -23,21 +23,18 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Ability?> GetAbilityByNameAsync(string name, Guid userId, CancellationToken cancellationToken = default)
         {
-            //User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(g => g.Name == name, cancellationToken);
+            Group group = await this.groupRepository.GetGroupByUserId(userId);
+            return await this.context.Abilities.Where(a => a.GroupId == group.Id).FirstOrDefaultAsync(g => g.Name == name, cancellationToken);
         }
 
         public async Task CreateAbilityAsync(Ability ability, Guid userId, CancellationToken cancellationToken = default)
         {
             try
             {
-                Group? group = await this.groupRepository.GetGroupAdminInfoAsync(userId);
-                if (null != group)
-                {
-                    ability.GroupId = group.Id;
-                    await this.context.Abilities.AddAsync(ability, cancellationToken);
-                    await this.context.SaveChangesAsync(cancellationToken);
-                }
+                Group group = await this.groupRepository.GetGroupByUserId(userId);
+                ability.GroupId = group.Id;
+                await this.context.Abilities.AddAsync(ability, cancellationToken);
+                await this.context.SaveChangesAsync(cancellationToken);
                 
             }
             catch (Exception ex)
@@ -69,8 +66,8 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Ability>> GetAllAbilitiesAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
+            Group group = await this.groupRepository.GetGroupByUserId(userId);
+            return await this.context.Abilities.Where(a => a.GroupId == group.Id).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateAbilityAsync(string name, Ability updatedAbility, Guid userId, CancellationToken cancellationToken = default)

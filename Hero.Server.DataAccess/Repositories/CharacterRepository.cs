@@ -13,13 +13,13 @@ namespace Hero.Server.DataAccess.Repositories
     public class CharacterRepository : ICharacterRepository
     {
         private readonly HeroDbContext context;
-        private readonly IUserRepository userRepository;
+        private readonly IGroupRepository groupRepository;
         private readonly ILogger<CharacterRepository> logger;
 
-        public CharacterRepository(HeroDbContext context, IUserRepository userRepository, ILogger<CharacterRepository> logger)
+        public CharacterRepository(HeroDbContext context, IGroupRepository groupRepository, ILogger<CharacterRepository> logger)
         {
             this.context = context;
-            this.userRepository = userRepository;
+            this.groupRepository = groupRepository;
             this.logger = logger;
         }
 
@@ -55,8 +55,8 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                character.UserId = user!.Id;
+                Group group = await this.groupRepository.GetGroupByUserId(userId);
+                character.UserId = userId;
                 
                 if (user.GroupId == null)
                 {

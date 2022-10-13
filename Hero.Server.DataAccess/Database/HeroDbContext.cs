@@ -1,12 +1,21 @@
 ﻿using Hero.Server.Core.Models;
+using Hero.Server.Identity;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hero.Server.DataAccess.Database
 {
     public class HeroDbContext : DbContext
     {
+        //private readonly IHttpContextAccessor httpContextAccessor;
+
         public HeroDbContext(DbContextOptions<HeroDbContext> options) : base(options) { }
+
+        //public HeroDbContext(IHttpContextAccessor httpContextAccessor, DbContextOptions<HeroDbContext> options) : this (options)
+        //{
+        //    this.httpContextAccessor = httpContextAccessor;
+        //}
 
         public DbSet<Character> Characters { get; set; }
         public DbSet<Ability> Abilities { get; set; }
@@ -19,6 +28,9 @@ namespace Hero.Server.DataAccess.Database
         {
             builder.HasDefaultSchema(HeroDbResources.Schema);
             builder.ApplyConfigurationsFromAssembly(typeof(HeroDbContext).Assembly);
+
+            //Guid userId = this.httpContextAccessor.HttpContext!.User.GetUserId();
+            //builder.Entity<Group>().HasQueryFilter(g => g.OwnerId ==  userId || g.MemberIds.Contains(userId));
         }
     }
 }
