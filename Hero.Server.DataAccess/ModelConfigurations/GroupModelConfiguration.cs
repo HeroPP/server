@@ -19,15 +19,16 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(g => g.InviteCode).HasMaxLength(12);
 
             builder
-                .HasMany(g => g.Users)
-                .WithOne()
+                .HasMany(g => g.Members)
+                .WithOne(u => u.Group)
                 .HasForeignKey(u => u.GroupId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             builder
                 .HasOne(g => g.Owner)
                 .WithOne(u => u.OwnedGroup)
-                .HasForeignKey<Group>(g => g.OwnerId);
+                .HasForeignKey<Group>(g => g.OwnerId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder
                 .HasMany(g => g.Abilities)

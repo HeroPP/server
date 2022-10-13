@@ -1,11 +1,11 @@
 ﻿namespace Hero.Server.Core.Configuration
 {
-    public class RoleMappingOptions
+    public class MappingOptions
     {
-        public Dictionary<string, Role> RoleMapping { get; set; }
+        public Dictionary<string, Value> Groups { get; set; }
     }
 
-    public struct Role
+    public struct Value
     {
         public string Id { get; set; }
         public string Name { get; set; }

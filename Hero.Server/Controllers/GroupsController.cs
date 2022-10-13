@@ -28,7 +28,7 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                Group? group = await this.repository.GetGroupAdminInfoAsync(this.HttpContext.User.GetUserId());
+                Group? group = await this.repository.GetGroupByUserId(this.HttpContext.User.GetUserId());
                 if (null == group) 
                 {
                     return this.BadRequest();
@@ -54,7 +54,7 @@ namespace Hero.Server.Controllers
             return await this.HandleExceptions(async () =>
             {
 
-                string? code = await this.repository.CreateGroup(request.Name, this.HttpContext.User.GetUserId());
+                string? code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId());
                 if (null != code)
                 {
                     // ToDo: Generate invitation code.

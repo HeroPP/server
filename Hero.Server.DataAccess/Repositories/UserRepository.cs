@@ -47,7 +47,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             return await this.context.Users
                 .Include(u => u.OwnedGroup)
-                .ThenInclude(g => g.Users)
+                .ThenInclude(g => g.Members)
                 .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
         }
 
