@@ -8,7 +8,6 @@ namespace Hero.Server.DataAccess.Database
     {
         public HeroDbContext(DbContextOptions<HeroDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Character> Characters { get; set; }
         public DbSet<Ability> Abilities { get; set; }
         public DbSet<Skill> Skills { get; set; }

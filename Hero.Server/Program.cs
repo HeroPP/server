@@ -7,7 +7,7 @@ using JCurth.Keycloak;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<KeycloakOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
-builder.Services.Configure<RoleMappingOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
+builder.Services.Configure<MappingOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
 
 builder.Services.AddJwtBearerAuthentication();
 builder.Services.AddDataAccessLayer(builder.Configuration.GetConnectionString("Default"));

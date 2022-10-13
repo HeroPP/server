@@ -34,7 +34,7 @@ namespace Hero.Server.Controllers
                     return this.BadRequest();
                 }
 
-                return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
+                return this.Ok(new { Name = group.Name, Description = group.Description, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
             });
         }
         
@@ -54,10 +54,9 @@ namespace Hero.Server.Controllers
             return await this.HandleExceptions(async () =>
             {
 
-                string? code = await this.repository.CreateGroup(request.Name, this.HttpContext.User.GetUserId());
+                string? code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId());
                 if (null != code)
                 {
-                    // ToDo: Generate invitation code.
                     this.logger.LogGroupCreatedSuccessfully(request.Name);
 
                     return this.Ok();

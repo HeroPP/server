@@ -9,6 +9,7 @@ using Hero.Server.DataAccess.Database;
 using JCurth.Keycloak;
 using JCurth.Keycloak.Models;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -26,28 +27,16 @@ namespace Hero.Server.DataAccess.Repositories
         private readonly HeroDbContext context;
         private readonly ILogger<GroupRepository> logger;
         private readonly KeycloakOptions options;
-        private readonly RoleMappingOptions roleMappings;
+        private readonly MappingOptions mappings;
 
-        public GroupRepository(IKeycloakService service, IUserRepository userRepository, IOptions<KeycloakOptions> options, IOptions<RoleMappingOptions> roleMappings, HeroDbContext context, ILogger<GroupRepository> logger)
+        public GroupRepository(IKeycloakService service, IUserRepository userRepository, IOptions<KeycloakOptions> options, IOptions<MappingOptions> mappings, HeroDbContext context, ILogger<GroupRepository> logger)
         {
             this.service = service;
             this.userRepository = userRepository;
             this.context = context;
             this.logger = logger;
             this.options = options.Value;
-            this.roleMappings = roleMappings.Value;
-        }
-
-        private RoleConfiguration[] GetRolesForGroup(string groupName)
-        {
-            RoleConfiguration[] roles = new RoleConfiguration[0];
-            if (this.roleMappings.RoleMapping.ContainsKey(groupName))
-            {
-                Role role = this.roleMappings.RoleMapping[groupName];
-                roles = new RoleConfiguration[] { new() { Id = role.Id, Name = role.Name } };
-            }
-
-            return roles;
+            this.mappings = mappings.Value;
         }
 
         private string GenerateInvitationCode()
@@ -68,83 +57,60 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Group?> GetGroupAdminInfoAsync(Guid userId)
         {
-            Group? group = null;
-            User? user = await this.userRepository.GetUserByIdAsync(userId);
-            if (null != user)
-            {
-                group = user.OwnedGroup;
-            }
-
-            return group;
+            return await this.context.Groups.FirstOrDefaultAsync(g => g.OwnerId == userId);
         }
 
         public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId)
         {
-            List<Core.Models.UserInfo> users = new();
-            User? user = await this.userRepository.GetUserByIdAsync(userId);
-            if (null != user)
+            Group? group = await this.context.Groups.FirstOrDefaultAsync(g => g.OwnerId == userId);
+
+            if (null == group)
             {
-                if (null == user.OwnedGroup)
-                {
-                    throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
-                }
-
-                await this.service.Initialize(options);
-                List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Groups.GetAllUsersInGroup(user.OwnedGroup.Id.ToString());
-
-                users = userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username}).ToList();
+                throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
             }
 
-            return users;
+            await this.service.Initialize(options);
+            List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Groups.GetAllUsersInGroup(group.Name.ToString());
+
+            return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
         }
 
-        public async Task<string?> CreateGroup(string groupName, Guid ownerId, CancellationToken cancellationToken = default)
+        public async Task<string> CreateGroup(string groupName, string groupDescription, Guid ownerId, CancellationToken cancellationToken = default)
         {
-            string? code = null;
             try
             {
+                string code = this.GenerateInvitationCode();
+                await this.context.Groups.AddAsync(new Group() { Name = groupName, Description = groupDescription, OwnerId = ownerId, InviteCode = code });
+                await this.context.SaveChangesAsync(cancellationToken);
+
                 await this.service.Initialize(options);
-                if (await this.service.Groups.Create(new() { Name = groupName }))
+
+                if (this.mappings.Groups.ContainsKey("Administrator"))
                 {
-                    GroupInfo? groupInfo = await this.service.Groups.GetGroup(groupName);
-                    if (null != groupInfo)
-                    {
-                        await this.service.Groups.AddRoles(groupInfo.Id, this.GetRolesForGroup(DefaultGroupName));
-                        GroupInfo? adminGroupInfo = await this.service.Groups.AddSubGroup(groupInfo.Id, new() { Name = AdminGroupName });
-                        if (null != adminGroupInfo 
-                            && await this.service.Groups.AddRoles(groupInfo.Id, this.GetRolesForGroup(AdminGroupName))
-                            && await this.service.Groups.AddUser(adminGroupInfo.Id, ownerId.ToString()))
-                        {
-                            string invitationCode = this.GenerateInvitationCode();
-
-                            await this.context.Groups.AddAsync(new Group() { Id = Guid.Parse(groupInfo.Id), Name = groupInfo.Name, OwnerId = ownerId, InviteCode = invitationCode });
-                            await this.context.SaveChangesAsync();
-
-                            code = invitationCode;
-                        }
-                    }
+                    await this.service.Groups.AddUser(this.mappings.Groups["Administrator"].Id, ownerId.ToString());
                 }
+
+                return code;
             }
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
             }
-
-            return code;
         }
 
-        public async Task<string?> GenerateInviteCode(string groupId, CancellationToken cancellationToken = default)
+        public async Task<string> GenerateInviteCode(Guid groupId, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.FindAsync(groupId);
-            if (null != group)
+            Group? group = await this.context.Groups.FindAsync(groupId, cancellationToken);
+            if (null == group)
             {
-                group.InviteCode = this.GenerateInvitationCode();
-                await this.context.SaveChangesAsync();
-
-                return group.InviteCode;
+                throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
             }
-            return null;
+
+            group.InviteCode = this.GenerateInvitationCode();
+            await this.context.SaveChangesAsync(cancellationToken);
+
+            return group.InviteCode;
         }
 
         public async Task<bool> JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default)
@@ -154,17 +120,14 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 await this.EvaluateInvitationCode(groupId, invitationCode);
 
-                await this.service.Initialize(options);
-                if (await this.service.Groups.AddUser(groupId.ToString(), userId.ToString()))
-                {
-                    User? user = await this.context.Users.FindAsync(userId);
-                    if (null != user )
-                    {
-                        user.GroupId = groupId;
-                        success = true;
-                    }
+                Group group = await this.context.Groups.FindAsync(groupId, cancellationToken);
+                group!.MemberIds.Add(userId);
+                await this.context.SaveChangesAsync(cancellationToken);
 
-                    await this.context.SaveChangesAsync();
+                await this.service.Initialize(options);
+                if (this.mappings.Groups.ContainsKey("Members"))
+                {
+                    await this.service.Groups.AddUser(this.mappings.Groups["Members"].Id, userId.ToString());
                 }
             }
             catch (Exception ex)
@@ -181,20 +144,17 @@ namespace Hero.Server.DataAccess.Repositories
             bool success = true;
             try
             {
-                User? user = await this.context.Users.FindAsync(userId);
-                if (null != user && null != user.GroupId)
+                Group? group = await this.context.Groups.FirstOrDefaultAsync(g => g.MemberIds.Contains(userId));
+                if (null != group)
                 {
-                    Guid groupId = user.GroupId.Value;
-                    user.GroupId = null;
+                    group.MemberIds.Remove(userId);
+                    await this.context.SaveChangesAsync(cancellationToken);
 
-                    await this.service.Initialize(this.options);
-                    if (!await this.service.Groups.RemoveUser(groupId.ToString(), userId.ToString()))
+                    await this.service.Initialize(options);
+                    if (this.mappings.Groups.ContainsKey("Members"))
                     {
-                        user.GroupId = groupId;
-                        success = false;
+                        await this.service.Groups.RemoveUser(this.mappings.Groups["Members"].Id, userId.ToString());
                     }
-
-                    await this.context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -211,16 +171,13 @@ namespace Hero.Server.DataAccess.Repositories
             bool success = false;
             try
             {
-                Group? group = await this.context.Groups.FindAsync(groupId);
+                Group? group = await this.context.Groups.FindAsync(groupId, cancellationToken);
                 if (null != group && group.OwnerId == userId)
                 {
                     await this.service.Initialize(options);
-                    if (await this.service.Groups.Delete(groupId.ToString()))
-                    {
-                        this.context.Remove(group);
-                        await this.context.SaveChangesAsync();
-                        success = true;
-                    }
+                    this.context.Remove(group);
+                    await this.context.SaveChangesAsync(cancellationToken);
+                    success = true;
                 }
             }
             catch (Exception ex)

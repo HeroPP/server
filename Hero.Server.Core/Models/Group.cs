@@ -4,10 +4,11 @@
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public string Description { get; set; }
         public string InviteCode { get; set; }
         public Guid OwnerId { get; set; }
-        public User Owner { get; set; }
-        public List<User> Users { get; set; }
+        //public User Owner { get; set; }
+        public List<Guid> MemberIds { get; set; }
         public List<Ability> Abilities { get; set; }
         public List<Skill> Skills { get; set; }
         public List<Character> Characters { get; set; }

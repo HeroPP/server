@@ -11,19 +11,19 @@ namespace Hero.Server.DataAccess.Repositories
     public class AbilityRepository : IAbilityRepository
     {
         private readonly HeroDbContext context;
-        private readonly IUserRepository userRepository;
+        private readonly IGroupRepository groupRepository;
         private readonly ILogger<AbilityRepository> logger;
 
-        public AbilityRepository(HeroDbContext context, IUserRepository userRepository, ILogger<AbilityRepository> logger)
+        public AbilityRepository(HeroDbContext context, IGroupRepository groupRepository, ILogger<AbilityRepository> logger)
         {
             this.context = context;
-            this.userRepository = userRepository;
+            this.groupRepository = groupRepository;
             this.logger = logger;
         }
 
         public async Task<Ability?> GetAbilityByNameAsync(string name, Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+            //User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
             return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(g => g.Name == name, cancellationToken);
         }
 
@@ -31,10 +31,10 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                if (null != user)
+                Group? group = await this.groupRepository.GetGroupAdminInfoAsync(userId);
+                if (null != group)
                 {
-                    ability.GroupId = user.OwnedGroup.Id;
+                    ability.GroupId = group.Id;
                     await this.context.Abilities.AddAsync(ability, cancellationToken);
                     await this.context.SaveChangesAsync(cancellationToken);
                 }
