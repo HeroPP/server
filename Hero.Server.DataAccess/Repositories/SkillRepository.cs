@@ -72,7 +72,7 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<IEnumerable<Skill>> GetAllSkillsAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
+            return await this.context.Skills.Include(s => s.Ability).Where(s => s.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, Guid userId, CancellationToken cancellationToken = default)

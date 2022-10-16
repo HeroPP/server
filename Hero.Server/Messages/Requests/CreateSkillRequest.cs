@@ -8,7 +8,7 @@ namespace Hero.Server.Messages.Requests
         [Required]
         public string Name { get; set; }
         public string Description { get; set; }
-        public string AbilityName { get; set; }
+        public string? AbilityName { get; set; }
         public int HealthPointsBoost { get; set; }
         public int LightPointsBoost { get; set; }
         public double MovementSpeedBoost { get; set; }
