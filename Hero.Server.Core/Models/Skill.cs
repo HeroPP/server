@@ -19,7 +19,7 @@
         public double DamageBoost { get; set; }
         public double ParryBoost { get; set; }
         public double DodgeBoost { get; set; }
-        public Ability Ability { get; set; }
+        public Ability? Ability { get; set; }
 
         public void Update(Skill skill)
         {

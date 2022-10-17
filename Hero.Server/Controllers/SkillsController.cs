@@ -44,9 +44,9 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                List<Skill> abilities = (await this.repository.GetAllSkillsAsync(this.HttpContext.User.GetUserId())).ToList();
+                List<Skill> skills = (await this.repository.GetAllSkillsAsync(this.HttpContext.User.GetUserId())).ToList();
 
-                return this.Ok(abilities.Select(skill => this.mapper.Map<SkillResponse>(skill)).ToList());
+                return this.Ok(skills.Select(skill => this.mapper.Map<SkillResponse>(skill)).ToList());
             });
         }
 

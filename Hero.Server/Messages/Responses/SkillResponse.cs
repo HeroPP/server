@@ -5,7 +5,7 @@ namespace Hero.Server.Messages.Responses
     public class SkillResponse
     {
         public Guid Id { get; set; }
-        public String? AbilityName { get; set; }
+        public string? AbilityName { get; set; }
         public string IconUrl { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -21,6 +21,6 @@ namespace Hero.Server.Messages.Responses
         public double ParryBoost { get; set; }
         public double DodgeBoost { get; set; }
         //?
-        public AbilityResponse Ability { get; set; }
+        public AbilityResponse? Ability { get; set; }
     }
 }
