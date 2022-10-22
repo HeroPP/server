@@ -3,6 +3,8 @@ using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
 
+using JCurth.Keycloak;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -47,7 +49,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             return await this.context.Users
                 .Include(u => u.OwnedGroup)
-                .ThenInclude(g => g.Members)
+                .Include(g => g.Group)
                 .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
         }
 

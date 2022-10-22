@@ -28,13 +28,25 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                Group? group = await this.repository.GetGroupByUserId(this.HttpContext.User.GetUserId());
+                Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId());
                 if (null == group) 
                 {
                     return this.BadRequest();
                 }
 
                 return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
+            });
+        }
+
+        [HttpGet("{code}")]
+        public async Task<IActionResult> GetGroupInfo(string code, CancellationToken token)
+        {
+            return await this.HandleExceptions(async () =>
+            {
+                Group group = await this.repository.GetGroupByInviteCode(code, token);
+                UserInfo user = await this.repository.GetGroupOwner(group, token);
+
+                return this.Ok(new { Id = group.Id, Name = group.Name, Owner = user.Username, Description = group.Description });
             });
         }
         

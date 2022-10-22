@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Responses;
@@ -27,7 +28,17 @@ namespace Hero.Server.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetUser()
         {
-            return await this.HandleExceptions(async () => this.Ok(this.mapper.Map<UserResponse>(await this.repository.GetUserByIdAsync(this.HttpContext.User.GetUserId()))));
+            return await this.HandleExceptions(async () => 
+            {
+                User? user = await this.repository.GetUserByIdAsync(this.HttpContext.User.GetUserId());
+                
+                if (null == user)
+                {
+                    return this.BadRequest();
+                }
+
+                return this.Ok(new {Id = user.Id, Group = this.mapper.Map<GroupResponse>(user.OwnedGroup ?? user.Group)}); 
+            });
         }
 
         [Authorize]

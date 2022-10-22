@@ -52,9 +52,15 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<Group> GetGroupByUserId(Guid userId)
+        public async Task<Group?> GetGroupByUserId(Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId);
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+            return user?.OwnedGroup ?? user?.Group;
+        }
+
+        public async Task<Group> GetGroupByOwnerId(Guid userId, CancellationToken cancellationToken = default)
+        {
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
             if (null == user?.OwnedGroup)
             {
                 throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
@@ -63,15 +69,41 @@ namespace Hero.Server.DataAccess.Repositories
             return user.OwnedGroup;
         }
 
-        public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId)
+        public async Task<Core.Models.UserInfo> GetGroupOwner(Group group, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.GetGroupByUserId(userId);
+            await this.service.Initialize(this.options);
+            JCurth.Keycloak.Models.UserInfo? userInfo = await this.service.Users.GetUserById(group.OwnerId);
+
+            return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
+        }
+
+        public async Task<Group> GetGroupByInviteCode(string invitationCode, CancellationToken cancellationToken = default)
+        {
+            Group? group = await this.context.Groups.Include(group => group.Owner).SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
+
+            if (null == group)
+            {
+                throw new BaseException((int)ErrorCode.InvalidCode, "The provided invite code is invalid");
+            }
+
+            return group;
+        }
+
+        public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            Group? group = await this.context.Groups
+                .Include(group => group.Members)
+                .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
+
+            if (null == group)
+            {
+                throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
+            }
 
             await this.service.Initialize(options);
-            //List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Groups.GetAllUsersInGroup(group.Name.ToString());
+            List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Users.GetUsersById(group!.Members.Select(u => u.Id).ToList());
 
-            //return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
-            return new List<Core.Models.UserInfo>();
+            return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
         }
 
         public async Task<string> CreateGroup(string groupName, string groupDescription, Guid ownerId, CancellationToken cancellationToken = default)
@@ -100,7 +132,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<string> GenerateInviteCode(Guid groupId, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.GetGroupByUserId(groupId);
+            Group? group = await this.GetGroupByOwnerId(groupId);
 
             group.InviteCode = this.GenerateInvitationCode();
             await this.context.SaveChangesAsync(cancellationToken);
