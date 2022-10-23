@@ -85,7 +85,8 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                return await this.repository.JoinGroup(id, this.HttpContext.User.GetUserId(), code) ? this.Ok() : this.BadRequest();
+                await this.repository.JoinGroup(id, this.HttpContext.User.GetUserId(), code);
+                return this.Ok();
             });
         }
 
@@ -94,9 +95,8 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                return await this.repository.LeaveGroup(this.HttpContext.User.GetUserId()) 
-                ? this.Ok() 
-                : this.BadRequest();
+                await this.repository.LeaveGroup(this.HttpContext.User.GetUserId());
+                return this.Ok(); 
             });
         }
 
@@ -105,9 +105,8 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                return await this.repository.DeleteGroup(id, this.HttpContext.User.GetUserId()) 
-                ? this.Ok() 
-                : this.BadRequest();
+                await this.repository.DeleteGroup(id, this.HttpContext.User.GetUserId());
+                return this.Ok();
             });
         }
     }

@@ -43,9 +43,9 @@ namespace Hero.Server.DataAccess.Repositories
                 .Select(s => s[new Random().Next(s.Length)]).ToArray());
         }
 
-        private async Task EvaluateInvitationCode(Guid groupId, string invitationCode)
+        private async Task EvaluateInvitationCode(Guid groupId, string invitationCode, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.FindAsync(groupId);
+            Group? group = await this.context.Groups.FindAsync(new object [] {groupId}, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new BaseException((int)EventIds.InvalidInvitationCode, "The given invitation code is not valid.");
@@ -140,12 +140,11 @@ namespace Hero.Server.DataAccess.Repositories
             return group.InviteCode;
         }
 
-        public async Task<bool> JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default)
+        public async Task JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default)
         {
-            bool success = false;
             try
             {
-                await this.EvaluateInvitationCode(groupId, invitationCode);
+                await this.EvaluateInvitationCode(groupId, invitationCode, cancellationToken);
 
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
                 if (null != user)
@@ -166,13 +165,10 @@ namespace Hero.Server.DataAccess.Repositories
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
             }
-
-            return success;
         }
 
-        public async Task<bool> LeaveGroup(Guid userId, CancellationToken cancellationToken = default)
+        public async Task LeaveGroup(Guid userId, CancellationToken cancellationToken = default)
         {
-            bool success = true;
             try
             {
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
@@ -194,13 +190,10 @@ namespace Hero.Server.DataAccess.Repositories
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
             }
-
-            return success;
         }
 
-        public async Task<bool> DeleteGroup(Guid groupId, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteGroup(Guid groupId, Guid userId, CancellationToken cancellationToken = default)
         {
-            bool success = false;
             try
             {
                 Group? group = await this.context.Groups.FindAsync(groupId, cancellationToken);
@@ -209,7 +202,6 @@ namespace Hero.Server.DataAccess.Repositories
                     await this.service.Initialize(options);
                     this.context.Remove(group);
                     await this.context.SaveChangesAsync(cancellationToken);
-                    success = true;
                 }
             }
             catch (Exception ex)
@@ -217,8 +209,6 @@ namespace Hero.Server.DataAccess.Repositories
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
             }
-
-            return success;
         }
     }
 }
