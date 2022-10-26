@@ -7,5 +7,6 @@
 
         public List<Character> Characters { get; set; }
         public Group OwnedGroup { get; set; }
+        public Group? Group { get; set; }
     }
 }

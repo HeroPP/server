@@ -67,7 +67,7 @@ namespace Hero.Server.Controllers
             {
                 Skill skill = this.mapper.Map<Skill>(request);
                 await this.repository.UpdateSkillAsync(id, skill, this.HttpContext.User.GetUserId());
-                return this.Ok();
+                return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
         }
 

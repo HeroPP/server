@@ -20,6 +20,9 @@ namespace Hero.Server
             this.CreateMap<NodeTree, NodeTreeResponse>();
             this.CreateMap<NodeTree, NodeTreeOverviewResponse>();
             this.CreateMap<CreateNodeTreeRequest, NodeTree>();
+
+            this.CreateMap<User, UserResponse>();
+            this.CreateMap<Group, GroupResponse>();
         }
     }
 }

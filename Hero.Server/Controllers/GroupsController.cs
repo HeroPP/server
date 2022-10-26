@@ -28,13 +28,25 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                Group? group = await this.repository.GetGroupAdminInfoAsync(this.HttpContext.User.GetUserId());
+                Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId());
                 if (null == group) 
                 {
                     return this.BadRequest();
                 }
 
                 return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
+            });
+        }
+
+        [HttpGet("{code}")]
+        public async Task<IActionResult> GetGroupInfo(string code, CancellationToken token)
+        {
+            return await this.HandleExceptions(async () =>
+            {
+                Group group = await this.repository.GetGroupByInviteCode(code, token);
+                UserInfo user = await this.repository.GetGroupOwner(group, token);
+
+                return this.Ok(new { Id = group.Id, Name = group.Name, Owner = user.Username, Description = group.Description });
             });
         }
         
@@ -54,7 +66,7 @@ namespace Hero.Server.Controllers
             return await this.HandleExceptions(async () =>
             {
 
-                string? code = await this.repository.CreateGroup(request.Name, this.HttpContext.User.GetUserId());
+                string? code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId());
                 if (null != code)
                 {
                     // ToDo: Generate invitation code.
@@ -73,7 +85,8 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                return await this.repository.JoinGroup(id, this.HttpContext.User.GetUserId(), code) ? this.Ok() : this.BadRequest();
+                await this.repository.JoinGroup(id, this.HttpContext.User.GetUserId(), code);
+                return this.Ok();
             });
         }
 
@@ -82,9 +95,8 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                return await this.repository.LeaveGroup(this.HttpContext.User.GetUserId()) 
-                ? this.Ok() 
-                : this.BadRequest();
+                await this.repository.LeaveGroup(this.HttpContext.User.GetUserId());
+                return this.Ok(); 
             });
         }
 
@@ -93,9 +105,8 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                return await this.repository.DeleteGroup(id, this.HttpContext.User.GetUserId()) 
-                ? this.Ok() 
-                : this.BadRequest();
+                await this.repository.DeleteGroup(id, this.HttpContext.User.GetUserId());
+                return this.Ok();
             });
         }
     }
