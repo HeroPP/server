@@ -4,7 +4,7 @@ namespace Hero.Server.Messages.Requests
 {
     public class CreateSkillRequest
     {
-        public string IconUrl { get; set; }
+        public string? IconUrl { get; set; }
         [Required]
         public string Name { get; set; }
         public string Description { get; set; }
