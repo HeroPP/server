@@ -15,6 +15,8 @@ namespace Hero.Server.Core.Logging
 
         [LoggerMessage((int)EventIds.AbilityDoesNotExist, LogLevel.Error, "The ablility (name: {AbilityName}) you're trying to delete does not exist.")]
         public static partial void LogAbilityDoesNotExist(this ILogger logger, string abilityName);
+        [LoggerMessage((int)EventIds.AttributeDoesNotExist, LogLevel.Error, "The attribute (id: {AttributeId}) you're trying to delete does not exist.")]
+        public static partial void LogAttributeDoesNotExist(this ILogger logger, Guid attributeId);
         [LoggerMessage((int)EventIds.NodeDoesNotExist, LogLevel.Error, "The node (id: {NodeId}) you're trying to delete does not exist.")]
         public static partial void LogNodeDoesNotExist(this ILogger logger, Guid nodeId);
         [LoggerMessage((int)EventIds.NodeTreeDoesNotExist, LogLevel.Error, "The nodeTree (id: {NodeTreeId}) you're trying to delete does not exist.")]

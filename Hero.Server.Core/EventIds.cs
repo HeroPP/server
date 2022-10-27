@@ -32,5 +32,8 @@
         InvalidInvitationCode = 1702,
         CannotCreateCharacterOutsideOfAGroup = 1703,
         NotAGroupAdmin = 1704,
+
+        // Attribute Events 18XX
+        AttributeDoesNotExist = 1800,
     }
 }
