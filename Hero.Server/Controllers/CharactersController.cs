@@ -33,7 +33,7 @@ namespace Hero.Server.Controllers
                 Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id);
                 if (character != null)
                 {
-                    return this.Ok(new CharacterDetailResponse(character));
+                    return this.Ok(new CharacterDetailResponse(character, mapper));
                 }
 
                 return this.BadRequest();

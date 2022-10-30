@@ -24,7 +24,7 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("{id}")]
         public Task<IActionResult> GetAttributeByIdAsync(Guid id)
         {
             return this.HandleExceptions(async () =>
@@ -50,7 +50,7 @@ namespace Hero.Server.Controllers
             });
         }
 
-        [HttpDelete("{name}")]
+        [HttpDelete("{id}")]
         public Task<IActionResult> DeleteAttributeAsync(Guid id)
         {
             return this.HandleExceptions(async () =>
@@ -60,7 +60,7 @@ namespace Hero.Server.Controllers
             });
         }
 
-        [HttpPut("{name}")]
+        [HttpPut("{id}")]
         public Task<IActionResult> UpdateAttributeAsync(Guid id, [FromBody] CreateAttributeRequest request)
         {
             return this.HandleExceptions(async () =>

@@ -9,5 +9,6 @@ namespace Hero.Server.Core.Repositories
         Task CreateSkillAsync(Skill skill, Guid userId, CancellationToken cancellationToken = default);
         Task UpdateSkillAsync(Guid id, Skill updatedSkill, Guid userId, CancellationToken cancellationToken = default);
         Task DeleteSkillAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
+        Task<AttributeSkill?> GetAttributeSkillByIdAsync(Guid id, Guid attributeId, Guid userId, CancellationToken cancellationToken = default);
     }
 }

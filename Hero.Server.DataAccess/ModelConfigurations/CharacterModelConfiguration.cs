@@ -15,17 +15,14 @@ namespace Hero.Server.Core.ModelConfigurations
             builder.Property(c => c.Name).IsRequired();
             builder.Property(c => c.Name).HasMaxLength(100);
 
-            builder.Property(c => c.HealthPoints).IsRequired();
-            builder.Property(c => c.LightPoints).IsRequired();
-            builder.Property(c => c.MovementSpeed).IsRequired();
-            builder.Property(c => c.Resistance).IsRequired();
-            builder.Property(c => c.OpticalRange).IsRequired();
-            builder.Property(c => c.Parry).IsRequired();
-            builder.Property(c => c.Dodge).IsRequired();
             builder
                 .HasMany(charakter => charakter.NodeTrees)
                 .WithOne()
                 .HasForeignKey(nodeTree => nodeTree.CharacterId)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder
+                .HasOne(charakter => charakter.Race)
+                .WithOne()
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }

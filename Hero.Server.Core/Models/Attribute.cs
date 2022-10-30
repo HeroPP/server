@@ -11,11 +11,18 @@
         public double MinValue { get; set; }
         public double MaxValue { get; set; }
 
-        public List<AttributeCharacter> AttributeCharcters { get; set; }
-
+        public List<AttributeRace> AttributeRaces { get; set; }
+        public List<AttributeSkill> AttributeSkills { get; set; }
         public void Update(Attribute attribute)
         {
-
+            this.Name = attribute.Name;
+            this.IconUrl = attribute.IconUrl;
+            this.Description = attribute.Description;
+            this.StepSize = attribute.StepSize;
+            this.MinValue = attribute.MinValue;
+            this.MaxValue = attribute.MaxValue;
+            this.AttributeRaces = attribute.AttributeRaces;
+            this.AttributeSkills = attribute.AttributeSkills;
         }
     }
 }

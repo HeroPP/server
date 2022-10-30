@@ -7,7 +7,7 @@ namespace Hero.Server.Core.Repositories
     {
         Task<Attribute?> GetAttributeByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
         Task<IEnumerable<Attribute>> GetAllAttributesAsync(Guid userId, CancellationToken cancellationToken = default);
-        Task CreateAttributeAsync(Attribute ability, Guid userId, CancellationToken cancellationToken = default);
+        Task CreateAttributeAsync(Attribute attribute, Guid userId, CancellationToken cancellationToken = default);
         Task UpdateAttributeAsync(Guid id, Attribute updatedAttribute, Guid userId, CancellationToken cancellationToken = default);
         Task DeleteAttributeAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
     }

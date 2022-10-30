@@ -8,13 +8,13 @@
         public List<NodeTree> NodeTrees { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<AttributeCharacter> AttributeCharcters { get; set; }
+        public Race Race { get; set; }
 
-        public void Update(Character updated)
+        public void Update(Character character)
         {
-            this.Name = updated.Name;
-            this.Description = updated.Description;
-
+            this.Name = character.Name;
+            this.Description = character.Description;
+            this.NodeTrees = character.NodeTrees;
         }
     }
 }

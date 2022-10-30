@@ -17,22 +17,34 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<NodeTree> NodeTrees { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Attribute> Attributes { get; set; }
-        public DbSet<AttributeCharacter> AttributeCharacters { get; set; }
+        public DbSet<Race> Races { get; set; }
+        public DbSet<AttributeRace> AttributeRaces { get; set; }
+        public DbSet<AttributeSkill> AttributeSkills { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema(HeroDbResources.Schema);
             builder.ApplyConfigurationsFromAssembly(typeof(HeroDbContext).Assembly);
-            builder.Entity<AttributeCharacter>().HasKey(ac => new { ac.AttributeId, ac.CharacterId });
 
-            builder.Entity<AttributeCharacter>()
+            builder.Entity<AttributeRace>().HasKey(ac => new { ac.AttributeId, ac.RaceId });
+            builder.Entity<AttributeRace>()
                 .HasOne<Attribute>(ac => ac.Attribute)
-                .WithMany(a => a.AttributeCharcters)
+                .WithMany(a => a.AttributeRaces)
                 .HasForeignKey(ac => ac.AttributeId);
+            builder.Entity<AttributeRace>()
+                .HasOne<Race>(ac => ac.Race)
+                .WithMany(c => c.AttributeRaces)
+                .HasForeignKey(ac => ac.RaceId);
 
-            builder.Entity<AttributeCharacter>()
-                .HasOne<Character>(ac => ac.Character)
-                .WithMany(a => a.AttributeCharcters)
-                .HasForeignKey(ac => ac.CharacterId);
+            builder.Entity<AttributeSkill>().HasKey(ac => new { ac.AttributeId, ac.SkillId });
+            builder.Entity<AttributeSkill>()
+                .HasOne<Attribute>(ats => ats.Attribute)
+                .WithMany(at => at.AttributeSkills)
+                .HasForeignKey(ats => ats.AttributeId);
+            builder.Entity<AttributeSkill>()
+                .HasOne<Skill>(ats => ats.Skill)
+                .WithMany(s => s.AttributeSkills)
+                .HasForeignKey(ats => ats.SkillId);
+
         }
     }
 }

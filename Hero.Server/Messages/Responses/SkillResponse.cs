@@ -1,4 +1,5 @@
-﻿using Hero.Server.Core.Models;
+﻿using AutoMapper;
+using Hero.Server.Core.Models;
 
 namespace Hero.Server.Messages.Responses
 {
@@ -9,18 +10,28 @@ namespace Hero.Server.Messages.Responses
         public string? IconUrl { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int HealthPointsBoost { get; set; }
-        public int LightPointsBoost { get; set; }
-        public double MovementSpeedBoost { get; set; }
-        public double ResistanceBoost { get; set; }
-        public double OpticalRangeBoost { get; set; }
-        public double MeleeDamageBoost { get; set; }
-        public double RangeDamageBoost { get; set; }
-        public double LightDamageBoost { get; set; }
-        public double DamageBoost { get; set; }
-        public double ParryBoost { get; set; }
-        public double DodgeBoost { get; set; }
-        //?
         public AbilityResponse? Ability { get; set; }
+        public List<AttributeValueResponse>? Attributes { get; set; }
+        
+        public SkillResponse(Skill skill, IMapper mapper)
+        {
+            Id = skill.Id;
+            Name = skill.Name;
+            Description = skill.Description;
+            IconUrl = skill.IconUrl;
+            AbilityName = skill.AbilityName;
+            Ability = mapper.Map<AbilityResponse>(skill.Ability);
+            Attributes = skill.AttributeSkills.Select(ats => (new AttributeValueResponse()
+            {
+                Id = ats.Attribute.Id,
+                Name = ats.Attribute.Name,
+                IconUrl = ats.Attribute.IconUrl,
+                Description = ats.Attribute.Description,
+                StepSize = ats.Attribute.StepSize,
+                MinValue = ats.Attribute.MinValue,
+                MaxValue = ats.Attribute.MaxValue,
+                Value = ats.Value,
+            })).ToList();
+        }
     }
 }

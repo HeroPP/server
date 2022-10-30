@@ -8,6 +8,7 @@ using Hero.Server.Messages.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.Controllers
 {
@@ -32,7 +33,7 @@ namespace Hero.Server.Controllers
                 Skill? skill = await this.repository.GetSkillByIdAsync(id, this.HttpContext.User.GetUserId());
                 if (skill != null)
                 {
-                    return this.Ok(this.mapper.Map<SkillResponse>(skill));
+                    return this.Ok(new SkillResponse(skill, this.mapper));
                 }
 
                 return this.BadRequest();
@@ -46,7 +47,7 @@ namespace Hero.Server.Controllers
             {
                 List<Skill> skills = (await this.repository.GetAllSkillsAsync(this.HttpContext.User.GetUserId())).ToList();
 
-                return this.Ok(skills.Select(skill => this.mapper.Map<SkillResponse>(skill)).ToList());
+                return this.Ok(skills.Select(skill => new SkillResponse(skill, this.mapper)).ToList());
             });
         }
 
@@ -65,9 +66,30 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Skill skill = this.mapper.Map<Skill>(request);
+                Skill skill = new Skill
+                {
+                    Id = id,
+                    Name = request.Name,
+                    Description = request.Description,
+                    AbilityName = request.AbilityName,
+                    IconUrl = request.IconUrl,
+                    Ability = this.mapper.Map<Ability>(request.CreateAbilityRequest),
+                    //Ich kenne mich mit Tasks nicht genug aus ._.
+                    AttributeSkills = request.UpdateAttributeValueRequests.Select(async uavr => this.repository.GetAttributeSkillByIdAsync(id, uavr.AttributeId, this.HttpContext.User.GetUserId()) == null ? 
+                    new AttributeSkill
+                    {
+                        AttributeId = uavr.AttributeId,
+                        SkillId = id,
+                        Value = uavr.Value,
+                        Attribute = this.mapper.Map<Attribute>(uavr.CreateAttributeRequest),
+                    }
+                    :
+                    await this.repository.GetAttributeSkillByIdAsync(id, uavr.AttributeId, this.HttpContext.User.GetUserId())
+                    ).ToList(),
+                };
+                skill.AttributeSkills.ForEach(ats => ats.Skill = skill);
                 await this.repository.UpdateSkillAsync(id, skill, this.HttpContext.User.GetUserId());
-                return this.Ok(this.mapper.Map<SkillResponse>(skill));
+                return this.Ok(new SkillResponse(skill, this.mapper));
             });
         }
 
@@ -76,10 +98,28 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Skill skill = this.mapper.Map<Skill>(request);
+                Guid id = Guid.NewGuid();
+                Skill skill = new Skill
+                {
+                    Id = id,
+                    Name = request.Name,
+                    Description = request.Description,
+                    AbilityName = request.AbilityName,
+                    IconUrl = request.IconUrl,
+                    Ability = this.mapper.Map<Ability>(request.CreateAbilityRequest),
+                    AttributeSkills = request.UpdateAttributeValueRequests.Select(uavr => new AttributeSkill
+                    {
+                        AttributeId = uavr.AttributeId,
+                        SkillId = id,
+                        Value = uavr.Value,
+                        Attribute = this.mapper.Map<Attribute>(uavr.CreateAttributeRequest),
+                    }).ToList(),
+
+                };
+                skill.AttributeSkills.ForEach(ats => ats.Skill = skill);
                 await this.repository.CreateSkillAsync(skill, this.HttpContext.User.GetUserId());
 
-                return this.Ok(this.mapper.Map<SkillResponse>(skill));
+                return this.Ok(new SkillResponse(skill, this.mapper));
             });
         }
 

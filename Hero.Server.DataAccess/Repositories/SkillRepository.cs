@@ -29,6 +29,13 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
 
+        public async Task<AttributeSkill?> GetAttributeSkillByIdAsync(Guid id, Guid attributeId, Guid userId, CancellationToken cancellationToken = default)
+        {
+            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+
+            return await this.context.AttributeSkills.Where(s => s.Attribute.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(ats => ats.SkillId == id && ats.AttributeId == attributeId, cancellationToken);
+        }
+
         public async Task CreateSkillAsync(Skill skill, Guid userId, CancellationToken cancellationToken = default)
         {
             try
