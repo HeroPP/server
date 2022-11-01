@@ -13,7 +13,7 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<Ability> Abilities { get; set; }
         public DbSet<Skill> Skills { get; set; }
         public DbSet<Node> Nodes { get; set; }
-        public DbSet<NodeTree> NodeTrees { get; set; }
+        public DbSet<Skilltree> Skilltrees { get; set; }
         public DbSet<Group> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

@@ -34,7 +34,7 @@ namespace Hero.Server.Controllers
                 
                 if (null == user)
                 {
-                    return this.BadRequest();
+                    user = await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
                 }
 
                 return this.Ok(new {Id = user.Id, Group = this.mapper.Map<GroupResponse>(user.OwnedGroup ?? user.Group)}); 

@@ -7,37 +7,36 @@ using Microsoft.Extensions.Logging;
 
 namespace Hero.Server.DataAccess.Repositories
 {
-    public class NodeTreeRepository : INodeTreeRepository
+    public class SkilltreeRepository : ISkilltreeRepository
     {
         private readonly HeroDbContext context;
-        private readonly ILogger<NodeTreeRepository> logger;
+        private readonly ILogger<SkilltreeRepository> logger;
 
-        public NodeTreeRepository(HeroDbContext context, ILogger<NodeTreeRepository> logger)
+        public SkilltreeRepository(HeroDbContext context, ILogger<SkilltreeRepository> logger)
         {
             this.context = context;
             this.logger = logger;
         }
 
-        public async Task<List<NodeTree>> GetAllNodeTreesOfCharacterAsync(Guid charId, CancellationToken cancellationToken = default)
+        public async Task<List<Skilltree>> GetAllSkilltreesOfCharacterAsync(Guid charId, CancellationToken cancellationToken = default)
         {
-            return await this.context.NodeTrees.Where(c => c.CharacterId == charId).ToListAsync(cancellationToken);
+            return await this.context.Skilltrees.Where(c => c.CharacterId == charId).ToListAsync(cancellationToken);
         }
 
-        public async Task<NodeTree?> GetNodeTreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.NodeTrees
-                .Include(c => c.AllNodes)
+            return await this.context.Skilltrees
+                .Include(c => c.Nodes)
                 .ThenInclude(n => n.Skill)
                 .ThenInclude(s => s.Ability)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task CreateNodeTreeAsync(NodeTree nodeTree, CancellationToken cancellationToken = default)
+        public async Task CreateSkilltreeAsync(Skilltree skilltree, CancellationToken cancellationToken = default)
         {
             try
             {
-                nodeTree.Id = Guid.NewGuid();
-                await this.context.NodeTrees.AddAsync(nodeTree, cancellationToken);
+                await this.context.Skilltrees.AddAsync(skilltree, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -47,19 +46,19 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteNodeTreeAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task DeleteSkilltreeAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                NodeTree? existing = await this.context.NodeTrees.FindAsync(new object[] { id }, cancellationToken);
+                Skilltree? existing = await this.context.Skilltrees.FindAsync(new object[] { id }, cancellationToken);
 
                 if (null == existing)
                 {
-                    this.logger.LogNodeTreeDoesNotExist(id);
+                    this.logger.LogSkilltreeDoesNotExist(id);
                     return;
                 }
 
-                this.context.NodeTrees.Remove(existing);
+                this.context.Skilltrees.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -69,11 +68,11 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdateNodeTreeAsync(Guid id, NodeTree updatedNodeTree, CancellationToken cancellationToken = default)
+        public async Task UpdateSkilltreeAsync(Guid id, Skilltree updatedNodeTree, CancellationToken cancellationToken = default)
         {
             try
             {
-                NodeTree? existing = await this.context.NodeTrees.FindAsync(new object[] { id }, cancellationToken);
+                Skilltree? existing = await this.context.Skilltrees.FindAsync(new object[] { id }, cancellationToken);
 
                 if (null == existing)
                 {
@@ -81,10 +80,10 @@ namespace Hero.Server.DataAccess.Repositories
                 }
 
                 //Todo testen: Nodes löschen/updaten/einfügen Verhalten bezüglich NodeTree und DB.
-                existing.AllNodes.Clear();
+                existing.Nodes.Clear();
                 existing.Update(updatedNodeTree);
 
-                this.context.NodeTrees.Update(existing);
+                this.context.Skilltrees.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)

@@ -20,7 +20,7 @@ namespace Hero.Server.DataAccess.Extensions
             services.AddTransient<IAbilityRepository, AbilityRepository>();
             services.AddTransient<ICharacterRepository, CharacterRepository>();
             services.AddTransient<INodeRepository, NodeRepository>();
-            services.AddTransient<INodeTreeRepository, NodeTreeRepository>();
+            services.AddTransient<ISkilltreeRepository, SkilltreeRepository>();
             services.AddTransient<ISkillRepository, SkillRepository>();
             services.AddTransient<ICharacterRepository, CharacterRepository>();
             services.AddTransient<IGroupRepository, GroupRepository>();

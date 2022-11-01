@@ -2,7 +2,7 @@
 
 namespace Hero.Server.Messages.Responses
 {
-    public class NodeTreeOverviewResponse
+    public class SkilltreeOverviewResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

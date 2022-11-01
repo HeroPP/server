@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(n => n.IsUnlocked).IsRequired();
             builder.Property(n => n.IsEasyReachable).IsRequired();
             builder.Property(n => n.Precessors).IsRequired();
-            builder.Property(n => n.Successors).IsRequired();
+            builder.Property(n => n.Successors).IsRequired();                
         }
     }
 }

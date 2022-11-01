@@ -45,7 +45,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             return await this.context.Characters
                 .Include(c => c.NodeTrees)
-                .ThenInclude(t => t.AllNodes)
+                .ThenInclude(t => t.Nodes)
                 .ThenInclude(n => n.Skill)
                 //.ThenInclude(s => s.Ability)
                 .FirstOrDefaultAsync(c => c.Id == id);
