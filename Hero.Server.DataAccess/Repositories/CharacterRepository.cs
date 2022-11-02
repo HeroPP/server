@@ -13,12 +13,14 @@ namespace Hero.Server.DataAccess.Repositories
     public class CharacterRepository : ICharacterRepository
     {
         private readonly HeroDbContext context;
+        private readonly IGroupContext group;
         private readonly IUserRepository userRepository;
         private readonly ILogger<CharacterRepository> logger;
 
-        public CharacterRepository(HeroDbContext context, IUserRepository userRepository, ILogger<CharacterRepository> logger)
+        public CharacterRepository(HeroDbContext context, IGroupContext group, IUserRepository userRepository, ILogger<CharacterRepository> logger)
         {
             this.context = context;
+            this.group = group;
             this.userRepository = userRepository;
             this.logger = logger;
         }
@@ -44,10 +46,9 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Character?> GetCharacterWithNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
             return await this.context.Characters
-                .Include(c => c.NodeTrees)
+                .Include(c => c.Skilltrees)
                 .ThenInclude(t => t.Nodes)
                 .ThenInclude(n => n.Skill)
-                //.ThenInclude(s => s.Ability)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -55,15 +56,8 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                character.UserId = user!.Id;
-                
-                if (user.GroupId == null)
-                {
-                    throw new BaseException((int)EventIds.CannotCreateCharacterOutsideOfAGroup, "A character cannot be created without a associated group.");
-                }
-
-                character.GroupId = user.GroupId.Value;
+                character.UserId = userId;
+                character.GroupId = this.group.Id;
 
                 await this.context.Characters.AddAsync(character, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);

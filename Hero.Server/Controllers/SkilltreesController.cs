@@ -15,12 +15,14 @@ namespace Hero.Server.Controllers
     public class SkilltreesController : HeroControllerBase
     {
         private readonly ISkilltreeRepository repository;
+        private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public SkilltreesController(ISkilltreeRepository repository, IMapper mapper, ILogger<SkilltreesController> logger)
+        public SkilltreesController(ISkilltreeRepository repository, IUserRepository userRepository, IMapper mapper, ILogger<SkilltreesController> logger)
             : base(logger)
         {
             this.repository = repository;
+            this.userRepository = userRepository;
             this.mapper = mapper;
         }
 
@@ -29,6 +31,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
                 if (tree != null)
                 {
@@ -44,6 +47,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 List<Skilltree> tree = (await this.repository.GetAllSkilltreesOfCharacterAsync(characterId)).ToList();
 
                 return this.Ok(tree.Select(nodeTree => this.mapper.Map<SkilltreeOverviewResponse>(nodeTree)).ToList());
@@ -55,6 +59,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.DeleteSkilltreeAsync(id);
                 return this.Ok();
             });
@@ -66,6 +71,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Skilltree tree = this.mapper.Map<Skilltree>(request);
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.UpdateSkilltreeAsync(id, tree);
                 return this.Ok();
             });
@@ -77,6 +83,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Skilltree tree = this.mapper.Map<Skilltree>(request);
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.CreateSkilltreeAsync(tree);
 
                 return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));

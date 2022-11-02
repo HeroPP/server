@@ -10,17 +10,21 @@ namespace Hero.Server.DataAccess.Repositories
     public class SkilltreeRepository : ISkilltreeRepository
     {
         private readonly HeroDbContext context;
+        private readonly IGroupContext group;
         private readonly ILogger<SkilltreeRepository> logger;
 
-        public SkilltreeRepository(HeroDbContext context, ILogger<SkilltreeRepository> logger)
+        public SkilltreeRepository(HeroDbContext context, IGroupContext group, ILogger<SkilltreeRepository> logger)
         {
             this.context = context;
+            this.group = group;
             this.logger = logger;
         }
 
-        public async Task<List<Skilltree>> GetAllSkilltreesOfCharacterAsync(Guid charId, CancellationToken cancellationToken = default)
+        public async Task<List<Skilltree>> GetAllSkilltreesOfCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skilltrees.Where(c => c.CharacterId == charId).ToListAsync(cancellationToken);
+            return await this.context.Skilltrees
+                .Where(c => c.CharacterId == characterId)
+                .ToListAsync(cancellationToken);
         }
 
         public async Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -36,6 +40,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
+                skilltree.GroupId = this.group.Id;
                 await this.context.Skilltrees.AddAsync(skilltree, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -76,7 +81,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new Exception($"The nodeTree (id: {id}) you're trying to update does not exist.");
+                    throw new Exception($"The skilltree (id: {id}) you're trying to update does not exist.");
                 }
 
                 //Todo testen: Nodes löschen/updaten/einfügen Verhalten bezüglich NodeTree und DB.

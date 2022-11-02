@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public Guid GroupId { get; set; }
-        public List<Skilltree> NodeTrees { get; set; }
+        public List<Skilltree> Skilltrees { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public int HealthPoints { get; set; }

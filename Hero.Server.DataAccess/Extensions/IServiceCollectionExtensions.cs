@@ -1,4 +1,5 @@
-﻿using Hero.Server.Core.Repositories;
+﻿using Hero.Server.Core.Database;
+using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
 using Hero.Server.DataAccess.Repositories;
 
@@ -15,6 +16,10 @@ namespace Hero.Server.DataAccess.Extensions
         {
             services.AddDbContext<HeroDbContext>(
                 options => options.UseNpgsql(connectionString, pgOptions => pgOptions.MigrationsHistoryTable(HeroDbResources.MigrationsTable, HeroDbResources.Schema)));
+
+            services.AddScoped<GroupContext>();
+            services.AddScoped<IGroupContext>(factory => factory.GetRequiredService<GroupContext>());
+            services.AddScoped<IGroupContextBuilder, GroupContextBuilder>();
 
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAbilityRepository, AbilityRepository>();

@@ -24,11 +24,11 @@ namespace Hero.Server.Controllers
 
 
         [HttpGet, Authorize(Roles = RoleNames.Administrator)]
-        public async Task<IActionResult> GetGroupAdminInfo()
+        public async Task<IActionResult> GetGroupAdminInfo(CancellationToken token)
         {
             return await this.HandleExceptions(async () =>
             {
-                Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId());
+                Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
                 if (null == group) 
                 {
                     return this.BadRequest();
@@ -51,22 +51,21 @@ namespace Hero.Server.Controllers
         }
         
         [HttpGet("users"), Authorize(Roles = RoleNames.Administrator)]
-        public async Task<IActionResult> GetAllUsersInGroup()
+        public async Task<IActionResult> GetAllUsersInGroup(CancellationToken token)
         {
             return await this.HandleExceptions(async () =>
             {
-                List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId());
+                List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId(), token);
                 return this.Ok(users);
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateGroup([FromBody]GroupRequest request)
+        public async Task<IActionResult> CreateGroup([FromBody]GroupRequest request, CancellationToken token)
         {
             return await this.HandleExceptions(async () =>
             {
-
-                string? code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId());
+                string? code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId(), token);
                 if (null != code)
                 {
                     // ToDo: Generate invitation code.
@@ -81,31 +80,31 @@ namespace Hero.Server.Controllers
 
 
         [HttpPost("{id}/join/{code}")]
-        public async Task<IActionResult> JoinGroup(Guid id, string code)
+        public async Task<IActionResult> JoinGroup(Guid id, string code, CancellationToken token)
         {
             return await this.HandleExceptions(async () =>
             {
-                await this.repository.JoinGroup(id, this.HttpContext.User.GetUserId(), code);
+                await this.repository.JoinGroup(id, this.HttpContext.User.GetUserId(), code, token);
                 return this.Ok();
             });
         }
 
         [HttpPost("leave")]
-        public async Task<IActionResult> LeaveGroup()
+        public async Task<IActionResult> LeaveGroup(CancellationToken token)
         {
             return await this.HandleExceptions(async () =>
             {
-                await this.repository.LeaveGroup(this.HttpContext.User.GetUserId());
+                await this.repository.LeaveGroup(this.HttpContext.User.GetUserId(), token);
                 return this.Ok(); 
             });
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGroup(Guid id)
+        public async Task<IActionResult> DeleteGroup(Guid id, CancellationToken token)
         {
             return await this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteGroup(id, this.HttpContext.User.GetUserId());
+                await this.repository.DeleteGroup(id, this.HttpContext.User.GetUserId(), token);
                 return this.Ok();
             });
         }

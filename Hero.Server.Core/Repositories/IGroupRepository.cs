@@ -4,7 +4,7 @@ namespace Hero.Server.Core.Repositories
 {
     public interface IGroupRepository
     {
-        Task<string> CreateGroup(string groupName, string groupDescription, Guid ownerId, CancellationToken cancellationToken = default);
+        Task<string> CreateGroup(string groupName, string? groupDescription, Guid ownerId, CancellationToken cancellationToken = default);
         Task<string> GenerateInviteCode(Guid groupId, CancellationToken cancellationToken = default);
         Task JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default);
         Task LeaveGroup(Guid userId, CancellationToken cancellationToken = default);

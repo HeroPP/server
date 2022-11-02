@@ -45,7 +45,11 @@ namespace Hero.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser()
         {
-            return await this.HandleExceptions(async () => this.Ok(await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId())));
+            return await this.HandleExceptions(async () => 
+            {
+                await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
+                return this.Ok(); 
+            });
         }
 
     }
