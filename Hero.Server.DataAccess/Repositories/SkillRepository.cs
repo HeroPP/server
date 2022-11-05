@@ -12,35 +12,30 @@ namespace Hero.Server.DataAccess.Repositories
     public class SkillRepository : ISkillRepository
     {
         private readonly HeroDbContext context;
+        private readonly IGroupContext group;
         private readonly IUserRepository userRepository;
         private readonly ILogger<SkillRepository> logger;
 
-        public SkillRepository(HeroDbContext context, IUserRepository userRepository, ILogger<SkillRepository> logger)
+        public SkillRepository(HeroDbContext context, IGroupContext group, IUserRepository userRepository, ILogger<SkillRepository> logger)
         {
             this.context = context;
+            this.group = group;
             this.userRepository = userRepository;
             this.logger = logger;
         }
 
-        public async Task<Skill?> GetSkillByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-
-            return await this.context.Skills.Where(s => s.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            return await this.context.Skills.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
 
-        public async Task CreateSkillAsync(Skill skill, Guid userId, CancellationToken cancellationToken = default)
+        public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                if (null != user)
-                {
-                    skill.GroupId = user.OwnedGroup.Id;
-                    await this.context.Skills.AddAsync(skill, cancellationToken);
-                    await this.context.SaveChangesAsync(cancellationToken);
-                }
-                
+                skill.GroupId = group.Id;
+                await this.context.Skills.AddAsync(skill, cancellationToken);
+                await this.context.SaveChangesAsync(cancellationToken);                
             }
             catch (Exception ex)
             {
@@ -49,11 +44,11 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteSkillAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteSkillAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                Skill? existing = await this.GetSkillByIdAsync(id, userId, cancellationToken);
+                Skill? existing = await this.GetSkillByIdAsync(id, cancellationToken);
                 if (null == existing)
                 {
                     this.logger.LogSkillDoesNotExist(id);
@@ -69,17 +64,16 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<IEnumerable<Skill>> GetAllSkillsAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Skill>> GetAllSkillsAsync(CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Skills.Include(s => s.Ability).Where(s => s.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
+            return await this.context.Skills.Include(s => s.Ability).ToListAsync(cancellationToken);
         }
 
-        public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, Guid userId, CancellationToken cancellationToken = default)
+        public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, CancellationToken cancellationToken = default)
         {
             try
             {
-                Skill? existing = await this.GetSkillByIdAsync(id, userId, cancellationToken);
+                Skill? existing = await this.GetSkillByIdAsync(id, cancellationToken);
 
                 if (null == existing)
                 {

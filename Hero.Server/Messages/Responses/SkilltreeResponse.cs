@@ -2,11 +2,12 @@
 
 namespace Hero.Server.Messages.Responses
 {
-    public class NodeTreeOverviewResponse
+    public class SkilltreeResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
         public bool IsActiveTree { get; set; }
         public int Points { get; set; }
+        public List<NodeResponse> Nodes { get; set; }
     }
 }

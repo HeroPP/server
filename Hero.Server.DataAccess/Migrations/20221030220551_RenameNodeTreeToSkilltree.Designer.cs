@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221030220551_RenameNodeTreeToSkilltree")]
+    partial class RenameNodeTreeToSkilltree
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,6 +107,7 @@ namespace Hero.Server.DataAccess.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("InviteCode")
@@ -193,6 +196,7 @@ namespace Hero.Server.DataAccess.Migrations
                         .HasColumnType("double precision");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<double>("DodgeBoost")
@@ -254,9 +258,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<Guid?>("CharacterId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsActiveTree")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -272,8 +273,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterId");
-
-                    b.HasIndex("GroupId");
 
                     b.ToTable("Skilltrees", "Hero");
                 });
@@ -363,18 +362,10 @@ namespace Hero.Server.DataAccess.Migrations
 
             modelBuilder.Entity("Hero.Server.Core.Models.Skilltree", b =>
                 {
-                    b.HasOne("Hero.Server.Core.Models.Character", "Character")
-                        .WithMany("Skilltrees")
+                    b.HasOne("Hero.Server.Core.Models.Character", null)
+                        .WithMany("NodeTrees")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Hero.Server.Core.Models.Group", null)
-                        .WithMany("Skilltrees")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
@@ -389,7 +380,7 @@ namespace Hero.Server.DataAccess.Migrations
 
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>
                 {
-                    b.Navigation("Skilltrees");
+                    b.Navigation("NodeTrees");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
@@ -401,8 +392,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Navigation("Members");
 
                     b.Navigation("Skills");
-
-                    b.Navigation("Skilltrees");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Skilltree", b =>

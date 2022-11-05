@@ -47,6 +47,12 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .WithOne()
                 .HasForeignKey(character => character.GroupId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasMany(g => g.Skilltrees)
+                .WithOne()
+                .HasForeignKey(tree => tree.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
