@@ -25,14 +25,5 @@
         public bool IsEasyReachable { get; set; }
         public List<Guid> Precessors { get; set; }
         public List<Guid> Successors { get; set; }
-
-        public void Update(Node node)
-        {
-            this.Importance = node.Importance;
-            this.Cost = node.Cost;
-            this.Color = node.Color;
-            this.IsUnlocked = node.IsUnlocked;
-            this.IsEasyReachable = node.IsEasyReachable;
-        }
     }
 }

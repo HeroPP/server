@@ -18,7 +18,9 @@ namespace Hero.Server
             this.CreateMap<Skill, SkillResponse>();
             this.CreateMap<CreateSkillRequest, Skill>();
             this.CreateMap<Skilltree, SkilltreeResponse>();
-            this.CreateMap<Skilltree, SkilltreeOverviewResponse>();
+            this.CreateMap<Skilltree, SkilltreeOverviewResponse>()
+                .ForMember(dst => dst.NodeCount, src => src.MapFrom(tree => tree.Nodes.Count));
+            this.CreateMap<Node, NodeResponse>();
             this.CreateMap<NodeRequest, Node>();
             this.CreateMap<CreateSkilltreeRequest, Skilltree>();
 

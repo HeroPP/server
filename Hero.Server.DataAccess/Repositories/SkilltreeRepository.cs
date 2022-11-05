@@ -20,10 +20,11 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        public async Task<List<Skilltree>> GetAllSkilltreesOfCharacterAsync(Guid characterId, CancellationToken cancellationToken = default)
+        public async Task<List<Skilltree>> FilterSkilltrees(Guid? characterId, CancellationToken cancellationToken = default)
         {
             return await this.context.Skilltrees
-                .Where(c => c.CharacterId == characterId)
+                .Include(tree => tree.Nodes)
+                .Where(c => null == characterId || c.CharacterId == characterId)
                 .ToListAsync(cancellationToken);
         }
 
@@ -73,22 +74,40 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdateSkilltreeAsync(Guid id, Skilltree updatedNodeTree, CancellationToken cancellationToken = default)
+        public async Task UpdateSkilltreeAsync(Guid id, Skilltree updatedTree, CancellationToken cancellationToken = default)
         {
             try
             {
-                Skilltree? existing = await this.context.Skilltrees.FindAsync(new object[] { id }, cancellationToken);
+                Skilltree? existing = await this.context.Skilltrees.Include(tree => tree.Nodes).SingleOrDefaultAsync(tree => tree.Id == id, cancellationToken);
 
                 if (null == existing)
                 {
                     throw new Exception($"The skilltree (id: {id}) you're trying to update does not exist.");
                 }
 
-                //Todo testen: Nodes löschen/updaten/einfügen Verhalten bezüglich NodeTree und DB.
-                existing.Nodes.Clear();
-                existing.Update(updatedNodeTree);
+                existing.Name = updatedTree.Name;
+                existing.Points = updatedTree.Points;
+                existing.CharacterId = updatedTree.CharacterId;
+                existing.IsActiveTree = updatedTree.IsActiveTree;
+                
+                foreach (Node existingNode in existing.Nodes.Where(node => updatedTree.Nodes.Select(x => x.Id).Contains(node.Id)))
+                {
+                    Node updatedNode = updatedTree.Nodes.Single(node => existingNode.Id == node.Id);
+                    existingNode.Successors = updatedNode.Successors;
+                    existingNode.Precessors = updatedNode.Precessors;
+                    existingNode.Color = updatedNode.Color;
+                    existingNode.Cost = updatedNode.Cost;
+                    existingNode.XPos = updatedNode.XPos;
+                    existingNode.YPos = updatedNode.YPos;
+                    existingNode.Importance = updatedNode.Importance;
+                    existingNode.IsEasyReachable = updatedNode.IsEasyReachable;
+                    existingNode.SkillId = updatedNode.SkillId;
+                }
 
-                this.context.Skilltrees.Update(existing);
+                existing.Nodes.RemoveAll(node => !updatedTree.Nodes.Select(x => x.Id).Contains(node.Id));
+                existing.Nodes.AddRange(updatedTree.Nodes.Where(node => !existing.Nodes.Select(x => x.Id).Contains(node.Id)));
+
+                //this.context.Skilltrees.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)

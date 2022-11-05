@@ -8,6 +8,6 @@ namespace Hero.Server.Core.Repositories
         Task UpdateSkilltreeAsync(Guid id, Skilltree updatedSkilltree, CancellationToken cancellationToken = default);
         Task DeleteSkilltreeAsync(Guid id, CancellationToken cancellationToken = default);
         Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<List<Skilltree>> GetAllSkilltreesOfCharacterAsync(Guid charId, CancellationToken cancellationToken = default);
+        Task<List<Skilltree>> FilterSkilltrees(Guid? characterId, CancellationToken cancellationToken = default);
     }
 }

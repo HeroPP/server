@@ -31,26 +31,39 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
                 if (tree != null)
                 {
-                    return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));
+                    SkilltreeResponse value = this.mapper.Map<SkilltreeResponse>(tree);
+                    return this.Ok(value);
                 }
 
                 return this.BadRequest();
             });
         }
 
-        [HttpGet("{characterId}")]
-        public Task<IActionResult> GetSkilltreeOverviewsAsync(Guid characterId)
+        //[HttpGet("{characterId}")]
+        //public Task<IActionResult> GetSkilltreeOverviewsForCharacterAsync(Guid characterId, CancellationToken token)
+        //{
+        //    return this.HandleExceptions(async () =>
+        //    {
+        //        await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+        //        List<Skilltree> trees = (await this.repository.FilterSkilltrees(characterId, token)).ToList();
+
+        //        return this.Ok(trees.Select(skilltrees => this.mapper.Map<SkilltreeOverviewResponse>(skilltrees)).ToList());
+        //    });
+        //}
+
+        [HttpGet]
+        public Task<IActionResult> GetSkilltreeOverviewsAsync(CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                List<Skilltree> tree = (await this.repository.GetAllSkilltreesOfCharacterAsync(characterId)).ToList();
+                List<Skilltree> trees = (await this.repository.FilterSkilltrees(null, token)).ToList();
 
-                return this.Ok(tree.Select(nodeTree => this.mapper.Map<SkilltreeOverviewResponse>(nodeTree)).ToList());
+                return this.Ok(trees.Select(skilltrees => this.mapper.Map<SkilltreeOverviewResponse>(skilltrees)).ToList());
             });
         }
 
