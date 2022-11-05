@@ -6,7 +6,7 @@
         public Guid Id { get; set; }
         //SkillID for DB
         public Guid? SkillId { get; set; }
-        public Guid? NodeTreeId { get; set; }
+        public Guid? SkilltreeId { get; set; }
         /// <summary>
         /// Importance of the Node, shows the Node differently later on.
         /// Decides about the difference between 4 Edge Nodes, 5 Edge Nodes, 6 Edge Nodes...
@@ -25,14 +25,5 @@
         public bool IsEasyReachable { get; set; }
         public List<Guid> Precessors { get; set; }
         public List<Guid> Successors { get; set; }
-
-        public void Update(Node node)
-        {
-            this.Importance = node.Importance;
-            this.Cost = node.Cost;
-            this.Color = node.Color;
-            this.IsUnlocked = node.IsUnlocked;
-            this.IsEasyReachable = node.IsEasyReachable;
-        }
     }
 }

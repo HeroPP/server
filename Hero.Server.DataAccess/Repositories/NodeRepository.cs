@@ -53,27 +53,27 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdateNodeAsync(Guid id,Node updatedNode, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-               Node? existing = await this.context.Nodes.FindAsync(new object[] { id }, cancellationToken);
+        //public async Task UpdateNodeAsync(Guid id,Node updatedNode, CancellationToken cancellationToken = default)
+        //{
+        //    try
+        //    {
+        //       Node? existing = await this.context.Nodes.FindAsync(new object[] { id }, cancellationToken);
 
-                if (null == existing)
-                {
-                    throw new Exception($"TheNode (id: {id}) you're trying to update does not exist.");
-                }
+        //        if (null == existing)
+        //        {
+        //            throw new Exception($"TheNode (id: {id}) you're trying to update does not exist.");
+        //        }
 
-                existing.Update(updatedNode);
+        //        existing.Update(updatedNode);
 
-                this.context.Nodes.Update(existing);
-                await this.context.SaveChangesAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw;
-            }
-        }
+        //        this.context.Nodes.Update(existing);
+        //        await this.context.SaveChangesAsync(cancellationToken);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this.logger.LogUnknownErrorOccured(ex);
+        //        throw;
+        //    }
+        //}
     }
 }

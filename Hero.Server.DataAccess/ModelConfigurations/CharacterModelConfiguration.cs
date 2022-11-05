@@ -23,8 +23,8 @@ namespace Hero.Server.Core.ModelConfigurations
             builder.Property(c => c.Parry).IsRequired();
             builder.Property(c => c.Dodge).IsRequired();
             builder
-                .HasMany(charakter => charakter.NodeTrees)
-                .WithOne()
+                .HasMany(charakter => charakter.Skilltrees)
+                .WithOne(tree => tree.Character)
                 .HasForeignKey(nodeTree => nodeTree.CharacterId)
                 .OnDelete(DeleteBehavior.SetNull);
         }

@@ -83,7 +83,7 @@ namespace Hero.Server.Core.Extensions
 
         public static List<Skill> GetUnlockedSkills(this Character character)
         {
-            return character.NodeTrees
+            return character.Skilltrees
                 .Where(tree => tree.IsActiveTree)
                 .SelectMany(tree => tree.GetAllUnlockedSkills())
                 .ToList();

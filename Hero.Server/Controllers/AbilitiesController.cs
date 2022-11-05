@@ -14,21 +14,23 @@ namespace Hero.Server.Controllers
     public class AbilitiesController : HeroControllerBase
     {
         private readonly IAbilityRepository repository;
+        private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public AbilitiesController(IAbilityRepository repository, IMapper mapper, ILogger<AbilitiesController> logger) 
+        public AbilitiesController(IAbilityRepository repository, IUserRepository userRepository, IMapper mapper, ILogger<AbilitiesController> logger) 
             : base(logger)
         {
             this.repository = repository;
+            this.userRepository = userRepository;
             this.mapper = mapper;
         }
 
         [HttpGet("{name}")]
-        public Task<IActionResult> GetAbilityByIdAsync(string name)
+        public Task<IActionResult> GetAbilityByIdAsync(string name, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                Ability? ability = await this.repository.GetAbilityByNameAsync(name, this.HttpContext.User.GetUserId());
+                Ability? ability = await this.repository.GetAbilityByNameAsync(name, token);
                 if (ability != null)
                 {
                     return this.Ok(this.mapper.Map<AbilityResponse>(ability));
@@ -39,48 +41,51 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet]
-        public Task<IActionResult> GetAllAbilitiesAsync()
+        public Task<IActionResult> GetAllAbilitiesAsync(CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                List<Ability> abilities = (await this.repository.GetAllAbilitiesAsync(this.HttpContext.User.GetUserId())).ToList();
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                List<Ability> abilities = (await this.repository.GetAllAbilitiesAsync(token)).ToList();
 
                 return this.Ok(abilities.Select(ability => this.mapper.Map<AbilityResponse>(ability)).ToList());
             });
         }
 
         [HttpDelete("{name}")]
-        public Task<IActionResult> DeleteAbilityAsync(string name)
+        public Task<IActionResult> DeleteAbilityAsync(string name, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteAbilityAsync(name, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.DeleteAbilityAsync(name, token);
                 return this.Ok();
             });
         }
 
         [HttpPut("{name}")]
-        public Task<IActionResult> UpdateAbilityAsync(string name, [FromBody] CreateAbilityRequest request)
+        public Task<IActionResult> UpdateAbilityAsync(string name, [FromBody] CreateAbilityRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
-                await this.repository.UpdateAbilityAsync(name, ability, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.UpdateAbilityAsync(name, ability, token);
                 return this.Ok(this.mapper.Map<AbilityResponse>(ability));
             });
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateAbilityAsync([FromBody] CreateAbilityRequest request)
+        public Task<IActionResult> CreateAbilityAsync([FromBody] CreateAbilityRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
-                await this.repository.CreateAbilityAsync(ability, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.CreateAbilityAsync(ability, token);
 
                 return this.Ok(this.mapper.Map<AbilityResponse>(ability));
             });
         }
-
     }
 }

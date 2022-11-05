@@ -15,21 +15,24 @@ namespace Hero.Server.Controllers
     public class SkillsController : HeroControllerBase
     {
         private readonly ISkillRepository repository;
+        private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public SkillsController(ISkillRepository repository, IMapper mapper, ILogger<SkillsController> logger)
+        public SkillsController(ISkillRepository repository, IUserRepository userRepository, IMapper mapper, ILogger<SkillsController> logger)
             : base(logger)
         {
             this.repository = repository;
+            this.userRepository = userRepository;
             this.mapper = mapper;
         }
 
         [HttpGet("{id}")]
-        public Task<IActionResult> GetSkillByIdAsync(Guid id)
+        public Task<IActionResult> GetSkillByIdAsync(Guid id, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                Skill? skill = await this.repository.GetSkillByIdAsync(id, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                Skill? skill = await this.repository.GetSkillByIdAsync(id, token);
                 if (skill != null)
                 {
                     return this.Ok(this.mapper.Map<SkillResponse>(skill));
@@ -40,44 +43,48 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet]
-        public Task<IActionResult> GetAllSkillsAsync()
+        public Task<IActionResult> GetAllSkillsAsync(CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                List<Skill> skills = (await this.repository.GetAllSkillsAsync(this.HttpContext.User.GetUserId())).ToList();
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                List<Skill> skills = (await this.repository.GetAllSkillsAsync(token)).ToList();
 
                 return this.Ok(skills.Select(skill => this.mapper.Map<SkillResponse>(skill)).ToList());
             });
         }
 
         [HttpDelete("{id}")]
-        public Task<IActionResult> DeleteSkillAsync(Guid id)
+        public Task<IActionResult> DeleteSkillAsync(Guid id, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteSkillAsync(id, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.DeleteSkillAsync(id, token);
                 return this.Ok();
             });
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateSkillAsync(Guid id, [FromBody] CreateSkillRequest request)
+        public Task<IActionResult> UpdateSkillAsync(Guid id, [FromBody] CreateSkillRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Skill skill = this.mapper.Map<Skill>(request);
-                await this.repository.UpdateSkillAsync(id, skill, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.UpdateSkillAsync(id, skill, token);
                 return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateSkillAsync([FromBody] CreateSkillRequest request)
+        public Task<IActionResult> CreateSkillAsync([FromBody] CreateSkillRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Skill skill = this.mapper.Map<Skill>(request);
-                await this.repository.CreateSkillAsync(skill, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.CreateSkillAsync(skill, token);
 
                 return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });

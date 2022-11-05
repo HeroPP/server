@@ -60,7 +60,9 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Group> GetGroupByOwnerId(Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+
+            User? user = await this.context.Users.Include(u => u.OwnedGroup).IgnoreQueryFilters().SingleOrDefaultAsync(u => u.Id == userId); //await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+
             if (null == user?.OwnedGroup)
             {
                 throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
@@ -106,7 +108,7 @@ namespace Hero.Server.DataAccess.Repositories
             return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
         }
 
-        public async Task<string> CreateGroup(string groupName, string groupDescription, Guid ownerId, CancellationToken cancellationToken = default)
+        public async Task<string> CreateGroup(string groupName, string? groupDescription, Guid ownerId, CancellationToken cancellationToken = default)
         {
             try
             {

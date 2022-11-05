@@ -17,6 +17,8 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .WithMany()
                 .HasForeignKey(node => node.SkillId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(n => n.Id).IsRequired().ValueGeneratedNever();
             builder.Property(n => n.Importance).IsRequired();
             builder.Property(n => n.Cost).IsRequired();
             builder.Property(n => n.XPos).IsRequired();
@@ -25,7 +27,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(n => n.IsUnlocked).IsRequired();
             builder.Property(n => n.IsEasyReachable).IsRequired();
             builder.Property(n => n.Precessors).IsRequired();
-            builder.Property(n => n.Successors).IsRequired();
+            builder.Property(n => n.Successors).IsRequired();                
         }
     }
 }

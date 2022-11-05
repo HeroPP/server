@@ -18,7 +18,7 @@ namespace Hero.Server.Core.Logging
         [LoggerMessage((int)EventIds.NodeDoesNotExist, LogLevel.Error, "The node (id: {NodeId}) you're trying to delete does not exist.")]
         public static partial void LogNodeDoesNotExist(this ILogger logger, Guid nodeId);
         [LoggerMessage((int)EventIds.NodeTreeDoesNotExist, LogLevel.Error, "The nodeTree (id: {NodeTreeId}) you're trying to delete does not exist.")]
-        public static partial void LogNodeTreeDoesNotExist(this ILogger logger, Guid nodeTreeId);
+        public static partial void LogSkilltreeDoesNotExist(this ILogger logger, Guid nodeTreeId);
         [LoggerMessage((int)EventIds.SkillDoesNotExist, LogLevel.Error, "The skill (id: {SkillId}) you're trying to delete does not exist.")]
         public static partial void LogSkillDoesNotExist(this ILogger logger, Guid skillId);
 
