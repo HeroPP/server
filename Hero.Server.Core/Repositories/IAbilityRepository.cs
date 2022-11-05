@@ -7,7 +7,7 @@ namespace Hero.Server.Core.Repositories
         Task<Ability?> GetAbilityByNameAsync(string name, CancellationToken cancellationToken = default);
         Task<IEnumerable<Ability>> GetAllAbilitiesAsync( CancellationToken cancellationToken = default);
         Task CreateAbilityAsync(Ability ability, CancellationToken cancellationToken = default);
-        Task UpdateAbilityAsync(string name, Ability updatedAbility, CancellationToken cancellationToken = default);
-        Task DeleteAbilityAsync(string name, CancellationToken cancellationToken = default);
+        Task UpdateAbilityAsync(Guid id, Ability updatedAbility, CancellationToken cancellationToken = default);
+        Task DeleteAbilityAsync(Guid id, CancellationToken cancellationToken = default);
     }
 }

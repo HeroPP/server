@@ -2,6 +2,7 @@
 {
     public class Ability
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public Guid GroupId { get; set; }
         /// <summary>

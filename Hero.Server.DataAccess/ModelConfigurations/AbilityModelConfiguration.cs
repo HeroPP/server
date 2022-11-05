@@ -10,7 +10,9 @@ namespace Hero.Server.DataAccess.ModelConfigurations
         public void Configure(EntityTypeBuilder<Ability> builder)
         {
             builder.ToTable("Abilities");
-            builder.HasKey(x => x.Name);
+            builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Name).IsRequired();
             builder.Property(c => c.Name).HasMaxLength(100);
 
             builder.Property(c => c.IsPassive).IsRequired();

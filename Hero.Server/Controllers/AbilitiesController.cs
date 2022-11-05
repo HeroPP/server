@@ -52,25 +52,25 @@ namespace Hero.Server.Controllers
             });
         }
 
-        [HttpDelete("{name}")]
-        public Task<IActionResult> DeleteAbilityAsync(string name, CancellationToken token)
+        [HttpDelete("{id}")]
+        public Task<IActionResult> DeleteAbilityAsync(Guid id, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.DeleteAbilityAsync(name, token);
+                await this.repository.DeleteAbilityAsync(id, token);
                 return this.Ok();
             });
         }
 
-        [HttpPut("{name}")]
-        public Task<IActionResult> UpdateAbilityAsync(string name, [FromBody] CreateAbilityRequest request, CancellationToken token)
+        [HttpPut("{id}")]
+        public Task<IActionResult> UpdateAbilityAsync(Guid id, [FromBody] CreateAbilityRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.UpdateAbilityAsync(name, ability, token);
+                await this.repository.UpdateAbilityAsync(id, ability, token);
                 return this.Ok(this.mapper.Map<AbilityResponse>(ability));
             });
         }

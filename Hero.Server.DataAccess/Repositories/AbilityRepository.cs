@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Ability?> GetAbilityByNameAsync(string name, CancellationToken cancellationToken = default)
         {
-            return await this.context.Abilities.FirstOrDefaultAsync(g => g.Name == name, cancellationToken);
+            return await this.context.Abilities.FirstOrDefaultAsync(g => EF.Functions.ILike(g.Name, name), cancellationToken);
         }
 
         public async Task CreateAbilityAsync(Ability ability, CancellationToken cancellationToken = default)
@@ -43,14 +43,14 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteAbilityAsync(string name, CancellationToken cancellationToken = default)
+        public async Task DeleteAbilityAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                Ability? existing = await this.GetAbilityByNameAsync(name, cancellationToken);
+                Ability? existing = await this.context.Abilities.SingleAsync(a => a.Id == id, cancellationToken);
                 if(null == existing)
                 {
-                    this.logger.LogAbilityDoesNotExist(name);
+                    this.logger.LogAbilityDoesNotExist(id);
                     return;
                 }
                 this.context.Abilities.Remove(existing);
@@ -68,15 +68,15 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Abilities.Where(a => a.GroupId == this.groupContext.Id).ToListAsync(cancellationToken);
         }
 
-        public async Task UpdateAbilityAsync(string name, Ability updatedAbility, CancellationToken cancellationToken = default)
+        public async Task UpdateAbilityAsync(Guid id, Ability updatedAbility, CancellationToken cancellationToken = default)
         {
             try
             {
-                Ability? existing = await this.GetAbilityByNameAsync(name, cancellationToken);
+                Ability? existing = await this.context.Abilities.SingleAsync(a => a.Id == id, cancellationToken);
 
                 if (null == existing)
                 {
-                    throw new Exception($"The Ability (name: {name}) you're trying to update does not exist.");
+                    throw new Exception($"The Ability (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedAbility);
