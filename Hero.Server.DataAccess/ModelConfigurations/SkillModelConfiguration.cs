@@ -15,7 +15,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder
                 .HasOne(skill => skill.Ability)
                 .WithMany()
-                .HasForeignKey(skill => skill.AbilityName)
+                .HasForeignKey(skill => skill.AbilityId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
