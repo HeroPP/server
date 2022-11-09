@@ -30,5 +30,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 await app.MigrateDatabaseAsync();
+app.ApplyGroupContext();
 
 app.Run();

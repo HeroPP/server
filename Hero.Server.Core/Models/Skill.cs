@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
         public Guid GroupId { get; set; }
-        public string? AbilityName { get; set; }
+        public Guid? AbilityId { get; set; }
         public string? IconUrl { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -13,7 +13,7 @@
 
         public void Update(Skill skill)
         {
-            this.AbilityName= skill.AbilityName;
+            this.AbilityId = skill.AbilityId;
             this.IconUrl= skill.IconUrl;
             this.Name= skill.Name;
             this.Description= skill.Description;    

@@ -5,10 +5,30 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+using Swashbuckle.AspNetCore.SwaggerGen;
+
 using System.Text.Json;
 
 namespace Hero.Server.Identity
 {
+    public class GroupFilter : IOperationFilter
+    {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            if (operation.Parameters == null)
+            {
+                operation.Parameters = new List<OpenApiParameter>();
+            }
+
+            operation.Parameters.Add(new OpenApiParameter
+            {
+                Name = "Group",
+                In = ParameterLocation.Header,
+                Required = false
+            });
+        }
+    }
+
     public static class IServiceCollectionExtension
     {
 
@@ -39,6 +59,8 @@ namespace Hero.Server.Identity
                         Array.Empty<string>()
                     }
                 });
+
+                options.OperationFilter<GroupFilter>();
             });
         }
 

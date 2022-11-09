@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hero.Server.DataAccess.ModelConfigurations
 {
-    internal class NodeTreeModelConfiguration : IEntityTypeConfiguration<NodeTree>
+    internal class SkilltreeModelConfiguration : IEntityTypeConfiguration<Skilltree>
     {
-        public void Configure(EntityTypeBuilder<NodeTree> builder)
+        public void Configure(EntityTypeBuilder<Skilltree> builder)
         {
-            builder.ToTable("NodeTrees");
+            builder.ToTable("Skilltrees");
             builder.HasKey(x => x.Id);
             builder.Property(c => c.Id).HasMaxLength(100);
             
@@ -16,10 +16,11 @@ namespace Hero.Server.DataAccess.ModelConfigurations
 
             builder.Property(c => c.Name).IsRequired();
             builder.Property(c => c.Points).IsRequired();
+
             builder
-                .HasMany(nodeTree => nodeTree.AllNodes)
+                .HasMany(tree => tree.Nodes)
                 .WithOne()
-                .HasForeignKey(node => node.NodeTreeId)
+                .HasForeignKey(node => node.SkilltreeId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

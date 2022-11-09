@@ -16,8 +16,8 @@ namespace Hero.Server.Core.ModelConfigurations
             builder.Property(c => c.Name).HasMaxLength(100);
 
             builder
-                .HasMany(charakter => charakter.NodeTrees)
-                .WithOne()
+                .HasMany(charakter => charakter.Skilltrees)
+                .WithOne(tree => tree.Character)
                 .HasForeignKey(nodeTree => nodeTree.CharacterId)
                 .OnDelete(DeleteBehavior.SetNull);
             builder

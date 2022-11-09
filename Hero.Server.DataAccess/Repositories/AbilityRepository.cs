@@ -11,34 +11,30 @@ namespace Hero.Server.DataAccess.Repositories
     public class AbilityRepository : IAbilityRepository
     {
         private readonly HeroDbContext context;
+        private readonly IGroupContext groupContext;
         private readonly IUserRepository userRepository;
         private readonly ILogger<AbilityRepository> logger;
 
-        public AbilityRepository(HeroDbContext context, IUserRepository userRepository, ILogger<AbilityRepository> logger)
+        public AbilityRepository(HeroDbContext context, IGroupContext groupContext, IUserRepository userRepository, ILogger<AbilityRepository> logger)
         {
             this.context = context;
+            this.groupContext = groupContext;
             this.userRepository = userRepository;
             this.logger = logger;
         }
 
-        public async Task<Ability?> GetAbilityByNameAsync(string name, Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Ability?> GetAbilityByNameAsync(string name, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(g => g.Name == name, cancellationToken);
+            return await this.context.Abilities.FirstOrDefaultAsync(g => EF.Functions.ILike(g.Name, name), cancellationToken);
         }
 
-        public async Task CreateAbilityAsync(Ability ability, Guid userId, CancellationToken cancellationToken = default)
+        public async Task CreateAbilityAsync(Ability ability, CancellationToken cancellationToken = default)
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                if (null != user)
-                {
-                    ability.GroupId = user.OwnedGroup.Id;
-                    await this.context.Abilities.AddAsync(ability, cancellationToken);
-                    await this.context.SaveChangesAsync(cancellationToken);
-                }
-                
+                ability.GroupId = this.groupContext.Id;
+                await this.context.Abilities.AddAsync(ability, cancellationToken);
+                await this.context.SaveChangesAsync(cancellationToken);                
             }
             catch (Exception ex)
             {
@@ -47,14 +43,14 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteAbilityAsync(string name, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteAbilityAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                Ability? existing = await this.GetAbilityByNameAsync(name, userId, cancellationToken);
+                Ability? existing = await this.context.Abilities.SingleAsync(a => a.Id == id, cancellationToken);
                 if(null == existing)
                 {
-                    this.logger.LogAbilityDoesNotExist(name);
+                    this.logger.LogAbilityDoesNotExist(id);
                     return;
                 }
                 this.context.Abilities.Remove(existing);
@@ -67,21 +63,20 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<IEnumerable<Ability>> GetAllAbilitiesAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Ability>> GetAllAbilitiesAsync(CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Abilities.Where(a => a.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
+            return await this.context.Abilities.Where(a => a.GroupId == this.groupContext.Id).ToListAsync(cancellationToken);
         }
 
-        public async Task UpdateAbilityAsync(string name, Ability updatedAbility, Guid userId, CancellationToken cancellationToken = default)
+        public async Task UpdateAbilityAsync(Guid id, Ability updatedAbility, CancellationToken cancellationToken = default)
         {
             try
             {
-                Ability? existing = await this.GetAbilityByNameAsync(name, userId, cancellationToken);
+                Ability? existing = await this.context.Abilities.SingleAsync(a => a.Id == id, cancellationToken);
 
                 if (null == existing)
                 {
-                    throw new Exception($"The Ability (name: {name}) you're trying to update does not exist.");
+                    throw new Exception($"The Ability (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedAbility);

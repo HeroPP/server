@@ -26,11 +26,11 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public Task<IActionResult> GetCharacterDetailByIdAsync(Guid id)
+        public Task<IActionResult> GetCharacterDetailByIdAsync(Guid id, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id);
+                Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id, token);
                 if (character != null)
                 {
                     return this.Ok(new CharacterDetailResponse(character, mapper));
@@ -41,7 +41,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet]
-        public Task<IActionResult> GetCharacterOverviewsAsync()
+        public Task<IActionResult> GetCharacterOverviewsAsync(CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
@@ -49,12 +49,12 @@ namespace Hero.Server.Controllers
                 bool isAdministrator = this.HttpContext.User.IsInRole(RoleNames.Administrator);
                 if (isAdministrator)
                 {
-                    characters = await this.repository.GetAllCharactersAsync();
+                    characters = await this.repository.GetAllCharactersAsync(token);
                 }
                 else
                 {
                     Guid userId = this.HttpContext.User.GetUserId();
-                    characters = (await this.repository.GetAllCharactersByUserIdAsync(userId)).ToList();
+                    characters = (await this.repository.GetAllCharactersByUserIdAsync(userId, token)).ToList();
                 }
 
                 return this.Ok(characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList());
@@ -62,33 +62,33 @@ namespace Hero.Server.Controllers
         }
 
         [HttpDelete("{id}")]
-        public Task<IActionResult> DeleteCharacterAsync(Guid id)
+        public Task<IActionResult> DeleteCharacterAsync(Guid id, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId());
+                await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId(), token);
                 return this.Ok();
             });
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CreateCharacterRequest request)
+        public Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CreateCharacterRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
-                await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId());
+                await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId(), token);
                 return this.Ok();
             });
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateCharacterAsync([FromBody] CreateCharacterRequest request)
+        public Task<IActionResult> CreateCharacterAsync([FromBody] CreateCharacterRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Character character = this.mapper.Map<Character>(request);
-                await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId());
+                await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId(), token);
 
                 return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
             });
