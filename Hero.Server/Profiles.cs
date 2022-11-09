@@ -17,12 +17,20 @@ namespace Hero.Server
             this.CreateMap<CreateAbilityRequest, Ability>();
             this.CreateMap<Skill, SkillResponse>();
             this.CreateMap<CreateSkillRequest, Skill>();
+
             this.CreateMap<Skilltree, SkilltreeResponse>();
             this.CreateMap<Skilltree, SkilltreeOverviewResponse>()
                 .ForMember(dst => dst.NodeCount, src => src.MapFrom(tree => tree.Nodes.Count));
-            this.CreateMap<Node, NodeResponse>();
-            this.CreateMap<NodeRequest, Node>();
+            this.CreateMap<SkilltreeNode, SkilltreeNodeResponse>();
+            this.CreateMap<SkilltreeNodeRequest, SkilltreeNode>();
             this.CreateMap<CreateSkilltreeRequest, Skilltree>();
+
+            this.CreateMap<BlueprintRequest, Blueprint>();
+            this.CreateMap<Blueprint, BlueprintOverviewResponse>()
+                .ForMember(dst => dst.NodeCount, src => src.MapFrom(print => print.Nodes.Count));
+            this.CreateMap<Blueprint, BlueprintResponse>();
+            this.CreateMap<BlueprintNode, BlueprintNodeResponse>();
+            this.CreateMap<BlueprintNodeRequest, BlueprintNode>();
 
             this.CreateMap<User, UserResponse>();
             this.CreateMap<Group, GroupResponse>();

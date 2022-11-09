@@ -95,6 +95,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             Group? group = await this.context.Groups
                 .Include(group => group.Members)
+                .IgnoreQueryFilters()
                 .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
 
             if (null == group)

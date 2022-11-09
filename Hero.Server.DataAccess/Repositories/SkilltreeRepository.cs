@@ -107,7 +107,6 @@ namespace Hero.Server.DataAccess.Repositories
                 existing.Nodes.RemoveAll(node => !updatedTree.Nodes.Select(x => x.Id).Contains(node.Id));
                 existing.Nodes.AddRange(updatedTree.Nodes.Where(node => !existing.Nodes.Select(x => x.Id).Contains(node.Id)));
 
-                //this.context.Skilltrees.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)

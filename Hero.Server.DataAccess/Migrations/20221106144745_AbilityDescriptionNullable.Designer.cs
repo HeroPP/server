@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221106144745_AbilityDescriptionNullable")]
+    partial class AbilityDescriptionNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,73 +51,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("Abilities", "Hero");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Blueprint", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Blueprints", "Hero");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.BlueprintNode", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Cost")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Importance")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsEasyReachable")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<List<Guid>>("Precessors")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
-                    b.Property<Guid?>("SkillId")
-                        .IsRequired()
-                        .HasColumnType("uuid");
-
-                    b.Property<List<Guid>>("Successors")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
-                    b.Property<double>("XPos")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("YPos")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("SkillId");
-
-                    b.ToTable("BlueprintNodes", "Hero");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>
@@ -199,6 +134,57 @@ namespace Hero.Server.DataAccess.Migrations
                     b.ToTable("Groups", "Hero");
                 });
 
+            modelBuilder.Entity("Hero.Server.Core.Models.Node", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Cost")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Importance")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsEasyReachable")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsUnlocked")
+                        .HasColumnType("boolean");
+
+                    b.Property<List<Guid>>("Precessors")
+                        .IsRequired()
+                        .HasColumnType("uuid[]");
+
+                    b.Property<Guid?>("SkillId")
+                        .IsRequired()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SkilltreeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<List<Guid>>("Successors")
+                        .IsRequired()
+                        .HasColumnType("uuid[]");
+
+                    b.Property<double>("XPos")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("YPos")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkillId");
+
+                    b.HasIndex("SkilltreeId");
+
+                    b.ToTable("Nodes", "Hero");
+                });
+
             modelBuilder.Entity("Hero.Server.Core.Models.Skill", b =>
                 {
                     b.Property<Guid>("Id")
@@ -267,6 +253,7 @@ namespace Hero.Server.DataAccess.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("CharacterId")
@@ -282,8 +269,7 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Points")
                         .HasColumnType("integer");
@@ -295,57 +281,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("Skilltrees", "Hero");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.SkilltreeNode", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Color")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Cost")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Importance")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsEasyReachable")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsUnlocked")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<List<Guid>>("Precessors")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
-                    b.Property<Guid?>("SkillId")
-                        .IsRequired()
-                        .HasColumnType("uuid");
-
-                    b.Property<List<Guid>>("Successors")
-                        .IsRequired()
-                        .HasColumnType("uuid[]");
-
-                    b.Property<double>("XPos")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("YPos")
-                        .HasColumnType("double precision");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.HasIndex("SkillId");
-
-                    b.ToTable("SkilltreeNodes", "Hero");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
@@ -373,22 +308,6 @@ namespace Hero.Server.DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.BlueprintNode", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.Blueprint", null)
-                        .WithMany("Nodes")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Hero.Server.Core.Models.Skill", "Skill")
-                        .WithMany()
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Skill");
-                });
-
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>
                 {
                     b.HasOne("Hero.Server.Core.Models.Group", null)
@@ -413,6 +332,22 @@ namespace Hero.Server.DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Hero.Server.Core.Models.Node", b =>
+                {
+                    b.HasOne("Hero.Server.Core.Models.Skill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hero.Server.Core.Models.Skilltree", null)
+                        .WithMany("Nodes")
+                        .HasForeignKey("SkilltreeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Skill");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Skill", b =>
@@ -447,22 +382,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Navigation("Character");
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.SkilltreeNode", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.Skilltree", null)
-                        .WithMany("Nodes")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Hero.Server.Core.Models.Skill", "Skill")
-                        .WithMany()
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Skill");
-                });
-
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
                 {
                     b.HasOne("Hero.Server.Core.Models.Group", "Group")
@@ -471,11 +390,6 @@ namespace Hero.Server.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Blueprint", b =>
-                {
-                    b.Navigation("Nodes");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Character", b =>

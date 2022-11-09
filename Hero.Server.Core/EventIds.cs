@@ -23,8 +23,8 @@
         // Skill Events: 15XX
         SkillDoesNotExist = 1501,
 
-        // NodeTree Events: 16XX
-        NodeTreeDoesNotExist = 1601,
+        // Skilltree Events: 16XX
+        SkilltreeDoesNotExist = 1601,
 
         // Group Events: 17XX
         GroupCreationFailed = 1700,
@@ -32,5 +32,14 @@
         InvalidInvitationCode = 1702,
         CannotCreateCharacterOutsideOfAGroup = 1703,
         NotAGroupAdmin = 1704,
+
+        // Blueprint Events: 18XX
+        BlueprintCreated = 1800,
+        BlueprintCreateFailed = 1801,
+        BlueprintDoesNotExist = 1802,
+        BlueprintDeleted = 1803,
+        BlueprintDeleteFailed = 1804,
+        BlueprintUpdated = 1805,
+        BlueprintUpdateFailed = 1806,
     }
 }
