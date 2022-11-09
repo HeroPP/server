@@ -37,27 +37,8 @@ namespace Hero.Server.DataAccess.Database
             builder.Entity<Ability>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id);
             builder.Entity<Skill>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
             builder.Entity<Skilltree>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
-
-            builder.Entity<AttributeRace>().HasKey(ac => new { ac.AttributeId, ac.RaceId });
-            builder.Entity<AttributeRace>()
-                .HasOne<Attribute>(ac => ac.Attribute)
-                .WithMany(a => a.AttributeRaces)
-                .HasForeignKey(ac => ac.AttributeId);
-            builder.Entity<AttributeRace>()
-                .HasOne<Race>(ac => ac.Race)
-                .WithMany(c => c.AttributeRaces)
-                .HasForeignKey(ac => ac.RaceId);
-
-            builder.Entity<AttributeSkill>().HasKey(ac => new { ac.AttributeId, ac.SkillId });
-            builder.Entity<AttributeSkill>()
-                .HasOne<Attribute>(ats => ats.Attribute)
-                .WithMany(at => at.AttributeSkills)
-                .HasForeignKey(ats => ats.AttributeId);
-            builder.Entity<AttributeSkill>()
-                .HasOne<Skill>(ats => ats.Skill)
-                .WithMany(s => s.AttributeSkills)
-                .HasForeignKey(ats => ats.SkillId);
-
+            builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
+            builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
         }
     }
 }

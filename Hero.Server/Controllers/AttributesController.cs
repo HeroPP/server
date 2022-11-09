@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
+using Hero.Server.DataAccess.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
@@ -15,12 +16,14 @@ namespace Hero.Server.Controllers
     public class AttributesController : HeroControllerBase
     {
         private readonly IAttributeRepository repository;
+        private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public AttributesController(IAttributeRepository repository, IMapper mapper, ILogger<AttributesController> logger) 
+        public AttributesController(IAttributeRepository repository, IUserRepository userRepository, IMapper mapper, ILogger<AttributesController> logger)
             : base(logger)
         {
             this.repository = repository;
+            this.userRepository = userRepository;
             this.mapper = mapper;
         }
 
@@ -29,7 +32,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Attribute? attribute = await this.repository.GetAttributeByIdAsync(id, this.HttpContext.User.GetUserId());
+                Attribute? attribute = await this.repository.GetAttributeByIdAsync(id);
                 if (attribute != null)
                 {
                     return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
@@ -44,7 +47,7 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                List<Attribute> abilities = (await this.repository.GetAllAttributesAsync(this.HttpContext.User.GetUserId())).ToList();
+                List<Attribute> abilities = (await this.repository.GetAllAttributesAsync()).ToList();
 
                 return this.Ok(abilities.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
             });
@@ -55,7 +58,8 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                await this.repository.DeleteAttributeAsync(id, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.DeleteAttributeAsync(id);
                 return this.Ok();
             });
         }
@@ -66,7 +70,8 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Attribute attribute = this.mapper.Map<Attribute>(request);
-                await this.repository.UpdateAttributeAsync(id, attribute, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.UpdateAttributeAsync(id, attribute);
                 return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
             });
         }
@@ -77,7 +82,8 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Attribute attribute = this.mapper.Map<Attribute>(request);
-                await this.repository.CreateAttributeAsync(attribute, this.HttpContext.User.GetUserId());
+                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.repository.CreateAttributeAsync(attribute);
 
                 return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
             });

@@ -12,33 +12,32 @@ namespace Hero.Server.DataAccess.Repositories
     {
         private readonly HeroDbContext context;
         private readonly IUserRepository userRepository;
+        private readonly IGroupContext group;
         private readonly ILogger<RaceRepository> logger;
 
-        public RaceRepository(HeroDbContext context, IUserRepository userRepository, ILogger<RaceRepository> logger)
+        public RaceRepository(HeroDbContext context, IUserRepository userRepository, IGroupContext group, ILogger<RaceRepository> logger)
         {
             this.context = context;
             this.userRepository = userRepository;
+            this.group = group;
             this.logger = logger;
         }
 
-        public async Task<Race?> GetRaceByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Race?> GetRaceByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Races.Where(a => a.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            return await this.context.Races.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
         }
 
-        public async Task CreateRaceAsync(Race race, Guid userId, CancellationToken cancellationToken = default)
+        public async Task CreateRaceAsync(Race race, CancellationToken cancellationToken = default)
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                if (null != user)
-                {
-                    race.GroupId = user.OwnedGroup.Id;
-                    await this.context.Races.AddAsync(race, cancellationToken);
-                    await this.context.SaveChangesAsync(cancellationToken);
-                }
-                
+                race.GroupId = group.Id;
+                race.Id = Guid.NewGuid();
+                race.AttributeRaces.ForEach(ats => ats.RaceId = race.Id);
+
+                await this.context.Races.AddAsync(race, cancellationToken);
+                await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -47,11 +46,11 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteRaceAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteRaceAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                Race? existing = await this.GetRaceByIdAsync(id, userId, cancellationToken);
+                Race? existing = await this.GetRaceByIdAsync(id, cancellationToken);
                 if(null == existing)
                 {
                     this.logger.LogRaceDoesNotExist(id);
@@ -67,17 +66,16 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<IEnumerable<Race>> GetAllRacesAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Race>> GetAllRacesAsync(CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Races.Where(a => a.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
+            return await this.context.Races.ToListAsync(cancellationToken);
         }
 
-        public async Task UpdateRaceAsync(Guid id, Race updatedRace, Guid userId, CancellationToken cancellationToken = default)
+        public async Task UpdateRaceAsync(Guid id, Race updatedRace, CancellationToken cancellationToken = default)
         {
             try
             {
-                Race? existing = await this.GetRaceByIdAsync(id, userId, cancellationToken);
+                Race? existing = await this.GetRaceByIdAsync(id, cancellationToken);
 
                 if (null == existing)
                 {
@@ -85,6 +83,15 @@ namespace Hero.Server.DataAccess.Repositories
                 }
 
                 existing.Update(updatedRace);
+
+                foreach (AttributeRace existingAttributeRace in existing.AttributeRaces.Where(ats => updatedRace.AttributeRaces.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId))))
+                {
+                    AttributeRace updatedAttributeRace = updatedRace.AttributeRaces.Single(ats => existingAttributeRace.RaceId == ats.RaceId && existingAttributeRace.AttributeId == ats.AttributeId);
+                    existingAttributeRace.Value = updatedAttributeRace.Value;
+                }
+
+                existing.AttributeRaces.RemoveAll(ats => !updatedRace.AttributeRaces.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId)));
+                existing.AttributeRaces.AddRange(updatedRace.AttributeRaces.Where(ats => !existing.AttributeRaces.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId))));
 
                 this.context.Races.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);

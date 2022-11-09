@@ -9,12 +9,13 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public Race Race { get; set; }
+        public Guid? RaceId { get; set; }
 
         public void Update(Character character)
         {
             this.Name = character.Name;
             this.Description = character.Description;
-            this.NodeTrees = character.NodeTrees;
+            this.Skilltrees = character.Skilltrees;
         }
     }
 }

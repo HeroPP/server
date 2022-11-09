@@ -13,25 +13,5 @@ namespace Hero.Server.Messages.Responses
         public AbilityResponse? Ability { get; set; }
         public List<AttributeValueResponse>? Attributes { get; set; }
         
-        public SkillResponse(Skill skill, IMapper mapper)
-        {
-            Id = skill.Id;
-            Name = skill.Name;
-            Description = skill.Description;
-            IconUrl = skill.IconUrl;
-            AbilityName = skill.AbilityName;
-            Ability = mapper.Map<AbilityResponse>(skill.Ability);
-            Attributes = skill.AttributeSkills.Select(ats => (new AttributeValueResponse()
-            {
-                Id = ats.Attribute.Id,
-                Name = ats.Attribute.Name,
-                IconUrl = ats.Attribute.IconUrl,
-                Description = ats.Attribute.Description,
-                StepSize = ats.Attribute.StepSize,
-                MinValue = ats.Attribute.MinValue,
-                MaxValue = ats.Attribute.MaxValue,
-                Value = ats.Value,
-            })).ToList();
-        }
     }
 }

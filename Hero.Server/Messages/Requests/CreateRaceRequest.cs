@@ -9,7 +9,7 @@ namespace Hero.Server.Messages.Requests
         [Required]
         public Guid Id { get; set; }
         public string? Description { get; set; }
-        public List<Guid> AttributeIds { get; set; }
+        public List<AttributeValueRequest> Attributes { get; set; }
 
     }
 }

@@ -29,17 +29,14 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Skills.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
 
-        public async Task<AttributeSkill?> GetAttributeSkillByIdAsync(Guid id, Guid attributeId, CancellationToken cancellationToken = default)
-        {
-
-            return await this.context.AttributeSkills.Where(s => s.Attribute.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(ats => ats.SkillId == id && ats.AttributeId == attributeId, cancellationToken);
-        }
-
         public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
         {
             try
             {
                 skill.GroupId = group.Id;
+                skill.Id = Guid.NewGuid();
+                skill.AttributeSkills.ForEach(ats => ats.SkillId = skill.Id);
+
                 await this.context.Skills.AddAsync(skill, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);                
             }
@@ -87,6 +84,15 @@ namespace Hero.Server.DataAccess.Repositories
                 }
 
                 existing.Update(updatedSkill);
+
+                foreach (AttributeSkill existingAttributeSkill in existing.AttributeSkills.Where(ats => updatedSkill.AttributeSkills.Select(x => (x.SkillId, x.AttributeId)).Contains((ats.SkillId, ats.AttributeId))))
+                {
+                    AttributeSkill updatedAttributeSkill = updatedSkill.AttributeSkills.Single(ats => existingAttributeSkill.SkillId == ats.SkillId && existingAttributeSkill.AttributeId == ats.AttributeId);
+                    existingAttributeSkill.Value = updatedAttributeSkill.Value;
+                }
+
+                existing.AttributeSkills.RemoveAll(ats => !updatedSkill.AttributeSkills.Select(x => (x.SkillId, x.AttributeId)).Contains((ats.SkillId, ats.AttributeId)));
+                existing.AttributeSkills.AddRange(updatedSkill.AttributeSkills.Where(ats => !existing.AttributeSkills.Select(x => (x.SkillId, x.AttributeId)).Contains((ats.SkillId, ats.AttributeId))));
 
                 this.context.Skills.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);

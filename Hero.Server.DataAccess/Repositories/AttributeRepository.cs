@@ -12,33 +12,31 @@ namespace Hero.Server.DataAccess.Repositories
     public class AttributeRepository : IAttributeRepository
     {
         private readonly HeroDbContext context;
+        private readonly IGroupContext group;
         private readonly IUserRepository userRepository;
         private readonly ILogger<AttributeRepository> logger;
 
-        public AttributeRepository(HeroDbContext context, IUserRepository userRepository, ILogger<AttributeRepository> logger)
+        public AttributeRepository(HeroDbContext context, IGroupContext group, IUserRepository userRepository, ILogger<AttributeRepository> logger)
         {
             this.context = context;
+            this.group = group;
             this.userRepository = userRepository;
             this.logger = logger;
         }
 
-        public async Task<Attribute?> GetAttributeByIdAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Attribute?> GetAttributeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Attributes.Where(a => a.GroupId == user!.OwnedGroup.Id).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            return await this.context.Attributes.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
         }
 
-        public async Task CreateAttributeAsync(Attribute attribute, Guid userId, CancellationToken cancellationToken = default)
+        public async Task CreateAttributeAsync(Attribute attribute, CancellationToken cancellationToken = default)
         {
             try
             {
-                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-                if (null != user)
-                {
-                    attribute.GroupId = user.OwnedGroup.Id;
+
+                    attribute.GroupId = this.group.Id;
                     await this.context.Attributes.AddAsync(attribute, cancellationToken);
                     await this.context.SaveChangesAsync(cancellationToken);
-                }
                 
             }
             catch (Exception ex)
@@ -48,11 +46,11 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteAttributeAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteAttributeAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                Attribute? existing = await this.GetAttributeByIdAsync(id, userId, cancellationToken);
+                Attribute? existing = await this.GetAttributeByIdAsync(id, cancellationToken);
                 if(null == existing)
                 {
                     this.logger.LogAttributeDoesNotExist(id);
@@ -68,17 +66,16 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<IEnumerable<Attribute>> GetAllAttributesAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Attribute>> GetAllAttributesAsync(CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return await this.context.Attributes.Where(a => a.GroupId == user!.OwnedGroup.Id).ToListAsync(cancellationToken);
+            return await this.context.Attributes.ToListAsync(cancellationToken);
         }
 
-        public async Task UpdateAttributeAsync(Guid id, Attribute updatedAttribute, Guid userId, CancellationToken cancellationToken = default)
+        public async Task UpdateAttributeAsync(Guid id, Attribute updatedAttribute, CancellationToken cancellationToken = default)
         {
             try
             {
-                Attribute? existing = await this.GetAttributeByIdAsync(id, userId, cancellationToken);
+                Attribute? existing = await this.GetAttributeByIdAsync(id, cancellationToken);
 
                 if (null == existing)
                 {

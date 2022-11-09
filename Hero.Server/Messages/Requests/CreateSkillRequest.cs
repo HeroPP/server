@@ -10,8 +10,7 @@ namespace Hero.Server.Messages.Requests
         [Required]
         public string Name { get; set; }
         public string Description { get; set; }
-        public string? AbilityName { get; set; }
-        public CreateAbilityRequest CreateAbilityRequest { get; set; }
-        public List<UpdateAttributeValueRequest>? UpdateAttributeValueRequests { get; set; }
+        public Guid? AbilityId { get; set; }
+        public List<AttributeValueRequest> Attributes { get; set; }
     }
 }

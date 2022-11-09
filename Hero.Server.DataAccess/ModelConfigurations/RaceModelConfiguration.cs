@@ -13,6 +13,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.HasKey(x => x.Id);
 
             builder.Property(c => c.Name).IsRequired();
+
         }
     }
 }

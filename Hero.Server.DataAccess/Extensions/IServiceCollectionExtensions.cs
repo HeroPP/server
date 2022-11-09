@@ -31,6 +31,7 @@ namespace Hero.Server.DataAccess.Extensions
             services.AddTransient<ICharacterRepository, CharacterRepository>();
             services.AddTransient<IGroupRepository, GroupRepository>();
             services.AddTransient<IKeycloakService, KeycloakService>();
+            services.AddTransient<IRaceRepository, RaceRepository>();
 
             return services;
         }

@@ -36,7 +36,7 @@ namespace Hero.Server.Controllers
                 Skill? skill = await this.repository.GetSkillByIdAsync(id, token);
                 if (skill != null)
                 {
-                    return this.Ok(new SkillResponse(skill, this.mapper));
+                    return this.Ok(this.mapper.Map<SkillResponse>(skill));
                 }
 
                 return this.BadRequest();
@@ -51,7 +51,7 @@ namespace Hero.Server.Controllers
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 List<Skill> skills = (await this.repository.GetAllSkillsAsync(token)).ToList();
 
-                return this.Ok(skills.Select(skill => new SkillResponse(skill, this.mapper)).ToList());
+                return this.Ok(skills.Select(skill => this.mapper.Map<SkillResponse>(skill)).ToList());
             });
         }
 
@@ -71,31 +71,10 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Skill skill = new Skill
-                {
-                    Id = id,
-                    Name = request.Name,
-                    Description = request.Description,
-                    AbilityName = request.AbilityName,
-                    IconUrl = request.IconUrl,
-                    Ability = this.mapper.Map<Ability>(request.CreateAbilityRequest),
-                    //Ich kenne mich mit Tasks nicht genug aus ._.
-                    AttributeSkills = request.UpdateAttributeValueRequests.Select(async uavr => this.repository.GetAttributeSkillByIdAsync(id, uavr.AttributeId, this.HttpContext.User.GetUserId()) == null ? 
-                    new AttributeSkill
-                    {
-                        AttributeId = uavr.AttributeId,
-                        SkillId = id,
-                        Value = uavr.Value,
-                        Attribute = this.mapper.Map<Attribute>(uavr.CreateAttributeRequest),
-                    }
-                    :
-                    await this.repository.GetAttributeSkillByIdAsync(id, uavr.AttributeId, this.HttpContext.User.GetUserId())
-                    ).ToList(),
-                };
-                skill.AttributeSkills.ForEach(ats => ats.Skill = skill);
+                Skill skill = this.mapper.Map<Skill>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.UpdateSkillAsync(id, skill, token);
-                return this.Ok(new SkillResponse(skill, this.mapper));
+                return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
         }
 
@@ -104,29 +83,11 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Guid id = Guid.NewGuid();
-                Skill skill = new Skill
-                {
-                    Id = id,
-                    Name = request.Name,
-                    Description = request.Description,
-                    AbilityName = request.AbilityName,
-                    IconUrl = request.IconUrl,
-                    Ability = this.mapper.Map<Ability>(request.CreateAbilityRequest),
-                    AttributeSkills = request.UpdateAttributeValueRequests.Select(uavr => new AttributeSkill
-                    {
-                        AttributeId = uavr.AttributeId,
-                        SkillId = id,
-                        Value = uavr.Value,
-                        Attribute = this.mapper.Map<Attribute>(uavr.CreateAttributeRequest),
-                    }).ToList(),
-
-                };
-                skill.AttributeSkills.ForEach(ats => ats.Skill = skill);
+                Skill skill = this.mapper.Map<Skill>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.CreateSkillAsync(skill, token);
 
-                return this.Ok(new SkillResponse(skill, this.mapper));
+                return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
         }
 
