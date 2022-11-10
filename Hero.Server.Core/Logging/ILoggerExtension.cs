@@ -26,5 +26,9 @@ namespace Hero.Server.Core.Logging
 
         [LoggerMessage((int)EventIds.GroupCreated, LogLevel.Information, "The group {GroupName} was created successfully.")]
         public static partial void LogGroupCreatedSuccessfully(this ILogger logger, string groupName);
+        [LoggerMessage((int)EventIds.AttributeDoesNotExist, LogLevel.Error, "The attribute (id: {AttributeId}) you're trying to delete does not exist.")]
+        public static partial void LogAttributeDoesNotExist(this ILogger logger, Guid attributeId);
+        [LoggerMessage((int)EventIds.RaceDoesNotExist, LogLevel.Error, "The race (id: {RaceId}) you're trying to delete does not exist.")]
+        public static partial void LogRaceDoesNotExist(this ILogger logger, Guid raceId);
     }
 }
