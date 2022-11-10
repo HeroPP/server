@@ -33,11 +33,9 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-
                     attribute.GroupId = this.group.Id;
                     await this.context.Attributes.AddAsync(attribute, cancellationToken);
                     await this.context.SaveChangesAsync(cancellationToken);
-                
             }
             catch (Exception ex)
             {
@@ -81,7 +79,6 @@ namespace Hero.Server.DataAccess.Repositories
                 {
                     throw new Exception($"The Attribute (id: {id}) you're trying to update does not exist.");
                 }
-
                 existing.Update(updatedAttribute);
 
                 this.context.Attributes.Update(existing);

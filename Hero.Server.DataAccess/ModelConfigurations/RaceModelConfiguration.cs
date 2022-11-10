@@ -12,7 +12,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.ToTable("Races");
             builder.HasKey(x => x.Id);
 
-            builder.Property(c => c.Name).IsRequired();
+            builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
 
         }
     }

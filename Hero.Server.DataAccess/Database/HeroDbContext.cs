@@ -14,7 +14,6 @@ namespace Hero.Server.DataAccess.Database
             this.CurrentGroup = currentGroup;
         }
 
-
         public GroupContext CurrentGroup { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Character> Characters { get; set; }
@@ -27,6 +26,7 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<Race> Races { get; set; }
         public DbSet<AttributeRace> AttributeRaces { get; set; }
         public DbSet<AttributeSkill> AttributeSkills { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema(HeroDbResources.Schema);

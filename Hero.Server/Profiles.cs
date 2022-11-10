@@ -3,6 +3,7 @@
 using Hero.Server.Core.Models;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
+using JCurth.Core.Extensions;
 using System.Linq;
 using System.Xml.Linq;
 using Attribute = Hero.Server.Core.Models.Attribute;
@@ -16,7 +17,6 @@ namespace Hero.Server
             this.CreateMap<CreateCharacterRequest, Character>();
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
-            //Ich bin ja gespannt, ob das funktioniert xD => Vorraussetzung ist, dass Races ALLE Attribute haben. Nicht nur die, für die sie Werte haben!
             this.CreateMap<Character, CharacterDetailResponse>()
                 .ForMember(dst => dst.Attributes, src => src.MapFrom(c => c.Race.AttributeRaces.Select(ar => new AttributeValueResponse
                 {
@@ -28,7 +28,20 @@ namespace Hero.Server
                     Description = ar.Attribute.Description,
                     IconUrl = ar.Attribute.IconUrl,
                     StepSize = ar.Attribute.StepSize
-                })));
+                }).ToList()
+                .Concat(c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.SelectMany(n => n.Skill.AttributeSkills.Where(ats => !c.Race.AttributeRaces.Select(ar => ar.AttributeId).ToList().Contains(ats.AttributeId)).DistinctBy(ats => ats.AttributeId))).Select(ats => new AttributeValueResponse
+                {
+                    Id = ats.Attribute.Id,
+                    Value = c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.Select(n => n.Skill.AttributeSkills.Where(atsinner => atsinner.AttributeId == ats.AttributeId).Select(s => s.Value).Sum())).Sum(),
+                    Name = ats.Attribute.Name,
+                    MinValue = ats.Attribute.MinValue,
+                    MaxValue = ats.Attribute.MaxValue,
+                    Description = ats.Attribute.Description,
+                    IconUrl = ats.Attribute.IconUrl,
+                    StepSize = ats.Attribute.StepSize
+                }).ToList())
+                ));
+
             this.CreateMap<Ability, AbilityResponse>();
             this.CreateMap<CreateAbilityRequest, Ability>();
             this.CreateMap<CreateSkillRequest, Skill>();
