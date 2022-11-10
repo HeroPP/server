@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public Guid GroupId { get; set; }
         public string Name { get; set; }
-        public List<BlueprintNode> Nodes { get; set; }
+        public List<BlueprintNode> Nodes { get; set; } = new List<BlueprintNode>();
 
     }
 }

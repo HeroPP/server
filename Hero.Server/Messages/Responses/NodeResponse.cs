@@ -15,13 +15,11 @@
         public List<Guid> Successors { get; set; }
     }
 
-    public class SkilltreeNodeResponse
+    public class SkilltreeNodeResponse : NodeResponse
     {
         public bool IsUnlocked { get; set; }
     }
 
-    public class BlueprintNodeResponse
-    {
-
-    }
+    public class BlueprintNodeResponse : NodeResponse
+    { }
 }

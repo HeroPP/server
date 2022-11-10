@@ -21,10 +21,36 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
+        private void CleanupNodeIds(Blueprint blueprint)
+        {
+            foreach (Node node in blueprint.Nodes)
+            {
+                Guid newId = Guid.NewGuid();
+                Guid oldId = node.Id;
+
+                foreach (Guid precessorId in node.Precessors)
+                {
+                    Node precessor = blueprint.Nodes.Single(node => node.Id == precessorId);
+                    precessor.Successors.Remove(oldId);
+                    precessor.Successors.Add(newId);
+                }
+                foreach (Guid successorId in node.Successors)
+                {
+                    Node successor = blueprint.Nodes.Single(node => node.Id == successorId);
+                    successor.Precessors.Remove(oldId);
+                    successor.Precessors.Add(newId);
+                }
+
+                node.Id = newId;
+            }
+        }
+
         public async Task CreateBlueprintAsync(Blueprint blueprint, CancellationToken cancellationToken = default)
         {
             try
             {
+                this.CleanupNodeIds(blueprint);
+
                 blueprint.GroupId = this.group.Id;
                 await this.context.Blueprints.AddAsync(blueprint, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
@@ -62,44 +88,32 @@ namespace Hero.Server.DataAccess.Repositories
 
         public Task<List<Blueprint>> GetAllBlueprintsAsync(CancellationToken cancellationToken = default)
         {
-            return this.context.Blueprints.ToListAsync(cancellationToken);
+            return this.context.Blueprints.Include(print => print.Nodes).ToListAsync(cancellationToken);
         }
 
         public async Task<Blueprint?> GetBlueprintByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Blueprints.Include(print => print.Nodes).SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
+            return await this.context.Blueprints
+                .Include(c => c.Nodes)
+                .ThenInclude(n => n.Skill)
+                .ThenInclude(s => s.Ability)
+                .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
         }
 
         public async Task<Blueprint?> LoadBlueprintByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            Blueprint? blueprint = await this.context.Blueprints.Include(print => print.Nodes).SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
+            Blueprint? blueprint = await this.context.Blueprints
+                .Include(c => c.Nodes)
+                .ThenInclude(n => n.Skill)
+                .ThenInclude(s => s.Ability)
+                .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
 
             if (null == blueprint)
             {
                 throw new Exception($"The blueprint (id: {id}) you're trying to load does not exist.");
             }
 
-            // Replacing all ids with new Ids so blueprint nodes will become new, unknown skilltree nodes when saved.
-            foreach (Node node in blueprint.Nodes)
-            {
-                Guid newId = Guid.NewGuid();
-                Guid oldId = node.Id;
-
-                foreach (Guid precessorId in node.Precessors)
-                {
-                    Node precessor = blueprint.Nodes.Single(node => node.Id == precessorId);
-                    precessor.Successors.Remove(oldId);
-                    precessor.Successors.Add(newId);
-                }
-                foreach (Guid successorId in node.Successors)
-                {
-                    Node successor = blueprint.Nodes.Single(node => node.Id == successorId);
-                    successor.Precessors.Remove(oldId);
-                    successor.Precessors.Add(newId);
-                }
-
-                node.Id = newId;
-            }
+            this.CleanupNodeIds(blueprint);
 
             return blueprint;
         }
@@ -112,7 +126,11 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new Exception($"The blueprint (id: {id}) you're trying to update does not exist.");
+                    existing = new()
+                    {
+                        GroupId = group.Id,
+                    };
+                    this.context.Blueprints.Add(existing);
                 }
 
                 existing.Name = updatedBlueprint.Name;
