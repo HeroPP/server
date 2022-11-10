@@ -18,9 +18,17 @@ namespace Hero.Server
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
             this.CreateMap<Character, CharacterDetailResponse>()
-                .ForMember(dst => dst.Attributes, src => src.MapFrom(c => c.Race.AttributeRaces.Select(ar => new AttributeValueResponse
+                .ForMember(
+                dst => dst.Attributes, src => src.MapFrom(
+                    c => c.Race.AttributeRaces.Select(
+                        ar => new AttributeValueResponse
                 {
-                    Value = ar.Value + c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.Select(n => n.Skill.AttributeSkills.Where(ats => ats.AttributeId == ar.AttributeId).Select(s => s.Value).Sum())).Sum(),
+                    Value = ar.Value + c.Skilltrees.Where(
+                        s => s.IsActiveTree).SelectMany(
+                            nt => nt.Nodes.Select(
+                                n => n.Skill.AttributeSkills.Where(
+                                    ats => ats.AttributeId == ar.AttributeId).Select(
+                                    s => s.Value).Sum())).Sum(),
                     Id = ar.AttributeId,
                     Name = ar.Attribute.Name,
                     MinValue = ar.Attribute.MinValue,
@@ -29,17 +37,29 @@ namespace Hero.Server
                     IconUrl = ar.Attribute.IconUrl,
                     StepSize = ar.Attribute.StepSize
                 }).ToList()
-                .Concat(c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.SelectMany(n => n.Skill.AttributeSkills.Where(ats => !c.Race.AttributeRaces.Select(ar => ar.AttributeId).ToList().Contains(ats.AttributeId)).DistinctBy(ats => ats.AttributeId))).Select(ats => new AttributeValueResponse
-                {
-                    Id = ats.Attribute.Id,
-                    Value = c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.Select(n => n.Skill.AttributeSkills.Where(atsinner => atsinner.AttributeId == ats.AttributeId).Select(s => s.Value).Sum())).Sum(),
-                    Name = ats.Attribute.Name,
-                    MinValue = ats.Attribute.MinValue,
-                    MaxValue = ats.Attribute.MaxValue,
-                    Description = ats.Attribute.Description,
-                    IconUrl = ats.Attribute.IconUrl,
-                    StepSize = ats.Attribute.StepSize
-                }).ToList())
+                .Concat(c.Skilltrees.Where(
+                    s => s.IsActiveTree).SelectMany(
+                    nt => nt.Nodes.SelectMany(
+                        n => n.Skill.AttributeSkills.Where(
+                            ats => !c.Race.AttributeRaces.Select(
+                                ar => ar.AttributeId).ToList().Contains(
+                                ats.AttributeId)).DistinctBy(
+                            ats => ats.AttributeId))).Select(ats => new AttributeValueResponse
+                                {
+                                    Id = ats.Attribute.Id,
+                                    Value = c.Skilltrees.Where(
+                                        s => s.IsActiveTree).SelectMany(
+                                        nt => nt.Nodes.Select(
+                                            n => n.Skill.AttributeSkills.Where(
+                                                atsinner => atsinner.AttributeId == ats.AttributeId).Select(
+                                                s => s.Value).Sum())).Sum(),
+                                    Name = ats.Attribute.Name,
+                                    MinValue = ats.Attribute.MinValue,
+                                    MaxValue = ats.Attribute.MaxValue,
+                                    Description = ats.Attribute.Description,
+                                    IconUrl = ats.Attribute.IconUrl,
+                                    StepSize = ats.Attribute.StepSize
+                                }).ToList())
                 ));
 
             this.CreateMap<Ability, AbilityResponse>();
