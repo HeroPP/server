@@ -21,12 +21,8 @@ namespace Hero.Server
                 .ForMember(dst => dst.Attributes, src => src.MapFrom(c => c.Race.AttributeRaces.Select(ar => ar.Value + c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.Select(n => n.Skill.AttributeSkills.Where(ats => ats.AttributeId == ar.AttributeId).Select(s => s.Value).Sum())).Sum())));
             this.CreateMap<Ability, AbilityResponse>();
             this.CreateMap<CreateAbilityRequest, Ability>();
-            this.CreateMap<CreateSkillRequest, Skill>()
-                .ForMember(dst => dst.AttributeSkills, src => src.MapFrom(a => a.Attributes.Select(uavr => new AttributeSkill
-                    {
-                        AttributeId = uavr.AttributeId,
-                        Value = uavr.Value
-                    }).ToList()));
+            this.CreateMap<CreateSkillRequest, Skill>();
+            this.CreateMap<AttributeSkillValueRequest, AttributeSkill>();
             this.CreateMap<Skill, SkillResponse>();
             this.CreateMap<AttributeSkill, AttributeValueResponse>()
                  .ForMember(dst => dst.Id, src => src.MapFrom(ats => ats.Attribute.Id))
@@ -46,12 +42,8 @@ namespace Hero.Server
             this.CreateMap<CreateSkilltreeRequest, Skilltree>();
             this.CreateMap<Attribute, AttributeResponse>();
             this.CreateMap<CreateAttributeRequest, Attribute>();
-            this.CreateMap<CreateRaceRequest, Race>()
-                .ForMember(dst => dst.AttributeRaces, src => src.MapFrom(r => r.Attributes.Select(uavr => new AttributeRace
-                {
-                    AttributeId = uavr.AttributeId,
-                    Value = uavr.Value
-                }).ToList()));
+            this.CreateMap<CreateRaceRequest, Race>();
+            this.CreateMap<AttributeRaceValueRequest, AttributeRace>();
             this.CreateMap<AttributeRace, AttributeValueResponse>()
                  .ForMember(dst => dst.Id, src => src.MapFrom(atr => atr.Attribute.Id))
                  .ForMember(dst => dst.Name, src => src.MapFrom(atr => atr.Attribute.Name))

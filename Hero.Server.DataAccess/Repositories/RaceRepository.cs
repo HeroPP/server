@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Race?> GetRaceByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Races.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            return await this.context.Races.Include(r => r.AttributeRaces).ThenInclude(ar => ar.Attribute).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
         }
 
         public async Task CreateRaceAsync(Race race, CancellationToken cancellationToken = default)
@@ -68,7 +68,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Race>> GetAllRacesAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Races.ToListAsync(cancellationToken);
+            return await this.context.Races.Include(r => r.AttributeRaces).ThenInclude(ar => ar.Attribute).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateRaceAsync(Guid id, Race updatedRace, CancellationToken cancellationToken = default)

@@ -87,6 +87,8 @@ namespace Hero.Server.Controllers
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.CreateSkillAsync(skill, token);
 
+                skill = await this.repository.GetSkillByIdAsync(skill.Id);
+
                 return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
         }

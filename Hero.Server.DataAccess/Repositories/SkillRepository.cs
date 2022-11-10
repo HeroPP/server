@@ -26,7 +26,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            return await this.context.Skills.Include(s => s.Ability).Include(s => s.AttributeSkills).ThenInclude(ats => ats.Attribute).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
 
         public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
@@ -69,7 +69,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Skill>> GetAllSkillsAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.Include(s => s.Ability).ToListAsync(cancellationToken);
+            return await this.context.Skills.Include(s => s.Ability).Include(s => s.AttributeSkills).ThenInclude(ats => ats.Attribute).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, CancellationToken cancellationToken = default)
