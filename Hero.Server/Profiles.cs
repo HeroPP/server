@@ -16,9 +16,19 @@ namespace Hero.Server
             this.CreateMap<CreateCharacterRequest, Character>();
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
-            //Ich bin ja gespannt, ob das funktioniert xD
+            //Ich bin ja gespannt, ob das funktioniert xD => Vorraussetzung ist, dass Races ALLE Attribute haben. Nicht nur die, für die sie Werte haben!
             this.CreateMap<Character, CharacterDetailResponse>()
-                .ForMember(dst => dst.Attributes, src => src.MapFrom(c => c.Race.AttributeRaces.Select(ar => ar.Value + c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.Select(n => n.Skill.AttributeSkills.Where(ats => ats.AttributeId == ar.AttributeId).Select(s => s.Value).Sum())).Sum())));
+                .ForMember(dst => dst.Attributes, src => src.MapFrom(c => c.Race.AttributeRaces.Select(ar => new AttributeValueResponse
+                {
+                    Value = ar.Value + c.Skilltrees.Where(s => s.IsActiveTree).SelectMany(nt => nt.Nodes.Select(n => n.Skill.AttributeSkills.Where(ats => ats.AttributeId == ar.AttributeId).Select(s => s.Value).Sum())).Sum(),
+                    Id = ar.AttributeId,
+                    Name = ar.Attribute.Name,
+                    MinValue = ar.Attribute.MinValue,
+                    MaxValue = ar.Attribute.MaxValue,
+                    Description = ar.Attribute.Description,
+                    IconUrl = ar.Attribute.IconUrl,
+                    StepSize = ar.Attribute.StepSize
+                })));
             this.CreateMap<Ability, AbilityResponse>();
             this.CreateMap<CreateAbilityRequest, Ability>();
             this.CreateMap<CreateSkillRequest, Skill>();

@@ -83,8 +83,8 @@ namespace Hero.Server.Controllers
                 Race race = this.mapper.Map<Race>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.CreateRaceAsync(race);
-                RaceResponse r = this.mapper.Map<RaceResponse>(race);
-                return this.Ok(r);
+                race = await this.repository.GetRaceByIdAsync(race.Id);
+                return this.Ok(this.mapper.Map<RaceResponse>(race));
             });
         }
 
