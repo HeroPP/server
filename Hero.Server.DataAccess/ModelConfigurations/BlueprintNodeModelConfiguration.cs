@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hero.Server.DataAccess.ModelConfigurations
 {
-    public class NodeModelConfiguration : IEntityTypeConfiguration<Node>
+    public class BlueprintNodeModelConfiguration : IEntityTypeConfiguration<BlueprintNode>
     {
-        public void Configure(EntityTypeBuilder<Node> builder)
+        public void Configure(EntityTypeBuilder<BlueprintNode> builder)
         {
-            builder.ToTable("Nodes");
+            builder.ToTable("BlueprintNodes");
             builder.HasKey(x => x.Id);
 
             builder
@@ -24,10 +24,9 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(n => n.XPos).IsRequired();
             builder.Property(n => n.YPos).IsRequired();
             builder.Property(n => n.Color).IsRequired();
-            builder.Property(n => n.IsUnlocked).IsRequired();
             builder.Property(n => n.IsEasyReachable).IsRequired();
             builder.Property(n => n.Precessors).IsRequired();
-            builder.Property(n => n.Successors).IsRequired();                
+            builder.Property(n => n.Successors).IsRequired();
         }
     }
 }

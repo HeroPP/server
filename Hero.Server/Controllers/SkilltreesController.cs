@@ -27,9 +27,9 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet("{id}")]
-        public Task<IActionResult> GetSkilltreeByIdAsync(Guid id)
+        public async Task<IActionResult> GetSkilltreeByIdAsync(Guid id)
         {
-            return this.HandleExceptions(async () =>
+            return await this.HandleExceptions(async () =>
             {
                 await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
@@ -39,7 +39,7 @@ namespace Hero.Server.Controllers
                     return this.Ok(value);
                 }
 
-                return this.BadRequest();
+                return this.NotFound();
             });
         }
 
@@ -56,9 +56,9 @@ namespace Hero.Server.Controllers
         //}
 
         [HttpGet]
-        public Task<IActionResult> GetSkilltreeOverviewsAsync(CancellationToken token)
+        public async Task<IActionResult> GetSkilltreeOverviewsAsync(CancellationToken token)
         {
-            return this.HandleExceptions(async () =>
+            return await this.HandleExceptions(async () =>
             {
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 List<Skilltree> trees = (await this.repository.FilterSkilltrees(null, token)).ToList();
@@ -68,9 +68,9 @@ namespace Hero.Server.Controllers
         }
 
         [HttpDelete("{id}")]
-        public Task<IActionResult> DeleteskilltreeAsync(Guid id)
+        public async Task<IActionResult> DeleteskilltreeAsync(Guid id)
         {
-            return this.HandleExceptions(async () =>
+            return await this.HandleExceptions(async () =>
             {
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.DeleteSkilltreeAsync(id);
@@ -79,9 +79,9 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] CreateSkilltreeRequest request)
+        public async Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] CreateSkilltreeRequest request)
         {
-            return this.HandleExceptions(async () =>
+            return await this.HandleExceptions(async () =>
             {
                 Skilltree tree = this.mapper.Map<Skilltree>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
@@ -91,9 +91,9 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateSkilltreeAsync([FromBody] CreateSkilltreeRequest request)
+        public async Task<IActionResult> CreateSkilltreeAsync([FromBody] CreateSkilltreeRequest request)
         {
-            return this.HandleExceptions(async () =>
+            return await this.HandleExceptions(async () =>
             {
                 Skilltree tree = this.mapper.Map<Skilltree>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());

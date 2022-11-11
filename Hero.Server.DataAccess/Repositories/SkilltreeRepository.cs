@@ -31,9 +31,8 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Skilltrees
-                .Include(c => c.Nodes)
-                .ThenInclude(n => n.Skill)
-                .ThenInclude(s => s.Ability)
+                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.AttributeSkills).ThenInclude(a => a.Attribute)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -107,7 +106,6 @@ namespace Hero.Server.DataAccess.Repositories
                 existing.Nodes.RemoveAll(node => !updatedTree.Nodes.Select(x => x.Id).Contains(node.Id));
                 existing.Nodes.AddRange(updatedTree.Nodes.Where(node => !existing.Nodes.Select(x => x.Id).Contains(node.Id)));
 
-                //this.context.Skilltrees.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)

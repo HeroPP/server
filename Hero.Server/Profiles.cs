@@ -77,11 +77,12 @@ namespace Hero.Server
                  .ForMember(dst => dst.MaxValue, src => src.MapFrom(ats => ats.Attribute.MaxValue))
                  .ForMember(dst => dst.Value, src => src.MapFrom(ats => ats.Value));
             this.CreateMap<CreateSkillRequest, Skill>();
+
             this.CreateMap<Skilltree, SkilltreeResponse>();
             this.CreateMap<Skilltree, SkilltreeOverviewResponse>()
                 .ForMember(dst => dst.NodeCount, src => src.MapFrom(tree => tree.Nodes.Count));
-            this.CreateMap<Node, NodeResponse>();
-            this.CreateMap<NodeRequest, Node>();
+            this.CreateMap<SkilltreeNode, SkilltreeNodeResponse>();
+            this.CreateMap<SkilltreeNodeRequest, SkilltreeNode>();
             this.CreateMap<CreateSkilltreeRequest, Skilltree>();
             this.CreateMap<Attribute, AttributeResponse>();
             this.CreateMap<CreateAttributeRequest, Attribute>();
@@ -97,6 +98,14 @@ namespace Hero.Server
                  .ForMember(dst => dst.MaxValue, src => src.MapFrom(atr => atr.Attribute.MaxValue))
                  .ForMember(dst => dst.Value, src => src.MapFrom(atr => atr.Value));
             this.CreateMap<Race, RaceResponse>();
+
+            this.CreateMap<BlueprintRequest, Blueprint>();
+            this.CreateMap<Blueprint, BlueprintOverviewResponse>()
+                .ForMember(dst => dst.NodeCount, src => src.MapFrom(print => print.Nodes.Count));
+            this.CreateMap<Blueprint, BlueprintResponse>();
+            this.CreateMap<BlueprintNode, BlueprintNodeResponse>();
+            this.CreateMap<BlueprintNodeRequest, BlueprintNode>();
+
             this.CreateMap<User, UserResponse>();
             this.CreateMap<Group, GroupResponse>();
         }

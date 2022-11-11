@@ -23,8 +23,8 @@
         // Skill Events: 15XX
         SkillDoesNotExist = 1501,
 
-        // NodeTree Events: 16XX
-        NodeTreeDoesNotExist = 1601,
+        // Skilltree Events: 16XX
+        SkilltreeDoesNotExist = 1601,
 
         // Group Events: 17XX
         GroupCreationFailed = 1700,
@@ -38,5 +38,14 @@
 
         // Race Events 19XX
         RaceDoesNotExist = 1900, //this is not racist.
+
+        // Blueprint Events: 20XX
+        BlueprintCreated = 2000,
+        BlueprintCreateFailed = 2001,
+        BlueprintDoesNotExist = 2002,
+        BlueprintDeleted = 2003,
+        BlueprintDeleteFailed = 2004,
+        BlueprintUpdated = 2005,
+        BlueprintUpdateFailed = 2006,
     }
 }

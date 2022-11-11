@@ -8,6 +8,6 @@ namespace Hero.Server.Messages.Requests
         [Required]
         public string Name { get; set; }
         public int Points { get; set; }
-        public List<NodeRequest> Nodes { get; set; }
+        public List<SkilltreeNodeRequest> Nodes { get; set; }
     }
 }

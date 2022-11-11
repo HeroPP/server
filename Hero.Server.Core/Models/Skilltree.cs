@@ -8,7 +8,7 @@
         public string Name { get; set; }
         public bool IsActiveTree { get; set; }
         public int Points { get; set; }
-        public List<Node> Nodes { get; set; }
+        public List<SkilltreeNode> Nodes { get; set; }
         public Character? Character { get; set; }
 
         public void Update(Skilltree tree)

@@ -13,4 +13,10 @@
         public List<Guid> Precessors { get; set; }
         public List<Guid> Successors { get; set; }
     }
+
+    public class SkilltreeNodeRequest : NodeRequest
+    { }
+
+    public class BlueprintNodeRequest : NodeRequest
+    { }
 }

@@ -19,8 +19,10 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<Character> Characters { get; set; }
         public DbSet<Ability> Abilities { get; set; }
         public DbSet<Skill> Skills { get; set; }
-        public DbSet<Node> Nodes { get; set; }
+        public DbSet<BlueprintNode> BlueprintNodes { get; set; }
+        public DbSet<SkilltreeNode> SkilltreeNodes { get; set; }
         public DbSet<Skilltree> Skilltrees { get; set; }
+        public DbSet<Blueprint> Blueprints { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Attribute> Attributes { get; set; }
         public DbSet<Race> Races { get; set; }
@@ -39,6 +41,7 @@ namespace Hero.Server.DataAccess.Database
             builder.Entity<Skilltree>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
             builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
             builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
+            builder.Entity<Blueprint>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
         }
     }
 }

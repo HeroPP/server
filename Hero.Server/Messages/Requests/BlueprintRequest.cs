@@ -2,15 +2,10 @@
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateAbilityRequest
+    public class BlueprintRequest
     {
         [Required]
         public string Name { get; set; }
-
-        public string? Description { get; set; }
-
-        [Required]
-        public bool IsPassive { get; set; }
-
+        public List<BlueprintNodeRequest> Nodes { get; set; }
     }
 }
