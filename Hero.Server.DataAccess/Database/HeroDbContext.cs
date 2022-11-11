@@ -1,6 +1,7 @@
 ﻿using Hero.Server.Core.Models;
 
 using Microsoft.EntityFrameworkCore;
+using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.DataAccess.Database
 {
@@ -13,7 +14,6 @@ namespace Hero.Server.DataAccess.Database
             this.CurrentGroup = currentGroup;
         }
 
-
         public GroupContext CurrentGroup { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Character> Characters { get; set; }
@@ -24,6 +24,10 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<Skilltree> Skilltrees { get; set; }
         public DbSet<Blueprint> Blueprints { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<Attribute> Attributes { get; set; }
+        public DbSet<Race> Races { get; set; }
+        public DbSet<AttributeRace> AttributeRaces { get; set; }
+        public DbSet<AttributeSkill> AttributeSkills { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -35,6 +39,8 @@ namespace Hero.Server.DataAccess.Database
             builder.Entity<Ability>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id);
             builder.Entity<Skill>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
             builder.Entity<Skilltree>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
+            builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
+            builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
             builder.Entity<Blueprint>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
         }
     }

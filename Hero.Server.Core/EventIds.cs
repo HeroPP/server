@@ -33,13 +33,19 @@
         CannotCreateCharacterOutsideOfAGroup = 1703,
         NotAGroupAdmin = 1704,
 
-        // Blueprint Events: 18XX
-        BlueprintCreated = 1800,
-        BlueprintCreateFailed = 1801,
-        BlueprintDoesNotExist = 1802,
-        BlueprintDeleted = 1803,
-        BlueprintDeleteFailed = 1804,
-        BlueprintUpdated = 1805,
-        BlueprintUpdateFailed = 1806,
+        // Attribute Events 18XX
+        AttributeDoesNotExist = 1800,
+
+        // Race Events 19XX
+        RaceDoesNotExist = 1900, //this is not racist.
+
+        // Blueprint Events: 20XX
+        BlueprintCreated = 2000,
+        BlueprintCreateFailed = 2001,
+        BlueprintDoesNotExist = 2002,
+        BlueprintDeleted = 2003,
+        BlueprintDeleteFailed = 2004,
+        BlueprintUpdated = 2005,
+        BlueprintUpdateFailed = 2006,
     }
 }

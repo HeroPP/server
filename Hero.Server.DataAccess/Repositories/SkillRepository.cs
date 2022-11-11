@@ -26,7 +26,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            return await this.context.Skills.Include(s => s.Ability).Include(s => s.AttributeSkills).ThenInclude(ats => ats.Attribute).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
         }
 
         public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
@@ -34,6 +34,9 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 skill.GroupId = group.Id;
+                skill.Id = Guid.NewGuid();
+                skill.AttributeSkills.ForEach(ats => ats.SkillId = skill.Id);
+
                 await this.context.Skills.AddAsync(skill, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);                
             }
@@ -66,7 +69,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Skill>> GetAllSkillsAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.Include(s => s.Ability).ToListAsync(cancellationToken);
+            return await this.context.Skills.Include(s => s.Ability).Include(s => s.AttributeSkills).ThenInclude(ats => ats.Attribute).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, CancellationToken cancellationToken = default)
@@ -81,6 +84,15 @@ namespace Hero.Server.DataAccess.Repositories
                 }
 
                 existing.Update(updatedSkill);
+
+                foreach (AttributeSkill existingAttributeSkill in existing.AttributeSkills.Where(ats => updatedSkill.AttributeSkills.Select(x => (x.SkillId, x.AttributeId)).Contains((ats.SkillId, ats.AttributeId))))
+                {
+                    AttributeSkill updatedAttributeSkill = updatedSkill.AttributeSkills.Single(ats => existingAttributeSkill.SkillId == ats.SkillId && existingAttributeSkill.AttributeId == ats.AttributeId);
+                    existingAttributeSkill.Value = updatedAttributeSkill.Value;
+                }
+
+                existing.AttributeSkills.RemoveAll(ats => !updatedSkill.AttributeSkills.Select(x => (x.SkillId, x.AttributeId)).Contains((ats.SkillId, ats.AttributeId)));
+                existing.AttributeSkills.AddRange(updatedSkill.AttributeSkills.Where(ats => !existing.AttributeSkills.Select(x => (x.SkillId, x.AttributeId)).Contains((ats.SkillId, ats.AttributeId))));
 
                 this.context.Skills.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);

@@ -8,25 +8,14 @@
         public List<Skilltree> Skilltrees { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int HealthPoints { get; set; }
-        public int LightPoints { get; set; }
-        public double MovementSpeed { get; set; }
-        public double Resistance { get; set; }
-        public double OpticalRange { get; set; }
-        public double Parry { get; set; }
-        public double Dodge { get; set; }
+        public Race Race { get; set; }
+        public Guid? RaceId { get; set; }
 
-        public void Update(Character updated)
+        public void Update(Character character)
         {
-            this.Name = updated.Name;
-            this.Description = updated.Description;
-            this.HealthPoints = updated.HealthPoints;
-            this.LightPoints = updated.LightPoints;
-            this.MovementSpeed = updated.MovementSpeed;
-            this.Resistance = updated.Resistance;
-            this.OpticalRange = updated.OpticalRange;
-            this.Parry = updated.Parry;
-            this.Dodge = updated.Dodge;
+            this.Name = character.Name;
+            this.Description = character.Description;
+            this.Skilltrees = character.Skilltrees;
         }
     }
 }

@@ -8,6 +8,7 @@ using Hero.Server.Messages.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.Controllers
 {
@@ -85,6 +86,8 @@ namespace Hero.Server.Controllers
                 Skill skill = this.mapper.Map<Skill>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.CreateSkillAsync(skill, token);
+
+                skill = await this.repository.GetSkillByIdAsync(skill.Id);
 
                 return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });

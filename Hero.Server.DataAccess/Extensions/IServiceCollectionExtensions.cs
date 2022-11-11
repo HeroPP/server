@@ -23,12 +23,14 @@ namespace Hero.Server.DataAccess.Extensions
 
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAbilityRepository, AbilityRepository>();
+            services.AddTransient<IAttributeRepository, AttributeRepository>();
             services.AddTransient<ICharacterRepository, CharacterRepository>();
             services.AddTransient<ISkilltreeRepository, SkilltreeRepository>();
             services.AddTransient<ISkillRepository, SkillRepository>();
             services.AddTransient<ICharacterRepository, CharacterRepository>();
             services.AddTransient<IGroupRepository, GroupRepository>();
             services.AddTransient<IKeycloakService, KeycloakService>();
+            services.AddTransient<IRaceRepository, RaceRepository>();
             services.AddTransient<IBlueprintRepository, BlueprintRepository>();
 
             return services;
