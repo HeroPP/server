@@ -46,14 +46,9 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Character?> GetCharacterWithNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
             return await this.context.Characters
-                .Include(c => c.Skilltrees)
-                .ThenInclude(t => t.Nodes)
-                .ThenInclude(n => n.Skill)
-                .ThenInclude(s => s.AttributeSkills)
-                .ThenInclude(ats => ats.Attribute)
-                .Include(c => c.Race)
-                .ThenInclude(r => r.AttributeRaces)
-                .ThenInclude(ar => ar.Attribute)
+                .Include(c => c.Skilltrees).ThenInclude(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                .Include(c => c.Skilltrees).ThenInclude(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.AttributeSkills).ThenInclude(a => a.Attribute)
+                .Include(c => c.Race).ThenInclude(r => r.AttributeRaces).ThenInclude(ar => ar.Attribute)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 

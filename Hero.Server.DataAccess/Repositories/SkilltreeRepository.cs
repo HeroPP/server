@@ -20,30 +20,6 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        private void CleanupNodeIds(Skilltree blueprint)
-        {
-            foreach (Node node in blueprint.Nodes)
-            {
-                Guid newId = Guid.NewGuid();
-                Guid oldId = node.Id;
-
-                foreach (Guid precessorId in node.Precessors)
-                {
-                    Node precessor = blueprint.Nodes.Single(node => node.Id == precessorId);
-                    precessor.Successors.Remove(oldId);
-                    precessor.Successors.Add(newId);
-                }
-                foreach (Guid successorId in node.Successors)
-                {
-                    Node successor = blueprint.Nodes.Single(node => node.Id == successorId);
-                    successor.Precessors.Remove(oldId);
-                    successor.Precessors.Add(newId);
-                }
-
-                node.Id = newId;
-            }
-        }
-
         public async Task<List<Skilltree>> FilterSkilltrees(Guid? characterId, CancellationToken cancellationToken = default)
         {
             return await this.context.Skilltrees
@@ -55,9 +31,8 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Skilltrees
-                .Include(c => c.Nodes)
-                .ThenInclude(n => n.Skill)
-                .ThenInclude(s => s.Ability)
+                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.AttributeSkills).ThenInclude(a => a.Attribute)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -65,8 +40,6 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                this.CleanupNodeIds(skilltree);
-
                 skilltree.GroupId = this.group.Id;
                 await this.context.Skilltrees.AddAsync(skilltree, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);

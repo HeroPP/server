@@ -94,18 +94,16 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Blueprint?> GetBlueprintByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Blueprints
-                .Include(c => c.Nodes)
-                .ThenInclude(n => n.Skill)
-                .ThenInclude(s => s.Ability)
+                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.AttributeSkills).ThenInclude(a => a.Attribute)
                 .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
         }
 
         public async Task<Blueprint?> LoadBlueprintByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             Blueprint? blueprint = await this.context.Blueprints
-                .Include(c => c.Nodes)
-                .ThenInclude(n => n.Skill)
-                .ThenInclude(s => s.Ability)
+                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.AttributeSkills).ThenInclude(a => a.Attribute)
                 .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
 
             if (null == blueprint)
