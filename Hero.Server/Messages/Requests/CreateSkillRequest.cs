@@ -9,7 +9,7 @@ namespace Hero.Server.Messages.Requests
         public string? IconUrl { get; set; }
         [Required]
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public Guid? AbilityId { get; set; }
         public List<AttributeSkillValueRequest> AttributeSkills { get; set; }
     }

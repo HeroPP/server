@@ -9,7 +9,7 @@ namespace Hero.Server.Messages.Responses
         public Guid? AbilityId { get; set; }
         public string? IconUrl { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         //public AbilityResponse? Ability { get; set; }
         public List<AttributeValueResponse>? AttributeSkills { get; set; }
         
