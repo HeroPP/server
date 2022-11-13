@@ -76,7 +76,7 @@ namespace Hero.Server.Controllers
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.UpdateSkillAsync(id, skill, token);
 
-                skill = await this.repository.GetSkillByIdAsync(skill.Id);
+                skill = await this.repository.GetSkillByIdAsync(id);
 
                 return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
