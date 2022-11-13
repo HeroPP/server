@@ -32,11 +32,12 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 Skill? skill = await this.repository.GetSkillByIdAsync(id, token);
                 if (skill != null)
                 {
-                    return this.Ok(this.mapper.Map<SkillResponse>(skill));
+                    SkillResponse value = this.mapper.Map<SkillResponse>(skill);
+                    return this.Ok(value);
                 }
 
                 return this.BadRequest();
@@ -67,19 +68,22 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateSkillAsync(Guid id, [FromBody] CreateSkillRequest request, CancellationToken token)
+        public Task<IActionResult> UpdateSkillAsync(Guid id, [FromBody] SkillRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
                 Skill skill = this.mapper.Map<Skill>(request);
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.UpdateSkillAsync(id, skill, token);
+
+                skill = await this.repository.GetSkillByIdAsync(skill.Id);
+
                 return this.Ok(this.mapper.Map<SkillResponse>(skill));
             });
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateSkillAsync([FromBody] CreateSkillRequest request, CancellationToken token)
+        public Task<IActionResult> CreateSkillAsync([FromBody] SkillRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {

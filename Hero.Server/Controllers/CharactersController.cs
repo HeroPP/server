@@ -72,7 +72,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CreateCharacterRequest request, CancellationToken token)
+        public Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CharacterRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
@@ -83,7 +83,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateCharacterAsync([FromBody] CreateCharacterRequest request, CancellationToken token)
+        public Task<IActionResult> CreateCharacterAsync([FromBody] CharacterRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {

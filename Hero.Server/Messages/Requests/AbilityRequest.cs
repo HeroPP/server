@@ -2,7 +2,7 @@
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateAbilityRequest
+    public class AbilityRequest
     {
         [Required]
         public string Name { get; set; }

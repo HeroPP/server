@@ -2,7 +2,7 @@
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateSkilltreeRequest
+    public class SkilltreeRequest
     {
         public Guid? CharacterId { get; set; }
         [Required]

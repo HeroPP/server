@@ -1,5 +1,6 @@
 using Hero.Server.Core.Configuration;
 using Hero.Server.DataAccess.Extensions;
+using Hero.Server.Extensions;
 using Hero.Server.Identity;
 
 using JCurth.Keycloak;
@@ -21,7 +22,7 @@ WebApplication app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(options => {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-    options.RoutePrefix = string.Empty; 
+    options.RoutePrefix = String.Empty; 
 });
 
 app.UseAuthentication();
@@ -29,7 +30,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.MigrateDatabaseAsync();
 app.ApplyGroupContext();
+
+await app.MigrateDatabaseAsync();
+await app.EnsureGlobalAttributesExists();
 
 app.Run();
