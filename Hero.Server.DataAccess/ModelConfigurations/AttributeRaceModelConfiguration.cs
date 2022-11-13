@@ -18,7 +18,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .OnDelete(DeleteBehavior.Cascade);
             builder
                 .HasOne(ats => ats.Race)
-                .WithMany(s => s.Attribute)
+                .WithMany(s => s.Attributes)
                 .HasForeignKey(ats => ats.RaceId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

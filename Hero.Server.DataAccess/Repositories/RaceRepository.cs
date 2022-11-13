@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Race?> GetRaceByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Races.Include(r => r.Attribute).ThenInclude(ar => ar.Attribute).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            return await this.context.Races.Include(r => r.Attributes).ThenInclude(ar => ar.Attribute).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
         }
 
         public async Task CreateRaceAsync(Race race, CancellationToken cancellationToken = default)
@@ -34,7 +34,7 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 race.GroupId = group.Id;
                 race.Id = Guid.NewGuid();
-                race.Attribute.ForEach(ats => ats.RaceId = race.Id);
+                race.Attributes.ForEach(ats => ats.RaceId = race.Id);
 
                 await this.context.Races.AddAsync(race, cancellationToken);
                 await this.context.SaveChangesAsync(cancellationToken);
@@ -68,7 +68,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<IEnumerable<Race>> GetAllRacesAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Races.Include(r => r.Attribute).ThenInclude(ar => ar.Attribute).ToListAsync(cancellationToken);
+            return await this.context.Races.Include(r => r.Attributes).ThenInclude(ar => ar.Attribute).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateRaceAsync(Guid id, Race updatedRace, CancellationToken cancellationToken = default)
@@ -84,14 +84,14 @@ namespace Hero.Server.DataAccess.Repositories
 
                 existing.Update(updatedRace);
 
-                foreach (AttributeRace existingAttributeRace in existing.Attribute.Where(ats => updatedRace.Attribute.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId))))
+                foreach (AttributeRace existingAttributeRace in existing.Attributes.Where(ats => updatedRace.Attributes.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId))))
                 {
-                    AttributeRace updatedAttributeRace = updatedRace.Attribute.Single(ats => existingAttributeRace.RaceId == ats.RaceId && existingAttributeRace.AttributeId == ats.AttributeId);
+                    AttributeRace updatedAttributeRace = updatedRace.Attributes.Single(ats => existingAttributeRace.RaceId == ats.RaceId && existingAttributeRace.AttributeId == ats.AttributeId);
                     existingAttributeRace.Value = updatedAttributeRace.Value;
                 }
 
-                existing.Attribute.RemoveAll(ats => !updatedRace.Attribute.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId)));
-                existing.Attribute.AddRange(updatedRace.Attribute.Where(ats => !existing.Attribute.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId))));
+                existing.Attributes.RemoveAll(ats => !updatedRace.Attributes.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId)));
+                existing.Attributes.AddRange(updatedRace.Attributes.Where(ats => !existing.Attributes.Select(x => (x.RaceId, x.AttributeId)).Contains((ats.RaceId, ats.AttributeId))));
 
                 this.context.Races.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);

@@ -83,7 +83,8 @@ namespace Hero.Server
 
             this.CreateMap<AttributeRequest, Attribute>();
 
-            this.CreateMap<RaceRequest, Race>();
+            this.CreateMap<RaceRequest, Race>()
+                .ForMember(dst => dst.Attributes, src => src.MapFrom(req => req.Attributes));
             this.CreateMap<AttributeRaceValueRequest, AttributeRace>();
             this.CreateMap<AttributeRace, AttributeValueResponse>();
             this.CreateMap<Race, RaceResponse>();
