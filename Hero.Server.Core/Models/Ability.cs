@@ -13,6 +13,7 @@
 
         public void Update(Ability ability)
         {
+            this.Name = ability.Name;
             this.IsPassive= ability.IsPassive;
             this.Description= ability.Description;
         }
