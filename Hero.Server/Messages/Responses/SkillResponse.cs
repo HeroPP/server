@@ -11,7 +11,7 @@ namespace Hero.Server.Messages.Responses
         public string Name { get; set; }
         public string? Description { get; set; }
         public AbilityResponse? Ability { get; set; }
-        public List<AttributeValueResponse>? Attributes { get; set; }
+        public List<AttributeValueResponse> Attributes { get; set; } = new ();
         
     }
 }

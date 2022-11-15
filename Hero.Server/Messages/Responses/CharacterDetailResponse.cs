@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using Hero.Server.Core.Extensions;
-using Hero.Server.Core.Models;
+﻿using System.Text.Json.Serialization;
 
 namespace Hero.Server.Messages.Responses
 {
@@ -10,8 +8,32 @@ namespace Hero.Server.Messages.Responses
         public string Name { get; set; }
         public string? Description { get; set; }
         public RaceResponse Race { get; set; }
-        public List<AttributeValueResponse> Attributes { get; set; }
-        public List<SkilltreeResponse> SkilltreeResponses { get; set; }
 
+        // The full trees are only needed to generate the attribute values, but should not be send over to the client to reduce overhead.
+        [JsonIgnore]
+        public List<SkilltreeResponse> FullSkilltrees { get; set; } = new();
+
+        public List<SkilltreeOverviewResponse> Skilltrees { get; set; }
+
+        public List<AttributeValueResponse> Attributes => this.GroupAttributes();
+     
+
+        private List<AttributeValueResponse> GroupAttributes()
+        {
+            IEnumerable<AttributeValueResponse> skilltreeAttributes = 
+                this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.SelectMany(node => node.Skill.Attributes));
+
+            List<AttributeValueResponse> attributeValueResponses = this.Race.Attributes
+                .Concat(skilltreeAttributes)
+                .GroupBy(attribute => attribute.AttributeId)
+                .Select(group => new AttributeValueResponse()
+                {
+                    AttributeId = group.Key,
+                    Value = group.Sum(a => a.Value),
+                    Attribute = group.First().Attribute,
+                })
+                .ToList();
+            return attributeValueResponses; 
+        }
     }
 }

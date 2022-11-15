@@ -18,50 +18,8 @@ namespace Hero.Server
             this.CreateMap<CharacterRequest, Character>();
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
-            //this.CreateMap<Character, CharacterDetailResponse>()
-            //    .ForMember(
-            //    dst => dst.Attributes, src => src.MapFrom(
-            //        c => c.Race.Attribute.Select(
-            //            ar => new AttributeValueResponse
-            //    {
-            //        Value = ar.Value + c.Skilltrees.Where(
-            //            s => s.IsActiveTree).SelectMany(
-            //                nt => nt.Nodes.Select(
-            //                    n => n.Skill.Attributes.Where(
-            //                        ats => ats.AttributeId == ar.AttributeId).Select(
-            //                        s => s.Value).Sum())).Sum(),
-            //        AttributeId = ar.AttributeId,
-            //        Name = ar.Attribute.Name,
-            //        MinValue = ar.Attribute.MinValue,
-            //        MaxValue = ar.Attribute.MaxValue,
-            //        Description = ar.Attribute.Description,
-            //        IconData = ar.Attribute.IconData,
-            //        StepSize = ar.Attribute.StepSize
-            //    }).ToList()
-            //    .Concat(c.Skilltrees.Where(
-            //        s => s.IsActiveTree).SelectMany(
-            //        nt => nt.Nodes.SelectMany(
-            //            n => n.Skill.Attributes.Where(
-            //                ats => !c.Race.Attribute.Select(
-            //                    ar => ar.AttributeId).ToList().Contains(
-            //                    ats.AttributeId)).DistinctBy(
-            //                ats => ats.AttributeId))).Select(ats => new AttributeValueResponse
-            //                    {
-            //                        AttributeId = ats.Attribute.Id,
-            //                        Value = c.Skilltrees.Where(
-            //                            s => s.IsActiveTree).SelectMany(
-            //                            nt => nt.Nodes.Select(
-            //                                n => n.Skill.Attributes.Where(
-            //                                    atsinner => atsinner.AttributeId == ats.AttributeId).Select(
-            //                                    s => s.Value).Sum())).Sum(),
-            //                        Name = ats.Attribute.Name,
-            //                        MinValue = ats.Attribute.MinValue,
-            //                        MaxValue = ats.Attribute.MaxValue,
-            //                        Description = ats.Attribute.Description,
-            //                        IconData = ats.Attribute.IconData,
-            //                        StepSize = ats.Attribute.StepSize
-            //                    }).ToList())
-            //    ));
+            this.CreateMap<Character, CharacterDetailResponse>()
+                .ForMember(dst => dst.FullSkilltrees, src => src.MapFrom(character => character.Skilltrees));
 
             this.CreateMap<Ability, AbilityResponse>();
             this.CreateMap<AbilityRequest, Ability>();
