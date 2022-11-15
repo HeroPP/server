@@ -25,7 +25,9 @@ namespace Hero.Server.Core.ModelConfigurations
                 .WithMany()
                 .HasForeignKey(character => character.RaceId)
                 .OnDelete(DeleteBehavior.SetNull);
-
+            builder.Property(c => c.Profession).HasMaxLength(100);
+            builder.Property(c => c.Religion).HasMaxLength(100);
+            builder.Property(c => c.Relationship).HasMaxLength(100);
         }
     }
 }
