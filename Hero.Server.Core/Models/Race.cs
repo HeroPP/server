@@ -9,13 +9,13 @@ namespace Hero.Server.Core.Models
         public string Name { get; set; }
         public string? Description { get; set; }
 
-        public List<AttributeRace> AttributeRaces { get; set; }
+        public List<AttributeRace> Attributes { get; set; }
 
         public void Update(Race race)
         {
             this.Name = race.Name;
             this.Description= race.Description;
-            this.AttributeRaces = race.AttributeRaces;
+            this.Attributes = race.Attributes;
         }
     }
 }

@@ -2,14 +2,15 @@
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateRaceRequest
+    public class AbilityRequest
     {
         [Required]
         public string Name { get; set; }
-        [Required]
-        public Guid Id { get; set; }
+
         public string? Description { get; set; }
-        public List<AttributeRaceValueRequest> AttributeRaces { get; set; }
+
+        [Required]
+        public bool IsPassive { get; set; }
 
     }
 }

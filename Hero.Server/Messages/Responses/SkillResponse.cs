@@ -10,8 +10,8 @@ namespace Hero.Server.Messages.Responses
         public string? IconUrl { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
-        //public AbilityResponse? Ability { get; set; }
-        public List<AttributeValueResponse>? AttributeSkills { get; set; }
+        public AbilityResponse? Ability { get; set; }
+        public List<AttributeValueResponse> Attributes { get; set; } = new ();
         
     }
 }

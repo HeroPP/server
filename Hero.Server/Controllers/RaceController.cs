@@ -64,7 +64,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}"), Authorize(Roles = RoleNames.User)]
-        public Task<IActionResult> UpdateRaceAsync(Guid id, [FromBody] CreateRaceRequest request)
+        public Task<IActionResult> UpdateRaceAsync(Guid id, [FromBody] RaceRequest request)
         {
             return this.HandleExceptions(async () =>
             {
@@ -76,7 +76,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost, Authorize(Roles = RoleNames.User)]
-        public Task<IActionResult> CreateRaceAsync([FromBody] CreateRaceRequest request)
+        public Task<IActionResult> CreateRaceAsync([FromBody] RaceRequest request)
         {
             return this.HandleExceptions(async () =>
             {

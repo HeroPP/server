@@ -2,18 +2,18 @@
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateAttributeRequest
+    public class AttributeRequest
     {
         [Required]
         public string Name { get; set; }
-        [Required]
-        public Guid Id { get; set; }
+        public string? Description { get; set; }
         [Required]
         public double MaxValue { get; set; }
         [Required]
         public double MinValue { get; set; }
         [Required]
         public double StepSize { get; set; }
+        public string? IconData { get; set; }
 
     }
 }

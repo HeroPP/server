@@ -45,7 +45,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         private async Task EvaluateInvitationCode(Guid groupId, string invitationCode, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.FindAsync(new object [] {groupId}, cancellationToken);
+            Group? group = await this.context.Groups.IgnoreQueryFilters().SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new BaseException((int)EventIds.InvalidInvitationCode, "The given invitation code is not valid.");
@@ -81,7 +81,10 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Group> GetGroupByInviteCode(string invitationCode, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.Include(group => group.Owner).SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
+            Group? group = await this.context.Groups
+                .Include(group => group.Owner)
+                .IgnoreQueryFilters()
+                .SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
 
             if (null == group)
             {
@@ -158,9 +161,9 @@ namespace Hero.Server.DataAccess.Repositories
                 await this.context.SaveChangesAsync(cancellationToken);
 
                 await this.service.Initialize(options);
-                if (this.mappings.Groups.ContainsKey("Members"))
+                if (this.mappings.Groups.ContainsKey("Member"))
                 {
-                    await this.service.Groups.AddUser(this.mappings.Groups["Members"].Id, userId.ToString());
+                    await this.service.Groups.AddUser(this.mappings.Groups["Member"].Id, userId.ToString());
                 }
             }
             catch (Exception ex)

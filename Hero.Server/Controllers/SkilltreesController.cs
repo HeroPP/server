@@ -79,7 +79,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] CreateSkilltreeRequest request)
+        public async Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] SkilltreeRequest request)
         {
             return await this.HandleExceptions(async () =>
             {
@@ -91,7 +91,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSkilltreeAsync([FromBody] CreateSkilltreeRequest request)
+        public async Task<IActionResult> CreateSkilltreeAsync([FromBody] SkilltreeRequest request)
         {
             return await this.HandleExceptions(async () =>
             {

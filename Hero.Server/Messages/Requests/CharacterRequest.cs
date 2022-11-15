@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateCharacterRequest
+    public class CharacterRequest
     {
         [Required]
         public string Name { get; set; }
