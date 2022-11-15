@@ -48,7 +48,7 @@ namespace Hero.Server.DataAccess.Repositories
             Group? group = await this.context.Groups.IgnoreQueryFilters().SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new BaseException((int)EventIds.InvalidInvitationCode, "The given invitation code is not valid.");
+                throw new BaseException((int)ErrorCode.InvalidCode, "The provided invite code is invalid");
             }
         }
 
@@ -65,7 +65,7 @@ namespace Hero.Server.DataAccess.Repositories
 
             if (null == user?.OwnedGroup)
             {
-                throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
+                throw new BaseException((int)ErrorCode.NotGroupAdmin, "You are no admin of any group, you should create one.");
             }
 
             return user.OwnedGroup;
@@ -75,6 +75,11 @@ namespace Hero.Server.DataAccess.Repositories
         {
             await this.service.Initialize(this.options);
             JCurth.Keycloak.Models.UserInfo? userInfo = await this.service.Users.GetUserById(group.OwnerId);
+
+            if (null == userInfo)
+            {
+                throw new BaseException((int)ErrorCode.GroupOwnerNotFound, $"The group owner of group '{group.Name}' could not be determined.");
+            }
 
             return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
         }
@@ -152,6 +157,16 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 await this.EvaluateInvitationCode(groupId, invitationCode, cancellationToken);
 
+                await this.service.Initialize(options);
+                if (this.mappings.Groups.ContainsKey("Member"))
+                {
+                    await this.service.Groups.AddUser(this.mappings.Groups["Member"].Id, userId.ToString());
+                }
+                else
+                {
+                    throw new BaseException((int)ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not join members group.");
+                }
+
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
                 if (null != user)
                 {
@@ -160,11 +175,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 await this.context.SaveChangesAsync(cancellationToken);
 
-                await this.service.Initialize(options);
-                if (this.mappings.Groups.ContainsKey("Member"))
-                {
-                    await this.service.Groups.AddUser(this.mappings.Groups["Member"].Id, userId.ToString());
-                }
+                
             }
             catch (Exception ex)
             {
@@ -180,15 +191,21 @@ namespace Hero.Server.DataAccess.Repositories
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
                 if (null != user)
                 {
-                    user.GroupId = null;
-
-                    await this.context.SaveChangesAsync(cancellationToken);
-
                     await this.service.Initialize(options);
                     if (this.mappings.Groups.ContainsKey("Members"))
                     {
                         await this.service.Groups.RemoveUser(this.mappings.Groups["Members"].Id, userId.ToString());
                     }
+                    else
+                    {
+                        throw new BaseException((int)ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not leave members group.");
+                    }
+
+                    user.GroupId = null;
+
+                    await this.context.SaveChangesAsync(cancellationToken);
+
+                    
                 }
             }
             catch (Exception ex)
@@ -208,6 +225,10 @@ namespace Hero.Server.DataAccess.Repositories
                     await this.service.Initialize(options);
                     this.context.Remove(group);
                     await this.context.SaveChangesAsync(cancellationToken);
+                }
+                else
+                {
+                    throw new BaseException((int)ErrorCode.GroupNotFound, "The group you are searching for could not be found.");
                 }
             }
             catch (Exception ex)

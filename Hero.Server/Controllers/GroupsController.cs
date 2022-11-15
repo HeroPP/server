@@ -28,12 +28,7 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
-                if (null == group) 
-                {
-                    return this.BadRequest();
-                }
-
+                Group group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
                 return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
             });
         }
@@ -65,16 +60,9 @@ namespace Hero.Server.Controllers
         {
             return await this.HandleExceptions(async () =>
             {
-                string? code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId(), token);
-                if (null != code)
-                {
-                    // ToDo: Generate invitation code.
-                    this.logger.LogGroupCreatedSuccessfully(request.Name);
-
-                    return this.Ok();
-                }
-
-                return this.BadRequest(new ErrorResponse((int)EventIds.GroupCreationFailed, "The group you want to create already exists, please choose another name."));
+                string code = await this.repository.CreateGroup(request.Name, request.Description, this.HttpContext.User.GetUserId(), token);
+                this.logger.LogGroupCreatedSuccessfully(request.Name);
+                return this.Ok();
             });
         }
 

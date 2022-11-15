@@ -34,7 +34,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                if (null == this.GetAttributeByIdAsync(attribute.Id, cancellationToken))
+                if (null == await this.GetAttributeByIdAsync(attribute.Id, cancellationToken))
                 {
                     await this.context.Attributes.AddAsync(attribute, cancellationToken);
                     await this.context.SaveChangesAsync(cancellationToken);
