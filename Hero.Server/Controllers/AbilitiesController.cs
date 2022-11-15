@@ -64,7 +64,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateAbilityAsync(Guid id, [FromBody] CreateAbilityRequest request, CancellationToken token)
+        public Task<IActionResult> UpdateAbilityAsync(Guid id, [FromBody] AbilityRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {
@@ -76,7 +76,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateAbilityAsync([FromBody] CreateAbilityRequest request, CancellationToken token)
+        public Task<IActionResult> CreateAbilityAsync([FromBody] AbilityRequest request, CancellationToken token)
         {
             return this.HandleExceptions(async () =>
             {

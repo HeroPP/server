@@ -1,6 +1,6 @@
 ﻿namespace Hero.Server.Messages.Requests
 {
-    public class CreateUserRequest
+    public class UserRequest
     {
         public Guid Id { get; set; }
     }

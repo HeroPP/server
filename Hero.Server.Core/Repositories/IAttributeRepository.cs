@@ -10,5 +10,6 @@ namespace Hero.Server.Core.Repositories
         Task CreateAttributeAsync(Attribute attribute, CancellationToken cancellationToken = default);
         Task UpdateAttributeAsync(Guid id, Attribute updatedAttribute, CancellationToken cancellationToken = default);
         Task DeleteAttributeAsync(Guid id, CancellationToken cancellationToken = default);
+        Task CreateIfNotExistsAsync(Attribute attribute, CancellationToken cancellationToken = default);
     }
 }

@@ -8,7 +8,7 @@
         public string? IconUrl { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
-        public List<AttributeSkill> AttributeSkills { get; set; }
+        public List<AttributeSkill> Attributes { get; set; }
         public Ability? Ability { get; set; }
 
         public void Update(Skill skill)
@@ -17,7 +17,7 @@
             this.IconUrl= skill.IconUrl;
             this.Name= skill.Name;
             this.Description= skill.Description;    
-            this.AttributeSkills= skill.AttributeSkills;
+            this.Attributes= skill.Attributes;
             this.Ability = skill.Ability;
         }
     }

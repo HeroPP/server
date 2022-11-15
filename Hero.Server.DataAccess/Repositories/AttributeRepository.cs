@@ -29,6 +29,24 @@ namespace Hero.Server.DataAccess.Repositories
             return await this.context.Attributes.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
         }
 
+        // This method should only be used for global attributes and never should be used inside a controller, because it ignores every group constraints.
+        public async Task CreateIfNotExistsAsync(Attribute attribute, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                if (null == this.GetAttributeByIdAsync(attribute.Id, cancellationToken))
+                {
+                    await this.context.Attributes.AddAsync(attribute, cancellationToken);
+                    await this.context.SaveChangesAsync(cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+        }
+
         public async Task CreateAttributeAsync(Attribute attribute, CancellationToken cancellationToken = default)
         {
             try

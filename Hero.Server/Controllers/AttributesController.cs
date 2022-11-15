@@ -65,7 +65,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateAttributeAsync(Guid id, [FromBody] CreateAttributeRequest request)
+        public Task<IActionResult> UpdateAttributeAsync(Guid id, [FromBody] AttributeRequest request)
         {
             return this.HandleExceptions(async () =>
             {
@@ -77,7 +77,7 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateAttributeAsync([FromBody] CreateAttributeRequest request)
+        public Task<IActionResult> CreateAttributeAsync([FromBody] AttributeRequest request)
         {
             return this.HandleExceptions(async () =>
             {

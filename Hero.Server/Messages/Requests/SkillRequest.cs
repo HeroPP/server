@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Hero.Server.Messages.Requests
 {
-    public class CreateSkillRequest
+    public class SkillRequest
     {
-        public Guid? Id { get; set; }
         public string? IconUrl { get; set; }
         [Required]
         public string Name { get; set; }
         public string? Description { get; set; }
         public Guid? AbilityId { get; set; }
-        public List<AttributeSkillValueRequest> AttributeSkills { get; set; }
+
+        public List<AttributeSkillValueRequest> Attributes { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .OnDelete(DeleteBehavior.Cascade);
             builder
                 .HasOne(ats => ats.Skill)
-                .WithMany(s => s.AttributeSkills)
+                .WithMany(s => s.Attributes)
                 .HasForeignKey(ats => ats.SkillId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public Guid? GroupId { get; set; }
         public string Name { get; set; }
-        public string? IconUrl { get; set; }
+        public string? IconData { get; set; }
         public string? Description { get; set; }
         public double StepSize { get; set; }
         public double MinValue { get; set; }
@@ -16,7 +16,7 @@
         public void Update(Attribute attribute)
         {
             this.Name = attribute.Name;
-            this.IconUrl = attribute.IconUrl;
+            this.IconData = attribute.IconData;
             this.Description = attribute.Description;
             this.StepSize = attribute.StepSize;
             this.MinValue = attribute.MinValue;
