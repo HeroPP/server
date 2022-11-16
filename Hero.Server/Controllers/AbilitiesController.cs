@@ -30,13 +30,8 @@ namespace Hero.Server.Controllers
         {
             return this.HandleExceptions(async () =>
             {
-                Ability? ability = await this.repository.GetAbilityByNameAsync(name, token);
-                if (ability != null)
-                {
-                    return this.Ok(this.mapper.Map<AbilityResponse>(ability));
-                }
-
-                return this.BadRequest();
+                Ability ability = await this.repository.GetAbilityByNameAsync(name, token);
+                return this.Ok(this.mapper.Map<AbilityResponse>(ability));
             });
         }
 
@@ -46,7 +41,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                List<Ability> abilities = (await this.repository.GetAllAbilitiesAsync(token)).ToList();
+                List<Ability> abilities = await this.repository.GetAllAbilitiesAsync(token);
 
                 return this.Ok(abilities.Select(ability => this.mapper.Map<AbilityResponse>(ability)).ToList());
             });
@@ -69,8 +64,10 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
+
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.UpdateAbilityAsync(id, ability, token);
+
                 return this.Ok(this.mapper.Map<AbilityResponse>(ability));
             });
         }
@@ -81,6 +78,7 @@ namespace Hero.Server.Controllers
             return this.HandleExceptions(async () =>
             {
                 Ability ability = this.mapper.Map<Ability>(request);
+
                 await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
                 await this.repository.CreateAbilityAsync(ability, token);
 
