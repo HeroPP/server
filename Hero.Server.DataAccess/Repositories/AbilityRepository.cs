@@ -39,7 +39,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.UnknownAbilityError, "An unknown error occured while creating an ability.");
+                throw new BaseException((int)ErrorCode.AbilityFailedToCreate, "An error occured while creating an ability.");
             }
         }
 
@@ -64,7 +64,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.UnknownAbilityError, "An unknown error occured while updating the ability.");
+                throw new BaseException((int)ErrorCode.AbilityFailedToDelete, "An error occured while deleting the ability.");
             }
         }
 
@@ -96,7 +96,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.UnknownAbilityError, "An unknown error occured while updating the ability.");
+                throw new BaseException((int)ErrorCode.AbilityFailedToUpdate, "An error occured while updating the ability.");
             }
         }
     }
