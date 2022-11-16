@@ -2,7 +2,7 @@
 {
     public enum ErrorCode
     {
-        UnkownError = 0x0,
+        UnknownError = 0x0,
 
         // Group Error: 10XX
 
