@@ -30,7 +30,7 @@ namespace Hero.Server.Controllers
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                return this.BadRequest(new ErrorResponse((int)EventIds.UnknownErrorOccured, "An unknown error occured, while processing your request."));
+                return this.BadRequest(new ErrorResponse(ErrorCode.UnknownError, "An unknown error occured, while processing your request."));
             }
         }
 
@@ -48,7 +48,7 @@ namespace Hero.Server.Controllers
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                return this.BadRequest(new ErrorResponse((int)EventIds.UnknownErrorOccured, "An unknown error occured, while processing your request."));
+                return this.BadRequest(new ErrorResponse(ErrorCode.UnknownError, "An unknown error occured, while processing your request."));
             }
         }
     }

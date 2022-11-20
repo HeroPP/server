@@ -6,23 +6,23 @@ namespace Hero.Server.Core.Exceptions
     [Serializable]
     public class BaseException : Exception
     {
-        public BaseException(int errorCode)
+        public BaseException(ErrorCode errorCode)
         {
             this.ErrorCode = errorCode;
         }
 
-        public BaseException(int errorCode, string message) : base(message)
+        public BaseException(ErrorCode errorCode, string message) : base(message)
         {
             this.ErrorCode = errorCode;
         }
 
-        public BaseException(int errorCode, string message, Exception inner) : base(message, inner)
+        public BaseException(ErrorCode errorCode, string message, Exception inner) : base(message, inner)
         {
             this.ErrorCode = errorCode;
         }
 
         protected BaseException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 
-        public int ErrorCode { get; set; }
+        public ErrorCode ErrorCode { get; set; }
     }
 }
