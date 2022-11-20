@@ -46,6 +46,7 @@ namespace Hero.Server
             this.CreateMap<AttributeRaceValueRequest, AttributeRace>();
             this.CreateMap<AttributeRace, AttributeValueResponse>();
             this.CreateMap<Race, RaceResponse>();
+            this.CreateMap<Race, RaceOverviewResponse>();
 
             this.CreateMap<BlueprintRequest, Blueprint>();
             this.CreateMap<Blueprint, BlueprintOverviewResponse>()
