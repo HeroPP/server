@@ -31,6 +31,7 @@ namespace Hero.Server.DataAccess.Repositories
         public async Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await this.context.Skilltrees
+                .Include(c => c.Character)
                 .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
                 .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
                 .FirstOrDefaultAsync(c => c.Id == id);
