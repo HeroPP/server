@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Ability> GetAbilityByNameAsync(string name, CancellationToken cancellationToken = default)
         {
-            return await this.context.Abilities.FirstOrDefaultAsync(g => EF.Functions.ILike(g.Name, name), cancellationToken) ?? throw new BaseException((int)ErrorCode.AbilityNotFound, "The ability you are looking for is not there.");
+            return await this.context.Abilities.FirstOrDefaultAsync(g => EF.Functions.ILike(g.Name, name), cancellationToken) ?? throw new BaseException(ErrorCode.AbilityNotFound, "The ability you are looking for is not there.");
         }
 
         public async Task CreateAbilityAsync(Ability ability, CancellationToken cancellationToken = default)
@@ -39,7 +39,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AbilityFailedToCreate, "An error occured while creating an ability.");
+                throw new BaseException(ErrorCode.AbilityFailedToCreate, "An error occured while creating an ability.");
             }
         }
 
@@ -51,7 +51,7 @@ namespace Hero.Server.DataAccess.Repositories
                 if(null == existing)
                 {
                     this.logger.LogAbilityDoesNotExist(id);
-                    throw new BaseException((int)ErrorCode.AbilityNotFound, "The ability you are looking for is not there.");
+                    throw new BaseException(ErrorCode.AbilityNotFound, "The ability you are looking for is not there.");
                 }
                 this.context.Abilities.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
@@ -64,7 +64,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AbilityFailedToDelete, "An error occured while deleting the ability.");
+                throw new BaseException(ErrorCode.AbilityFailedToDelete, "An error occured while deleting the ability.");
             }
         }
 
@@ -81,7 +81,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new BaseException((int)ErrorCode.AbilityNotFound, $"The Ability (id: {id}) you're trying to update does not exist.");
+                    throw new BaseException(ErrorCode.AbilityNotFound, $"The Ability (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedAbility);
@@ -96,7 +96,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AbilityFailedToUpdate, "An error occured while updating the ability.");
+                throw new BaseException(ErrorCode.AbilityFailedToUpdate, "An error occured while updating the ability.");
             }
         }
     }

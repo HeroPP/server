@@ -45,7 +45,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AttributeFailedToCreate, "An error occured while creating the attribute.");
+                throw new BaseException(ErrorCode.AttributeFailedToCreate, "An error occured while creating the attribute.");
             }
         }
 
@@ -60,7 +60,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AttributeFailedToCreate, "An error occured while creating the attribute.");
+                throw new BaseException(ErrorCode.AttributeFailedToCreate, "An error occured while creating the attribute.");
             }
         }
 
@@ -72,7 +72,7 @@ namespace Hero.Server.DataAccess.Repositories
                 if(null == existing)
                 {
                     this.logger.LogAttributeDoesNotExist(id);
-                    throw new BaseException((int)ErrorCode.AttributeNotFound, "The attribute you are looking for could not be found.");
+                    throw new BaseException(ErrorCode.AttributeNotFound, "The attribute you are looking for could not be found.");
                 }
                 this.context.Attributes.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
@@ -85,7 +85,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AttributeFailedToDelete, "An error occured while deleting the attribute.");
+                throw new BaseException(ErrorCode.AttributeFailedToDelete, "An error occured while deleting the attribute.");
             }
         }
 
@@ -117,7 +117,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException((int)ErrorCode.AttributeFailedToUpdate, "An error occured while updating the attribute.");
+                throw new BaseException(ErrorCode.AttributeFailedToUpdate, "An error occured while updating the attribute.");
             }
         }
     }

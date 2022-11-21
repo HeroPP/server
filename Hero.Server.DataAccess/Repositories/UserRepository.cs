@@ -31,7 +31,7 @@ namespace Hero.Server.DataAccess.Repositories
             User? user = await this.GetUserByIdAsync(userId, cancellationToken);
             if (null == user?.OwnedGroup || user.OwnedGroup.Id != this.group.Id)
             {
-                throw new BaseException((int)ErrorCode.NotGroupAdmin, "You are not the admin of this group.");
+                throw new BaseException(ErrorCode.NotGroupAdmin, "You are not the admin of this group.");
             }
         }
 

@@ -48,7 +48,7 @@ namespace Hero.Server.DataAccess.Repositories
             Group? group = await this.context.Groups.IgnoreQueryFilters().SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new BaseException((int)ErrorCode.InvalidCode, "The provided invite code is invalid");
+                throw new BaseException(ErrorCode.InvalidCode, "The provided invite code is invalid");
             }
         }
 
@@ -65,7 +65,7 @@ namespace Hero.Server.DataAccess.Repositories
 
             if (null == user?.OwnedGroup)
             {
-                throw new BaseException((int)ErrorCode.NotGroupAdmin, "You are no admin of any group, you should create one.");
+                throw new BaseException(ErrorCode.NotGroupAdmin, "You are no admin of any group, you should create one.");
             }
 
             return user.OwnedGroup;
@@ -78,7 +78,7 @@ namespace Hero.Server.DataAccess.Repositories
 
             if (null == userInfo)
             {
-                throw new BaseException((int)ErrorCode.GroupOwnerNotFound, $"The group owner of group '{group.Name}' could not be determined.");
+                throw new BaseException(ErrorCode.GroupOwnerNotFound, $"The group owner of group '{group.Name}' could not be determined.");
             }
 
             return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
@@ -93,7 +93,7 @@ namespace Hero.Server.DataAccess.Repositories
 
             if (null == group)
             {
-                throw new BaseException((int)ErrorCode.InvalidCode, "The provided invite code is invalid");
+                throw new BaseException(ErrorCode.InvalidCode, "The provided invite code is invalid");
             }
 
             return group;
@@ -108,7 +108,7 @@ namespace Hero.Server.DataAccess.Repositories
 
             if (null == group)
             {
-                throw new BaseException((int)EventIds.NotAGroupAdmin, "You are no admin of any group, you should create one.");
+                throw new BaseException(ErrorCode.NotGroupAdmin, "You are no admin of any group, you should create one.");
             }
 
             await this.service.Initialize(options);
@@ -164,7 +164,7 @@ namespace Hero.Server.DataAccess.Repositories
                 }
                 else
                 {
-                    throw new BaseException((int)ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not join members group.");
+                    throw new BaseException(ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not join members group.");
                 }
 
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
@@ -198,7 +198,7 @@ namespace Hero.Server.DataAccess.Repositories
                     }
                     else
                     {
-                        throw new BaseException((int)ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not leave members group.");
+                        throw new BaseException(ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not leave members group.");
                     }
 
                     user.GroupId = null;
@@ -228,7 +228,7 @@ namespace Hero.Server.DataAccess.Repositories
                 }
                 else
                 {
-                    throw new BaseException((int)ErrorCode.GroupNotFound, "The group you are searching for could not be found.");
+                    throw new BaseException(ErrorCode.GroupNotFound, "The group you are searching for could not be found.");
                 }
             }
             catch (Exception ex)
