@@ -26,67 +26,61 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id}")]
-        public Task<IActionResult> GetRaceByIdAsync(Guid id)
-        {
-            return this.HandleExceptions(async () =>
-            {
-                Race? race = await this.repository.GetRaceByIdAsync(id);
-                if (race != null)
-                {
-                    return this.Ok(this.mapper.Map<RaceResponse>(race));
-                }
+        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult HandleError() => this.HandleErrors();
 
-                return this.BadRequest();
-            });
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetRaceByIdAsync(Guid id)
+        {
+            Race? race = await this.repository.GetRaceByIdAsync(id);
+            if (race != null)
+            {
+                return this.Ok(this.mapper.Map<RaceResponse>(race));
+            }
+
+            return this.NotFound();
         }
 
         [HttpGet]
-        public Task<IActionResult> GetAllRacesAsync()
+        public async Task<IActionResult> GetAllRacesAsync()
         {
-            return this.HandleExceptions(async () =>
-            {
-                List<Race> races = (await this.repository.GetAllRacesAsync()).ToList();
+            List<Race> races = await this.repository.GetAllRacesAsync();
 
-                return this.Ok(races.Select(race => this.mapper.Map<RaceResponse>(race)).ToList());
-            });
+            return this.Ok(races.Select(race => this.mapper.Map<RaceResponse>(race)).ToList());
         }
 
         [HttpDelete("{id}"), Authorize(Roles = RoleNames.User)]
-        public Task<IActionResult> DeleteRaceAsync(Guid id)
+        public async Task<IActionResult> DeleteRaceAsync(Guid id)
         {
-            return this.HandleExceptions(async () =>
-            {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.DeleteRaceAsync(id);
-                return this.Ok();
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            await this.repository.DeleteRaceAsync(id);
+
+            return this.Ok();
         }
 
         [HttpPut("{id}"), Authorize(Roles = RoleNames.User)]
-        public Task<IActionResult> UpdateRaceAsync(Guid id, [FromBody] RaceRequest request)
+        public async Task<IActionResult> UpdateRaceAsync(Guid id, [FromBody] RaceRequest request)
         {
-            return this.HandleExceptions(async () =>
-            {
-                Race race = this.mapper.Map<Race>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.UpdateRaceAsync(id, race);
-                return this.Ok(this.mapper.Map<RaceResponse>(race));
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            Race race = this.mapper.Map<Race>(request);
+            await this.repository.UpdateRaceAsync(id, race);
+
+            return this.Ok(this.mapper.Map<RaceResponse>(race));
         }
 
         [HttpPost, Authorize(Roles = RoleNames.User)]
-        public Task<IActionResult> CreateRaceAsync([FromBody] RaceRequest request)
+        public async Task<IActionResult> CreateRaceAsync([FromBody] RaceRequest request)
         {
-            return this.HandleExceptions(async () =>
-            {
-                Race race = this.mapper.Map<Race>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.CreateRaceAsync(race);
-                race = await this.repository.GetRaceByIdAsync(race.Id);
-                return this.Ok(this.mapper.Map<RaceResponse>(race));
-            });
-        }
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
 
+            Race race = this.mapper.Map<Race>(request);
+
+            await this.repository.CreateRaceAsync(race);
+            race = await this.repository.GetRaceByIdAsync(race.Id);
+
+            return this.Ok(this.mapper.Map<RaceResponse>(race));
+        }
     }
 }

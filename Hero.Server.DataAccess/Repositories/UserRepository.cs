@@ -1,11 +1,8 @@
-﻿using Hero.Server.Core;
-using Hero.Server.Core.Exceptions;
+﻿using Hero.Server.Core.Exceptions;
 using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
-
-using JCurth.Keycloak;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -31,7 +28,7 @@ namespace Hero.Server.DataAccess.Repositories
             User? user = await this.GetUserByIdAsync(userId, cancellationToken);
             if (null == user?.OwnedGroup || user.OwnedGroup.Id != this.group.Id)
             {
-                throw new BaseException(ErrorCode.NotGroupAdmin, "You are not the admin of this group.");
+                throw new GroupAccessForbiddenException("You are not the admin of this group.");
             }
         }
 
@@ -55,24 +52,40 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while creating user.");
             }
         }
 
         public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Users
-                .Include(u => u.OwnedGroup)
-                .Include(g => g.Group)
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
+            try
+            {
+                return await this.context.Users
+                    .Include(u => u.OwnedGroup)
+                    .Include(g => g.Group)
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting user.");
+            }
         }
 
-        public async Task<IEnumerable<User>> GetUsersByIdAsync(List<Guid> ids, CancellationToken cancellationToken = default)
+        public async Task<List<User>> GetUsersByIdAsync(List<Guid> ids, CancellationToken cancellationToken = default)
         {
-            return await this.context.Users
-                .Where(item => ids.Contains(item.Id))
-                .ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context.Users
+                    .Where(item => ids.Contains(item.Id))
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of users.");
+            }
         }
     }
 }

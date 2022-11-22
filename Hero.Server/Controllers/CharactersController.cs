@@ -8,7 +8,6 @@ using Hero.Server.Messages.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Hero.Server.Controllers
 {
@@ -25,73 +24,56 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id}")]
-        public Task<IActionResult> GetCharacterDetailByIdAsync(Guid id, CancellationToken token)
-        {
-            return this.HandleExceptions(async () =>
-            {
-                Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id, token);
-                if (character != null)
-                {
-                    return this.Ok(this.mapper.Map<CharacterDetailResponse>(character));
-                }
+        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult HandleError() => this.HandleErrors();
 
-                return this.BadRequest();
-            });
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCharacterDetailByIdAsync(Guid id, CancellationToken token)
+        {
+            Character? character = await this.repository.GetCharacterWithNestedByIdAsync(id, token);
+
+            if (character != null)
+            {
+                return this.Ok(this.mapper.Map<CharacterDetailResponse>(character));
+            }
+
+            return this.NotFound();
         }
 
         [HttpGet]
-        public Task<IActionResult> GetCharacterOverviewsAsync(CancellationToken token)
+        public async Task<IActionResult> GetCharacterOverviewsAsync(CancellationToken token)
         {
-            return this.HandleExceptions(async () =>
-            {
-                List<Character> characters;
-                bool isAdministrator = this.HttpContext.User.IsInRole(RoleNames.Administrator);
-                if (isAdministrator)
-                {
-                    characters = await this.repository.GetAllCharactersAsync(token);
-                }
-                else
-                {
-                    Guid userId = this.HttpContext.User.GetUserId();
-                    characters = (await this.repository.GetAllCharactersByUserIdAsync(userId, token)).ToList();
-                }
+            List<Character> characters = await this.repository.GetCharactersAsync(this.HttpContext.User.IsInRole(RoleNames.Administrator) ? null : this.HttpContext.User.GetUserId(), token);
 
-                return this.Ok(characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList());
-            });
+            return this.Ok(characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList());
         }
 
         [HttpDelete("{id}")]
-        public Task<IActionResult> DeleteCharacterAsync(Guid id, CancellationToken token)
+        public async Task<IActionResult> DeleteCharacterAsync(Guid id, CancellationToken token)
         {
-            return this.HandleExceptions(async () =>
-            {
-                await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId(), token);
-                return this.Ok();
-            });
+            await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId(), token);
+
+            return this.Ok();
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CharacterRequest request, CancellationToken token)
+        public async Task<IActionResult> UpdateCharacterAsync(Guid id, [FromBody] CharacterRequest request, CancellationToken token)
         {
-            return this.HandleExceptions(async () =>
-            {
-                Character character = this.mapper.Map<Character>(request);
-                await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId(), token);
-                return this.Ok();
-            });
+            Character character = this.mapper.Map<Character>(request);
+
+            await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId(), token);
+
+            return this.Ok();
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateCharacterAsync([FromBody] CharacterRequest request, CancellationToken token)
+        public async Task<IActionResult> CreateCharacterAsync([FromBody] CharacterRequest request, CancellationToken token)
         {
-            return this.HandleExceptions(async () =>
-            {
-                Character character = this.mapper.Map<Character>(request);
-                await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId(), token);
+            Character character = this.mapper.Map<Character>(request);
 
-                return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
-            });
+            await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId(), token);
+
+            return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
         }
     }
 }

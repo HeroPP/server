@@ -48,73 +48,132 @@ namespace Hero.Server.DataAccess.Repositories
             Group? group = await this.context.Groups.IgnoreQueryFilters().SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
-                throw new BaseException(ErrorCode.InvalidCode, "The provided invite code is invalid");
+                throw new GroupAccessForbiddenException("The provided invite code is invalid");
             }
         }
 
         public async Task<Group?> GetGroupByUserId(Guid userId, CancellationToken cancellationToken = default)
         {
-            User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-            return user?.OwnedGroup ?? user?.Group;
+            try
+            {
+                User? user = await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
+                return user?.OwnedGroup ?? user?.Group;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting group information.");
+            }
         }
 
         public async Task<Group> GetGroupByOwnerId(Guid userId, CancellationToken cancellationToken = default)
         {
-
-            User? user = await this.context.Users.Include(u => u.OwnedGroup).IgnoreQueryFilters().SingleOrDefaultAsync(u => u.Id == userId); //await this.userRepository.GetUserByIdAsync(userId, cancellationToken);
-
-            if (null == user?.OwnedGroup)
+            try
             {
-                throw new BaseException(ErrorCode.NotGroupAdmin, "You are no admin of any group, you should create one.");
-            }
+                User? user = await this.context.Users.Include(u => u.OwnedGroup).IgnoreQueryFilters().SingleOrDefaultAsync(u => u.Id == userId);
 
-            return user.OwnedGroup;
+                if (null == user?.OwnedGroup)
+                {
+                    throw new GroupAccessForbiddenException("You are no admin of any group, you should create one.");
+                }
+
+                return user.OwnedGroup;
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting group information.");
+            }
         }
 
         public async Task<Core.Models.UserInfo> GetGroupOwner(Group group, CancellationToken cancellationToken = default)
         {
-            await this.service.Initialize(this.options);
-            JCurth.Keycloak.Models.UserInfo? userInfo = await this.service.Users.GetUserById(group.OwnerId);
-
-            if (null == userInfo)
+            try
             {
-                throw new BaseException(ErrorCode.GroupOwnerNotFound, $"The group owner of group '{group.Name}' could not be determined.");
-            }
+                await this.service.Initialize(this.options);
+                JCurth.Keycloak.Models.UserInfo? userInfo = await this.service.Users.GetUserById(group.OwnerId);
 
-            return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
+                if (null == userInfo)
+                {
+                    throw new ObjectNotFoundException($"The group owner of group '{group.Name}' could not be determined.");
+                }
+
+                return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting group owner.");
+            }
         }
 
         public async Task<Group> GetGroupByInviteCode(string invitationCode, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups
-                .Include(group => group.Owner)
-                .IgnoreQueryFilters()
-                .SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
-
-            if (null == group)
+            try
             {
-                throw new BaseException(ErrorCode.InvalidCode, "The provided invite code is invalid");
-            }
+                Group? group = await this.context.Groups
+                    .Include(group => group.Owner)
+                    .IgnoreQueryFilters()
+                    .SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
 
-            return group;
+                if (null == group)
+                {
+                    throw new GroupAccessForbiddenException("The provided invite code is invalid");
+                }
+
+                return group;
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting group information.");
+            }
         }
 
         public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups
-                .Include(group => group.Members)
-                .IgnoreQueryFilters()
-                .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
-
-            if (null == group)
+            try
             {
-                throw new BaseException(ErrorCode.NotGroupAdmin, "You are no admin of any group, you should create one.");
+                Group? group = await this.context.Groups
+                    .Include(group => group.Members)
+                    .IgnoreQueryFilters()
+                    .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
+
+                if (null == group)
+                {
+                    throw new GroupAccessForbiddenException("You are no admin of any group, you should create one.");
+                }
+
+                await this.service.Initialize(options);
+                List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Users.GetUsersById(group!.Members.Select(u => u.Id).ToList());
+
+                return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
             }
-
-            await this.service.Initialize(options);
-            List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Users.GetUsersById(group!.Members.Select(u => u.Id).ToList());
-
-            return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting all users in group.");
+            }
         }
 
         public async Task<string> CreateGroup(string groupName, string? groupDescription, Guid ownerId, CancellationToken cancellationToken = default)
@@ -122,6 +181,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 string code = this.GenerateInvitationCode();
+
                 await this.context.Groups.AddAsync(new Group() { Name = groupName, Description = groupDescription, OwnerId = ownerId, InviteCode = code });
                 await this.context.SaveChangesAsync(cancellationToken);
 
@@ -137,18 +197,31 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while creating the group.");
             }
         }
 
         public async Task<string> GenerateInviteCode(Guid groupId, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.GetGroupByOwnerId(groupId);
+            try
+            {
+                Group? group = await this.GetGroupByOwnerId(groupId);
 
-            group.InviteCode = this.GenerateInvitationCode();
-            await this.context.SaveChangesAsync(cancellationToken);
+                group.InviteCode = this.GenerateInvitationCode();
+                await this.context.SaveChangesAsync(cancellationToken);
 
-            return group.InviteCode;
+                return group.InviteCode;
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while generating the invite code.");
+            }
         }
 
         public async Task JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default)
@@ -164,23 +237,27 @@ namespace Hero.Server.DataAccess.Repositories
                 }
                 else
                 {
-                    throw new BaseException(ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not join members group.");
+                    throw new HeroException("Groupmapping is not setup, could not join members group.");
                 }
 
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
+
                 if (null != user)
                 {
                     user.GroupId = groupId;
                 }
 
                 await this.context.SaveChangesAsync(cancellationToken);
-
-                
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
             }
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while joining the group.");
             }
         }
 
@@ -198,7 +275,7 @@ namespace Hero.Server.DataAccess.Repositories
                     }
                     else
                     {
-                        throw new BaseException(ErrorCode.CouldNotJoinGroup, $"Groupmapping is not setup, could not leave members group.");
+                        throw new HeroException("Groupmapping is not setup, could not leave members group.");
                     }
 
                     user.GroupId = null;
@@ -208,10 +285,15 @@ namespace Hero.Server.DataAccess.Repositories
                     
                 }
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while leaving the group.");
             }
         }
 
@@ -228,13 +310,18 @@ namespace Hero.Server.DataAccess.Repositories
                 }
                 else
                 {
-                    throw new BaseException(ErrorCode.GroupNotFound, "The group you are searching for could not be found.");
+                    throw new HeroException("The group you are searching for could not be found.");
                 }
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
             }
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while deleting the group.");
             }
         }
     }

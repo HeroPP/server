@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Ability> GetAbilityByNameAsync(string name, CancellationToken cancellationToken = default)
         {
-            return await this.context.Abilities.FirstOrDefaultAsync(g => EF.Functions.ILike(g.Name, name), cancellationToken) ?? throw new BaseException(ErrorCode.AbilityNotFound, "The ability you are looking for is not there.");
+            return await this.context.Abilities.FirstOrDefaultAsync(g => EF.Functions.ILike(g.Name, name), cancellationToken) ?? throw new HeroException("The ability you are looking for is not there.");
         }
 
         public async Task CreateAbilityAsync(Ability ability, CancellationToken cancellationToken = default)
@@ -39,7 +39,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AbilityFailedToCreate, "An error occured while creating an ability.");
+                throw new HeroException("An error occured while creating an ability.");
             }
         }
 
@@ -51,12 +51,12 @@ namespace Hero.Server.DataAccess.Repositories
                 if(null == existing)
                 {
                     this.logger.LogAbilityDoesNotExist(id);
-                    throw new BaseException(ErrorCode.AbilityNotFound, "The ability you are looking for is not there.");
+                    throw new ObjectNotFoundException("The ability you are looking for is not there.");
                 }
                 this.context.Abilities.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (BaseException ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
@@ -64,13 +64,21 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AbilityFailedToDelete, "An error occured while deleting the ability.");
+                throw new HeroException("An error occured while deleting the ability.");
             }
         }
 
         public async Task<List<Ability>> GetAllAbilitiesAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Abilities.Where(a => a.GroupId == this.groupContext.Id).ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context.Abilities.Where(a => a.GroupId == this.groupContext.Id).ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of abilities.");
+            }
         }
 
         public async Task UpdateAbilityAsync(Guid id, Ability updatedAbility, CancellationToken cancellationToken = default)
@@ -81,14 +89,14 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new BaseException(ErrorCode.AbilityNotFound, $"The Ability (id: {id}) you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The Ability (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedAbility);
 
                 this.context.Abilities.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
-            }catch (BaseException ex)
+            }catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
@@ -96,7 +104,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AbilityFailedToUpdate, "An error occured while updating the ability.");
+                throw new HeroException("An error occured while updating the ability.");
             }
         }
     }

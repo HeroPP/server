@@ -26,81 +26,63 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
+        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult HandleError() => this.HandleErrors();
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSkilltreeByIdAsync(Guid id)
         {
-            return await this.HandleExceptions(async () =>
+            await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
+            if (tree != null)
             {
-                await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
-                if (tree != null)
-                {
-                    SkilltreeResponse value = this.mapper.Map<SkilltreeResponse>(tree);
-                    return this.Ok(value);
-                }
+                return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));
+            }
 
-                return this.NotFound();
-            });
+            return this.NotFound();
         }
-
-        //[HttpGet("{characterId}")]
-        //public Task<IActionResult> GetSkilltreeOverviewsForCharacterAsync(Guid characterId, CancellationToken token)
-        //{
-        //    return this.HandleExceptions(async () =>
-        //    {
-        //        await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-        //        List<Skilltree> trees = (await this.repository.FilterSkilltrees(characterId, token)).ToList();
-
-        //        return this.Ok(trees.Select(skilltrees => this.mapper.Map<SkilltreeOverviewResponse>(skilltrees)).ToList());
-        //    });
-        //}
 
         [HttpGet]
         public async Task<IActionResult> GetSkilltreeOverviewsAsync(CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                List<Skilltree> trees = (await this.repository.FilterSkilltrees(null, token)).ToList();
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
 
-                return this.Ok(trees.Select(skilltrees => this.mapper.Map<SkilltreeOverviewResponse>(skilltrees)).ToList());
-            });
+            List<Skilltree> trees = await this.repository.FilterSkilltrees(null, token);
+
+            return this.Ok(trees.Select(skilltrees => this.mapper.Map<SkilltreeOverviewResponse>(skilltrees)).ToList());
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteskilltreeAsync(Guid id)
+        public async Task<IActionResult> DeleteSkilltreeAsync(Guid id)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.DeleteSkilltreeAsync(id);
-                return this.Ok();
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            await this.repository.DeleteSkilltreeAsync(id);
+
+            return this.Ok();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] SkilltreeRequest request)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                Skilltree tree = this.mapper.Map<Skilltree>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.UpdateSkilltreeAsync(id, tree);
-                return this.Ok();
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            Skilltree tree = this.mapper.Map<Skilltree>(request);
+            await this.repository.UpdateSkilltreeAsync(id, tree);
+
+            return this.Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSkilltreeAsync([FromBody] SkilltreeRequest request)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                Skilltree tree = this.mapper.Map<Skilltree>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.CreateSkilltreeAsync(tree);
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
 
-                return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));
-            });
+            Skilltree tree = this.mapper.Map<Skilltree>(request);
+            await this.repository.CreateSkilltreeAsync(tree);
+
+            return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));
         }
     }
 }

@@ -27,85 +27,77 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
+        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult HandleError() => this.HandleErrors();
+
         [HttpGet]
         public async Task<IActionResult> GetBlueprintsAsync(CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
-                List<Blueprint> blueprints = await this.repository.GetAllBlueprintsAsync(token);
+            await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
 
-                return this.Ok(blueprints.Select(print => this.mapper.Map<BlueprintOverviewResponse>(print)));
-            });
+            List<Blueprint> blueprints = await this.repository.GetAllBlueprintsAsync(token);
+
+            return this.Ok(blueprints.Select(print => this.mapper.Map<BlueprintOverviewResponse>(print)));
         } 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBlueprintByIdAsync(Guid id, CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
-                Blueprint? blueprint = await this.repository.GetBlueprintByIdAsync(id, token);
-                if (null != blueprint)
-                {
-                    return this.Ok(this.mapper.Map<BlueprintResponse>(blueprint));
-                }
+            await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
 
-                return this.NotFound();
-            });
+            Blueprint? blueprint = await this.repository.GetBlueprintByIdAsync(id, token);
+            if (null != blueprint)
+            {
+                return this.Ok(this.mapper.Map<BlueprintResponse>(blueprint));
+            }
+
+            return this.NotFound();
         }
 
         [HttpGet("{id}/load")]
         public async Task<IActionResult> LoadBlueprintByIdAsync(Guid id, CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
-                Blueprint? blueprint = await this.repository.LoadBlueprintByIdAsync(id, token);
-                if (null != blueprint)
-                {
-                    return this.Ok(this.mapper.Map<BlueprintResponse>(blueprint));
-                }
+            await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
 
-                return this.NotFound();
-            });
+            Blueprint? blueprint = await this.repository.LoadBlueprintByIdAsync(id, token);
+            if (null != blueprint)
+            {
+                return this.Ok(this.mapper.Map<BlueprintResponse>(blueprint));
+            }
+
+            return this.NotFound();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBlueprintAsync(Guid id, CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
-                await this.repository.DeleteBlueprintAsync(id, token);
-                return this.Ok();
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
+
+            await this.repository.DeleteBlueprintAsync(id, token);
+
+            return this.Ok();
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] BlueprintRequest request, CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                Blueprint blueprint = this.mapper.Map<Blueprint>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
 
-                await this.repository.UpdateBlueprintAsync(id, blueprint, token);
-                return this.Ok();
-            });
+            Blueprint blueprint = this.mapper.Map<Blueprint>(request);
+            await this.repository.UpdateBlueprintAsync(id, blueprint, token);
+
+            return this.Ok();
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateSkilltreeAsync([FromBody] BlueprintRequest request, CancellationToken token)
         {
-            return await this.HandleExceptions(async () =>
-            {
-                Blueprint blueprint = this.mapper.Map<Blueprint>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
-                await this.repository.CreateBlueprintAsync(blueprint, token);
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
 
-                return this.Ok(this.mapper.Map<BlueprintResponse>(blueprint));
-            });
+            Blueprint blueprint = this.mapper.Map<Blueprint>(request);
+            await this.repository.CreateBlueprintAsync(blueprint, token);
+
+            return this.Ok(this.mapper.Map<BlueprintResponse>(blueprint));
         }
     }
 }

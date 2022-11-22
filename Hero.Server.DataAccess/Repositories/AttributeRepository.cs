@@ -1,12 +1,11 @@
-﻿using Hero.Server.Core;
-using Hero.Server.Core.Exceptions;
+﻿using Hero.Server.Core.Exceptions;
 using Hero.Server.Core.Logging;
-using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.DataAccess.Repositories
@@ -15,20 +14,26 @@ namespace Hero.Server.DataAccess.Repositories
     {
         private readonly HeroDbContext context;
         private readonly IGroupContext group;
-        private readonly IUserRepository userRepository;
         private readonly ILogger<AttributeRepository> logger;
 
-        public AttributeRepository(HeroDbContext context, IGroupContext group, IUserRepository userRepository, ILogger<AttributeRepository> logger)
+        public AttributeRepository(HeroDbContext context, IGroupContext group, ILogger<AttributeRepository> logger)
         {
             this.context = context;
             this.group = group;
-            this.userRepository = userRepository;
             this.logger = logger;
         }
 
         public async Task<Attribute?> GetAttributeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Attributes.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            try
+            {
+                return await this.context.Attributes.FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting attribute.");
+            }
         }
 
         // This method should only be used for global attributes and never should be used inside a controller, because it ignores every group constraints.
@@ -45,7 +50,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AttributeFailedToCreate, "An error occured while creating the attribute.");
+                throw new HeroException("An error occured while creating the attribute.");
             }
         }
 
@@ -60,7 +65,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AttributeFailedToCreate, "An error occured while creating the attribute.");
+                throw new HeroException("An error occured while creating the attribute.");
             }
         }
 
@@ -72,12 +77,12 @@ namespace Hero.Server.DataAccess.Repositories
                 if(null == existing)
                 {
                     this.logger.LogAttributeDoesNotExist(id);
-                    throw new BaseException(ErrorCode.AttributeNotFound, "The attribute you are looking for could not be found.");
+                    throw new ObjectNotFoundException("The attribute you are looking for could not be found.");
                 }
                 this.context.Attributes.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (BaseException ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
@@ -85,13 +90,20 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AttributeFailedToDelete, "An error occured while deleting the attribute.");
+                throw new HeroException("An error occured while deleting the attribute.");
             }
         }
 
-        public async Task<IEnumerable<Attribute>> GetAllAttributesAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Attribute>> GetAllAttributesAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Attributes.ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context.Attributes.ToListAsync(cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw new HeroException("An error occured while getting a list of attributes.");
+            }
         }
 
         public async Task UpdateAttributeAsync(Guid id, Attribute updatedAttribute, CancellationToken cancellationToken = default)
@@ -102,14 +114,14 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new Exception($"The Attribute (id: {id}) you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The Attribute (id: {id}) you're trying to update does not exist.");
                 }
                 existing.Update(updatedAttribute);
 
                 this.context.Attributes.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (BaseException ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
@@ -117,7 +129,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new BaseException(ErrorCode.AttributeFailedToUpdate, "An error occured while updating the attribute.");
+                throw new HeroException("An error occured while updating the attribute.");
             }
         }
     }

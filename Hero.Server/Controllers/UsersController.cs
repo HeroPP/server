@@ -23,33 +23,29 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
+        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        public IActionResult HandleError() => this.HandleErrors();
 
         [Authorize]
         [HttpGet()]
         public async Task<IActionResult> GetUser()
-        {
-            return await this.HandleExceptions(async () => 
-            {
-                User? user = await this.repository.GetUserByIdAsync(this.HttpContext.User.GetUserId());
+    {
+            User? user = await this.repository.GetUserByIdAsync(this.HttpContext.User.GetUserId());
                 
-                if (null == user)
-                {
-                    user = await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
-                }
+            if (null == user)
+            {
+                user = await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
+            }
 
-                return this.Ok(new {Id = user.Id, Group = this.mapper.Map<GroupResponse>(user.OwnedGroup ?? user.Group)}); 
-            });
+            return this.Ok(new {Id = user.Id, Group = this.mapper.Map<GroupResponse>(user.OwnedGroup ?? user.Group)}); 
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateUser()
         {
-            return await this.HandleExceptions(async () => 
-            {
-                await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
-                return this.Ok(); 
-            });
+            await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
+            return this.Ok(); 
         }
 
     }

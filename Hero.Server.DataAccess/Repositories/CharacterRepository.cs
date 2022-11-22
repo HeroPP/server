@@ -27,29 +27,48 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Character?> GetCharacterByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Characters.FindAsync(new object[] { id }, cancellationToken);
+            try
+            {
+                return await this.context.Characters.FindAsync(new object[] { id }, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting the blueprint.");
+            }
         }
 
-        public async Task<IEnumerable<Character>> GetAllCharactersByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<List<Character>> GetCharactersAsync(Guid? userId, CancellationToken cancellationToken = default)
         {
-            return await this.context
-                .Characters
-                .Where(c => c.UserId == userId)
-                .ToListAsync(cancellationToken);
-        }
-
-        public async Task<List<Character>> GetAllCharactersAsync(CancellationToken cancellationToken = default)
-        {
-            return await this.context.Characters.ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context
+                    .Characters
+                    .Where(c => null == userId || c.UserId == userId)
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of characters.");
+            }
         }
 
         public async Task<Character?> GetCharacterWithNestedByIdAsync(Guid id, CancellationToken? cancellationToken = default)
         {
-            return await this.context.Characters
-                .Include(c => c.Skilltrees).ThenInclude(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
-                .Include(c => c.Skilltrees).ThenInclude(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
-                .Include(c => c.Race).ThenInclude(r => r.Attributes).ThenInclude(ar => ar.Attribute)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            try
+            {
+                return await this.context.Characters
+                    .Include(c => c.Skilltrees).ThenInclude(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                    .Include(c => c.Skilltrees).ThenInclude(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
+                    .Include(c => c.Race).ThenInclude(r => r.Attributes).ThenInclude(ar => ar.Attribute)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of blueprints.");
+            }
         }
 
         public async Task CreateCharacterAsync(Character character, Guid userId, CancellationToken cancellationToken = default)
@@ -65,7 +84,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while creating the character");
             }
         }
 
@@ -86,7 +105,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while deleting the character");
             }
         }
 
@@ -98,7 +117,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing || userId != existing.UserId)
                 {
-                    throw new Exception($"The character (id: {id}) you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The character (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedCharacter);
@@ -106,10 +125,15 @@ namespace Hero.Server.DataAccess.Repositories
                 this.context.Characters.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating the character.");
             }
         }
     }
