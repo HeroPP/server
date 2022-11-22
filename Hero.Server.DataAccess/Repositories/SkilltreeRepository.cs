@@ -142,5 +142,39 @@ namespace Hero.Server.DataAccess.Repositories
                 throw new HeroException("An error occured while updating skilltree.");
             }
         }
+
+        public async Task UnlockNode(Guid skilltreeId, Guid nodeId, CancellationToken token = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, token);
+
+                if (null == skilltree)
+                {
+                    throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to update does not exist.");
+                }
+
+                SkilltreeNode? node = skilltree.Nodes.SingleOrDefault(node => nodeId == node.Id);
+
+                if (null == node)
+                {
+                    throw new ObjectNotFoundException($"The node (id: {nodeId}) you're trying to update does not exist.");
+                }
+
+                node.IsUnlocked = true;
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while unlocking node.");
+            }
+        }
     }
 }

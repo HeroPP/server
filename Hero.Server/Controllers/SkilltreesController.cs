@@ -84,5 +84,12 @@ namespace Hero.Server.Controllers
 
             return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));
         }
+
+        [HttpPost("{skilltreeId}/nodes/{nodeId}/unlock")]
+        public async Task<IActionResult> UnlockNode(Guid skilltreeId, Guid nodeId, CancellationToken token)
+        {
+            await this.repository.UnlockNode(skilltreeId, nodeId, token);
+            return this.Ok();
+        }
     }
 }
