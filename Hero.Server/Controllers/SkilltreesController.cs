@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Hero.Server.Core.Exceptions;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
@@ -32,8 +33,6 @@ namespace Hero.Server.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSkilltreeByIdAsync(Guid id)
         {
-            await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-
             Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
             if (tree != null)
             {
@@ -90,6 +89,15 @@ namespace Hero.Server.Controllers
         {
             await this.repository.UnlockNode(skilltreeId, nodeId, token);
             return this.Ok();
+        }
+
+        [HttpGet("{skilltreeId}/skillpoints")]
+        public async Task<IActionResult> GetSkillpointsBySkilltreeIdAsync(Guid skilltreeId, CancellationToken token)
+        {
+            int currentSkillpoints= await this.repository.GetSkillpoints(skilltreeId, token);
+            Skilltree? skilltree = await this.repository.GetSkilltreeByIdAsync(skilltreeId, token);
+
+            return this.Ok(new { CurrentSkillpoints = currentSkillpoints, MaxSkillpoints = skilltree!.Points });
         }
     }
 }

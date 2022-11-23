@@ -42,9 +42,14 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
+                if (null == userId)
+                {
+                    return await this.context.Characters.ToListAsync(cancellationToken);
+                }
+
                 return await this.context
                     .Characters
-                    .Where(c => null == userId || c.UserId == userId)
+                    .Where(c => c.UserId == userId)
                     .ToListAsync(cancellationToken);
             }
             catch (Exception ex)

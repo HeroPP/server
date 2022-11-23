@@ -32,7 +32,7 @@ namespace Hero.Server.Controllers
             }
             else
             {
-                response = this.Problem(title: ex.Error.Message);
+                response = this.Problem(title: ex.Error.Message, type: ex.Error.GetType().Name);
             }
 
             return response;
