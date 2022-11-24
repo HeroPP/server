@@ -23,7 +23,7 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
-        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
         [Authorize]

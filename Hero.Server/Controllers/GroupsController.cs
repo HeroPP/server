@@ -20,7 +20,7 @@ namespace Hero.Server.Controllers
             this.repository = repository;
         }
 
-        [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
         [HttpGet, Authorize(Roles = RoleNames.Administrator)]

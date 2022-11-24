@@ -15,7 +15,7 @@ namespace Hero.Server.Controllers
             this.logger = logger;
         }
 
-        public IActionResult HandleErrors()
+        protected IActionResult HandleErrors()
         {
             IExceptionHandlerFeature ex = this.HttpContext.Features.Get<IExceptionHandlerFeature>()!;
 
