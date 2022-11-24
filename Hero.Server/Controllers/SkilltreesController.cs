@@ -91,11 +91,18 @@ namespace Hero.Server.Controllers
             return this.Ok();
         }
 
-        [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
-        public async Task<IActionResult> GetSkillpointsBySkilltreeIdAsync(Guid skilltreeId, CancellationToken token)
+        [HttpPost("{id}/reset")]
+        public async Task<IActionResult> UnlockNode(Guid id, CancellationToken token)
         {
-            int currentSkillpoints= await this.repository.GetSkillpoints(skilltreeId, token);
-            Skilltree? skilltree = await this.repository.GetSkilltreeByIdAsync(skilltreeId, token);
+            await this.repository.ResetSkilltreeAsync(id, token);
+            return this.Ok();
+        }
+
+        [HttpGet("{id}/skillpoints")]
+        public async Task<IActionResult> GetSkillpointsBySkilltreeIdAsync(Guid id, CancellationToken token)
+        {
+            int currentSkillpoints= await this.repository.GetSkillpoints(id, token);
+            Skilltree? skilltree = await this.repository.GetSkilltreeByIdAsync(id, token);
 
             return this.Ok(new { CurrentSkillpoints = currentSkillpoints, MaxSkillpoints = skilltree!.Points });
         }

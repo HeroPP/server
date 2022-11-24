@@ -190,19 +190,60 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<int> GetSkillpoints(Guid skilltreeId, CancellationToken token = default)
+        public async Task ResetSkilltreeAsync(Guid skilltreeId, CancellationToken cancellationToken = default)
         {
-            Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, token);
-
-            if (null == skilltree)
+            try
             {
-                throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to get does not exist.");
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, cancellationToken);
+
+                if (null == skilltree)
+                {
+                    throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to reset does not exist.");
+                }
+
+                skilltree.Nodes.ForEach(node => node.IsUnlocked = false);
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while resetting the tree.");
             }
 
-            int maxSkillpoints = skilltree.Points;
-            int currentSkillpoints = maxSkillpoints - skilltree.Nodes.Where(node => node.IsUnlocked).Sum((node) => node.Cost);
+        }
 
-            return currentSkillpoints;
+        public async Task<int> GetSkillpoints(Guid skilltreeId, CancellationToken token = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, token);
+
+                if (null == skilltree)
+                {
+                    throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to get does not exist.");
+                }
+
+                int maxSkillpoints = skilltree.Points;
+                int currentSkillpoints = maxSkillpoints - skilltree.Nodes.Where(node => node.IsUnlocked).Sum((node) => node.Cost);
+
+                return currentSkillpoints;
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting remaining skillpoints.");
+            }
         }
     }
 }
