@@ -1,14 +1,17 @@
-﻿namespace Hero.Server.Messages.Responses
+﻿using Hero.Server.Core;
+
+namespace Hero.Server.Messages.Responses
 {
     public class ErrorResponse
     {
-        public ErrorResponse(int code, string message)
+        public ErrorResponse(ErrorCode code, string message)
         {
-            this.Code = code;
-            this.Message = message;
+            this.Errors = new()
+            {
+                { code.ToString(), message },
+            };
         }
 
-        public int Code { get; set; }
-        public string Message { get; set; }
+        public Dictionary<string, string> Errors { get; private set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Hero.Server.Core.Logging;
+﻿using Hero.Server.Core.Exceptions;
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
@@ -26,7 +27,15 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Skill?> GetSkillByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.Include(s => s.Ability).Include(s => s.Attributes).ThenInclude(ats => ats.Attribute).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            try
+            {
+                return await this.context.Skills.Include(s => s.Ability).Include(s => s.Attributes).ThenInclude(ats => ats.Attribute).FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of skills.");
+            }
         }
 
         public async Task CreateSkillAsync(Skill skill, CancellationToken cancellationToken = default)
@@ -43,7 +52,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while creating skill.");
             }
         }
 
@@ -55,21 +64,34 @@ namespace Hero.Server.DataAccess.Repositories
                 if (null == existing)
                 {
                     this.logger.LogSkillDoesNotExist(id);
-                    return;
+                    throw new ObjectNotFoundException("The skill you are looking for could not be found.");
                 }
                 this.context.Skills.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
             }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while deleting skill.");
+            }
         }
 
-        public async Task<IEnumerable<Skill>> GetAllSkillsAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Skill>> GetAllSkillsAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Skills.Include(s => s.Ability).Include(s => s.Attributes).ThenInclude(ats => ats.Attribute).ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context.Skills.Include(s => s.Ability).Include(s => s.Attributes).ThenInclude(ats => ats.Attribute).ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of skills.");
+            }
         }
 
         public async Task UpdateSkillAsync(Guid id, Skill updatedSkill, CancellationToken cancellationToken = default)
@@ -80,7 +102,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new Exception($"The Skill (id: {id}) you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The Skill (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedSkill);
@@ -97,10 +119,15 @@ namespace Hero.Server.DataAccess.Repositories
                 this.context.Skills.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating the attribute.");
             }
         }
     }

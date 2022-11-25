@@ -14,6 +14,7 @@ namespace Hero.Server.Messages.Responses
         public string? Relationship { get; set; }
         public string? Notes { get; set; }
         public string? Profession { get; set; }
+        public Guid RaceId { get; set; }
         public RaceResponse Race { get; set; }
 
         // The full trees are only needed to generate the attribute values, but should not be send over to the client to reduce overhead.

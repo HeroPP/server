@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using Hero.Server.Core.Models;
+
 using Hero.Server.Core.Repositories;
-using Hero.Server.DataAccess.Repositories;
 using Hero.Server.Identity;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.Controllers
@@ -27,66 +27,60 @@ namespace Hero.Server.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("{id}")]
-        public Task<IActionResult> GetAttributeByIdAsync(Guid id)
-        {
-            return this.HandleExceptions(async () =>
-            {
-                Attribute? attribute = await this.repository.GetAttributeByIdAsync(id);
-                if (attribute != null)
-                {
-                    return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
-                }
+        [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
+        public IActionResult HandleError() => this.HandleErrors();
 
-                return this.BadRequest();
-            });
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAttributeByIdAsync(Guid id)
+        {
+            Attribute? attribute = await this.repository.GetAttributeByIdAsync(id);
+
+            if (attribute != null)
+            {
+                return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
+            }
+
+            return this.NotFound();
         }
 
         [HttpGet]
-        public Task<IActionResult> GetAllAttributesAsync()
+        public async Task<IActionResult> GetAllAttributesAsync()
         {
-            return this.HandleExceptions(async () =>
-            {
-                List<Attribute> abilities = (await this.repository.GetAllAttributesAsync()).ToList();
+            List<Attribute> abilities = await this.repository.GetAllAttributesAsync();
 
-                return this.Ok(abilities.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
-            });
+            return this.Ok(abilities.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
         }
 
         [HttpDelete("{id}")]
-        public Task<IActionResult> DeleteAttributeAsync(Guid id)
+        public async Task<IActionResult> DeleteAttributeAsync(Guid id)
         {
-            return this.HandleExceptions(async () =>
-            {
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.DeleteAttributeAsync(id);
-                return this.Ok();
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            await this.repository.DeleteAttributeAsync(id);
+
+            return this.Ok();
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> UpdateAttributeAsync(Guid id, [FromBody] AttributeRequest request)
+        public async Task<IActionResult> UpdateAttributeAsync(Guid id, [FromBody] AttributeRequest request)
         {
-            return this.HandleExceptions(async () =>
-            {
-                Attribute attribute = this.mapper.Map<Attribute>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.UpdateAttributeAsync(id, attribute);
-                return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
-            });
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            Attribute attribute = this.mapper.Map<Attribute>(request);
+            await this.repository.UpdateAttributeAsync(id, attribute);
+
+            return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
         }
 
         [HttpPost]
-        public Task<IActionResult> CreateAttributeAsync([FromBody] AttributeRequest request)
+        public async Task<IActionResult> CreateAttributeAsync([FromBody] AttributeRequest request)
         {
-            return this.HandleExceptions(async () =>
-            {
-                Attribute attribute = this.mapper.Map<Attribute>(request);
-                await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-                await this.repository.CreateAttributeAsync(attribute);
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
 
-                return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
-            });
+            Attribute attribute = this.mapper.Map<Attribute>(request);
+            await this.repository.CreateAttributeAsync(attribute);
+
+            return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
         }
 
     }

@@ -1,8 +1,7 @@
-﻿using Hero.Server.Core;
-using Hero.Server.Core.Exceptions;
+﻿using Hero.Server.Core.Exceptions;
 using Hero.Server.Core.Logging;
-using Hero.Server.Messages.Responses;
 
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
@@ -16,40 +15,27 @@ namespace Hero.Server.Controllers
             this.logger = logger;
         }
 
-        protected IActionResult HandleExceptions(Func<IActionResult> action)
+        protected IActionResult HandleErrors()
         {
-            try
-            {
-                return action.Invoke();
-            }
-            catch(BaseException ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                return this.BadRequest(new ErrorResponse(ex.ErrorCode, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                return this.BadRequest(new ErrorResponse((int)EventIds.UnknownErrorOccured, "An unknown error occured, while processing your request."));
-            }
-        }
+            IExceptionHandlerFeature ex = this.HttpContext.Features.Get<IExceptionHandlerFeature>()!;
 
-        protected async Task<IActionResult> HandleExceptions(Func<Task<IActionResult>> action)
-        {
-            try
+            this.logger.LogUnknownErrorOccured(ex.Error);
+
+            IActionResult response;
+            if (ex.Error is GroupAccessForbiddenException)
             {
-                return await action.Invoke();
+                response = this.Forbid();
             }
-            catch (BaseException ex)
+            else if(ex.Error is ObjectNotFoundException)
             {
-                this.logger.LogUnknownErrorOccured(ex);
-                return this.BadRequest(new ErrorResponse(ex.ErrorCode, ex.Message));
+                response = this.NotFound();
             }
-            catch (Exception ex)
+            else
             {
-                this.logger.LogUnknownErrorOccured(ex);
-                return this.BadRequest(new ErrorResponse((int)EventIds.UnknownErrorOccured, "An unknown error occured, while processing your request."));
+                response = this.Problem(title: ex.Error.Message, type: ex.Error.GetType().Name);
             }
+
+            return response;
         }
     }
 }

@@ -43,6 +43,9 @@ namespace Hero.Server.Core.Logging
         [LoggerMessage((int)EventIds.BlueprintUpdateFailed, LogLevel.Error, "The Blueprint (id: {BlueprintId}) could not be updated.")]
         public static partial void LogBlueprintUpdateFailed(this ILogger logger, Guid blueprintId, Exception ex);
 
+        [LoggerMessage((int)EventIds.BlueprintDoesNotExist, LogLevel.Error, "The Blueprint (id: {BlueprintId}) does not exist.")]
+        public static partial void LogBlueprintNotFound(this ILogger logger, Guid blueprintId);
+
         [LoggerMessage((int)EventIds.GroupCreated, LogLevel.Information, "The group {GroupName} was created successfully.")]
         public static partial void LogGroupCreatedSuccessfully(this ILogger logger, string groupName);
         [LoggerMessage((int)EventIds.AttributeDoesNotExist, LogLevel.Error, "The attribute (id: {AttributeId}) you're trying to delete does not exist.")]

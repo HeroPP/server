@@ -7,6 +7,6 @@ namespace Hero.Server.Core.Repositories
         Task<User> CreateUserIfNotExistAsync(Guid id, CancellationToken cancellationToken = default);
         Task EnsureIsOwner(Guid userId, CancellationToken cancellationToken = default);
         Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<IEnumerable<User>> GetUsersByIdAsync(List<Guid> ids, CancellationToken cancellationToken = default);
+        Task<List<User>> GetUsersByIdAsync(List<Guid> ids, CancellationToken cancellationToken = default);
     }
 }

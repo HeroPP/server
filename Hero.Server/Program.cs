@@ -5,6 +5,10 @@ using Hero.Server.Identity;
 
 using JCurth.Keycloak;
 
+using Microsoft.AspNetCore.Diagnostics;
+
+using static System.Net.Mime.MediaTypeNames;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<KeycloakOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
@@ -34,5 +38,7 @@ app.ApplyGroupContext();
 
 await app.MigrateDatabaseAsync();
 await app.EnsureGlobalAttributesExists();
+
+app.UseExceptionHandler("/error");
 
 app.Run();

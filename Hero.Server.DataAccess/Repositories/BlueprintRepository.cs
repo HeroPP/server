@@ -1,4 +1,5 @@
-﻿using Hero.Server.Core.Logging;
+﻿using Hero.Server.Core.Exceptions;
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
@@ -59,7 +60,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogBlueprintCreateFailed(blueprint.Id, ex);
-                throw;
+                throw new HeroException("An error occured while creating the blueprint.");
             }
         }
 
@@ -72,48 +73,81 @@ namespace Hero.Server.DataAccess.Repositories
                 if (null == existing)
                 {
                     this.logger.LogSkilltreeDoesNotExist(id);
-                    return;
+                    throw new ObjectNotFoundException("The blueprint you are looking for could not be found.");
                 }
 
                 this.context.Blueprints.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
                 this.logger.LogBlueprintDeleted(id);
             }
+            catch(HeroException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 this.logger.LogBlueprintDeleteFailed(id, ex);
-                throw;
+                throw new HeroException("An error occured while deleting the blueprint.");
             }
         }
 
         public Task<List<Blueprint>> GetAllBlueprintsAsync(CancellationToken cancellationToken = default)
         {
-            return this.context.Blueprints.Include(print => print.Nodes).ToListAsync(cancellationToken);
+            try
+            {
+                return this.context.Blueprints.Include(print => print.Nodes).ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of blueprints.");
+            }
         }
 
         public async Task<Blueprint?> GetBlueprintByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Blueprints
-                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
-                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
-                .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
+            try
+            {
+                return await this.context.Blueprints
+                    .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                    .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
+                    .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting the blueprint.");
+            }
         }
 
         public async Task<Blueprint?> LoadBlueprintByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            Blueprint? blueprint = await this.context.Blueprints
-                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
-                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
-                .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
-
-            if (null == blueprint)
+            try
             {
-                throw new Exception($"The blueprint (id: {id}) you're trying to load does not exist.");
+                Blueprint? blueprint = await this.context.Blueprints
+                    .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                    .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
+                    .SingleOrDefaultAsync(print => print.Id == id, cancellationToken);
+
+                if (null == blueprint)
+                {
+                    this.logger.LogBlueprintNotFound(id);
+                    throw new ObjectNotFoundException($"The blueprint (id: {id}) you're trying to load does not exist.");
+                }
+
+                this.CleanupNodeIds(blueprint);
+
+                return blueprint;
             }
-
-            this.CleanupNodeIds(blueprint);
-
-            return blueprint;
+            catch (HeroException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting the attribute.");
+            }
         }
 
         public async Task UpdateBlueprintAsync(Guid id, Blueprint updatedBlueprint, CancellationToken cancellationToken = default)
@@ -156,7 +190,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogBlueprintUpdateFailed(id, ex);
-                throw;
+                throw new HeroException("An error occured while updating the blueprint.");
             }
         }
     }

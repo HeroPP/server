@@ -9,6 +9,8 @@ namespace Hero.Server.Messages.Responses
         public string Name { get; set; }
         public bool IsActiveTree { get; set; }
         public int Points { get; set; }
+        public int LeftPoints { get; set; }
         public int NodeCount { get; set; }
+        public int UnlockedNodeCount { get; set; }
     }
 }

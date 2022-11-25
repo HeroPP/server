@@ -1,4 +1,5 @@
-﻿using Hero.Server.Core.Logging;
+﻿using Hero.Server.Core.Exceptions;
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
@@ -25,7 +26,15 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<Race?> GetRaceByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Races.Include(r => r.Attributes).ThenInclude(ar => ar.Attribute).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            try
+            {
+                return await this.context.Races.Include(r => r.Attributes).ThenInclude(ar => ar.Attribute).FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting race.");
+            }
         }
 
         public async Task CreateRaceAsync(Race race, CancellationToken cancellationToken = default)
@@ -42,7 +51,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while creating race.");
             }
         }
 
@@ -54,21 +63,34 @@ namespace Hero.Server.DataAccess.Repositories
                 if(null == existing)
                 {
                     this.logger.LogRaceDoesNotExist(id);
-                    return;
+                    throw new ObjectNotFoundException($"The race (id: {id}) you're trying to delete does not exist.");
                 }
                 this.context.Races.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
             }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while deleting race.");
+            }
         }
 
-        public async Task<IEnumerable<Race>> GetAllRacesAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Race>> GetAllRacesAsync(CancellationToken cancellationToken = default)
         {
-            return await this.context.Races.Include(r => r.Attributes).ThenInclude(ar => ar.Attribute).ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context.Races.Include(r => r.Attributes).ThenInclude(ar => ar.Attribute).ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of races.");
+            }
         }
 
         public async Task UpdateRaceAsync(Guid id, Race updatedRace, CancellationToken cancellationToken = default)
@@ -79,7 +101,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new Exception($"The Race (id: {id}) you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The Race (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Update(updatedRace);
@@ -96,10 +118,15 @@ namespace Hero.Server.DataAccess.Repositories
                 this.context.Races.Update(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating race.");
             }
         }
     }

@@ -31,8 +31,12 @@ namespace Hero.Server
             this.CreateMap<SkillRequest, Skill>();
 
             this.CreateMap<Skilltree, SkilltreeResponse>();
+
             this.CreateMap<Skilltree, SkilltreeOverviewResponse>()
-                .ForMember(dst => dst.NodeCount, src => src.MapFrom(tree => tree.Nodes.Count));
+                .ForMember(dst => dst.NodeCount, src => src.MapFrom(tree => tree.Nodes.Count))
+                .ForMember(dst => dst.UnlockedNodeCount, src => src.MapFrom(tree => tree.Nodes.Where(node => node.IsUnlocked).Count()))
+                .ForMember(dst => dst.LeftPoints, src => src.MapFrom(tree => tree.Points - tree.Nodes.Where(node => node.IsUnlocked).Sum(node => node.Cost)));
+
             this.CreateMap<SkilltreeNode, SkilltreeNodeResponse>();
             this.CreateMap<SkilltreeNodeRequest, SkilltreeNode>();
             this.CreateMap<SkilltreeRequest, Skilltree>();
@@ -46,6 +50,7 @@ namespace Hero.Server
             this.CreateMap<AttributeRaceValueRequest, AttributeRace>();
             this.CreateMap<AttributeRace, AttributeValueResponse>();
             this.CreateMap<Race, RaceResponse>();
+            this.CreateMap<Race, RaceOverviewResponse>();
 
             this.CreateMap<BlueprintRequest, Blueprint>();
             this.CreateMap<Blueprint, BlueprintOverviewResponse>()

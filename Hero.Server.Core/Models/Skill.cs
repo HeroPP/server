@@ -18,7 +18,6 @@
             this.Name= skill.Name;
             this.Description= skill.Description;    
             this.Attributes= skill.Attributes;
-            this.Ability = skill.Ability;
         }
     }
 }

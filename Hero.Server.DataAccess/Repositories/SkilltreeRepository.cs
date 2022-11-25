@@ -1,4 +1,6 @@
-﻿using Hero.Server.Core.Logging;
+﻿using Hero.Server.Core.Exceptions;
+using Hero.Server.Core.Extensions;
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
@@ -22,18 +24,35 @@ namespace Hero.Server.DataAccess.Repositories
 
         public async Task<List<Skilltree>> FilterSkilltrees(Guid? characterId, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skilltrees
-                .Include(tree => tree.Nodes)
-                .Where(c => null == characterId || c.CharacterId == characterId)
-                .ToListAsync(cancellationToken);
+            try
+            {
+                return await this.context.Skilltrees
+                    .Include(tree => tree.Nodes)
+                    .Where(c => null == characterId || c.CharacterId == characterId)
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting a list of skilltrees.");
+            }
         }
 
         public async Task<Skilltree?> GetSkilltreeByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await this.context.Skilltrees
-                .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
-                .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            try
+            {
+                return await this.context.Skilltrees
+                    .Include(c => c.Character)
+                    .Include(c => c.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Ability)
+                    .Include(s => s.Nodes).ThenInclude(n => n.Skill).ThenInclude(s => s.Attributes).ThenInclude(a => a.Attribute)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting w skilltree.");
+            }
         }
 
         public async Task CreateSkilltreeAsync(Skilltree skilltree, CancellationToken cancellationToken = default)
@@ -47,7 +66,7 @@ namespace Hero.Server.DataAccess.Repositories
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw;
+                throw new HeroException("An error occured while creating skilltree.");
             }
         }
 
@@ -60,16 +79,21 @@ namespace Hero.Server.DataAccess.Repositories
                 if (null == existing)
                 {
                     this.logger.LogSkilltreeDoesNotExist(id);
-                    return;
+                    throw new ObjectNotFoundException("The skilltree you are looking for could not be found.");
                 }
 
                 this.context.Skilltrees.Remove(existing);
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while deleting skilltree.");
             }
         }
 
@@ -81,7 +105,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new Exception($"The skilltree (id: {id}) you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The skilltree (id: {id}) you're trying to update does not exist.");
                 }
 
                 existing.Name = updatedTree.Name;
@@ -108,10 +132,117 @@ namespace Hero.Server.DataAccess.Repositories
 
                 await this.context.SaveChangesAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch (HeroException ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating skilltree.");
+            }
+        }
+
+        public async Task UnlockNode(Guid skilltreeId, Guid nodeId, CancellationToken token = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, token);
+                int currentSkillpoints = await this.GetSkillpoints(skilltreeId, token);
+
+                SkilltreeNode? node = skilltree!.Nodes.SingleOrDefault(node => nodeId == node.Id);
+
+                if (null == node)
+                {
+                    throw new ObjectNotFoundException($"The node (id: {nodeId}) you're trying to unlock does not exist.");
+                }
+
+                if (node.IsUnlocked)
+                {
+                    throw new NodeAlreadyUnlockedException($"The node (id: {nodeId}) you're trying to unlock is already unlocked.");
+
+                }
+
+                if (!skilltree.IsNodeUnlockable(nodeId))
+                {
+                    throw new NodeNotUnlockableException($"The node (id: {nodeId}) you're trying to unlock is not unlockable.");
+                }
+
+                if (0 > currentSkillpoints - node.Cost)
+                {
+                    throw new NotEnoughSkillpointsException($"The cost of this nodes exceeds your current skillpoints by {(currentSkillpoints - node.Cost) * -1} skillpoints");
+                }
+
+                node.IsUnlocked = true;
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while unlocking node.");
+            }
+        }
+
+        public async Task ResetSkilltreeAsync(Guid skilltreeId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, cancellationToken);
+
+                if (null == skilltree)
+                {
+                    throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to reset does not exist.");
+                }
+
+                skilltree.Nodes.ForEach(node => node.IsUnlocked = false);
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while resetting the tree.");
+            }
+
+        }
+
+        public async Task<int> GetSkillpoints(Guid skilltreeId, CancellationToken token = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, token);
+
+                if (null == skilltree)
+                {
+                    throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to get does not exist.");
+                }
+
+                int maxSkillpoints = skilltree.Points;
+                int currentSkillpoints = maxSkillpoints - skilltree.Nodes.Where(node => node.IsUnlocked).Sum((node) => node.Cost);
+
+                return currentSkillpoints;
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting remaining skillpoints.");
             }
         }
     }

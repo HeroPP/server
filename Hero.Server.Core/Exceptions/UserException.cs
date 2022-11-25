@@ -4,15 +4,12 @@ namespace Hero.Server.Core.Exceptions
 {
 
     [Serializable]
-    public class UserException : BaseException
+    public class UserException : HeroException
     {
-        public UserException(int errorCode) : base(errorCode)
+        public UserException(string message) : base(message)
         { }
 
-        public UserException(int errorCode, string message) : base(errorCode, message)
-        { }
-
-        public UserException(int errorCode, string message, Exception inner) : base(errorCode, message, inner)
+        public UserException(string message, Exception inner) : base(message, inner)
         { }
 
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context)
