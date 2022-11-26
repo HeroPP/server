@@ -13,9 +13,11 @@ namespace Hero.Server.Core.Extensions
         {
             Node nodeToCheck = tree.Nodes.Single(node => nodeId == node.Id);
 
-            return nodeToCheck.IsEasyReachable
+            bool isUnlockable = nodeToCheck.IsEasyReachable
                 ? tree.Nodes.Where(node => nodeToCheck.Precessors.Contains(node.Id)).Any(node => node.IsUnlocked)
                 : tree.Nodes.Where(node => nodeToCheck.Precessors.Contains(node.Id)).All(node => node.IsUnlocked);
+
+            return 0 == nodeToCheck.Precessors.Count || isUnlockable;
         }
     }
 }
