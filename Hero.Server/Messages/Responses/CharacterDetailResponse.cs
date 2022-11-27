@@ -29,7 +29,7 @@ namespace Hero.Server.Messages.Responses
         private List<AttributeValueResponse> GroupAttributes()
         {
             IEnumerable<AttributeValueResponse> skilltreeAttributes = 
-                this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.SelectMany(node => node.Skill.Attributes));
+                this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked).SelectMany(node => node.Skill.Attributes)).ToList();
 
             List<AttributeValueResponse> attributeValueResponses = this.Race.Attributes
                 .Concat(skilltreeAttributes)
