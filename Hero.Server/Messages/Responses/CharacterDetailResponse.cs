@@ -24,7 +24,13 @@ namespace Hero.Server.Messages.Responses
         public List<SkilltreeOverviewResponse> Skilltrees { get; set; }
 
         public List<AttributeValueResponse> Attributes => this.GroupAttributes();
-     
+
+        public List<AbilityResponse> UnlockedAbilities => this.GetUnlockedAbilities();
+
+        private List<AbilityResponse> GetUnlockedAbilities()
+        {
+            return this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked && null != node.Skill.Ability).Select(node => node.Skill.Ability)).ToList();
+        }
 
         private List<AttributeValueResponse> GroupAttributes()
         {
