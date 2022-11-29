@@ -28,7 +28,7 @@ namespace Hero.Server.Controllers
         {
             Group group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
 
-            return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://hero-app.de/invite?code={group.InviteCode}" });
+            return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://kalinar.app/invite?code={group.InviteCode}" });
         }
 
         [HttpGet("{code}")]
