@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Hero.Server.Core.Exceptions;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
@@ -72,6 +73,32 @@ namespace Hero.Server.Controllers
             Character character = this.mapper.Map<Character>(request);
 
             await this.repository.CreateCharacterAsync(character, this.HttpContext.User.GetUserId(), token);
+
+            return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateInventoryAsync(Guid id, [FromBody] CharacterUpdateRequest request, CancellationToken token)
+        {
+            Character? character = await this.repository.GetCharacterByIdAsync(id, token);
+
+            if (null == character)
+            {
+                throw new ObjectNotFoundException("The character you are looking for could not be found.");
+            }
+
+            character.Name = request.Name ?? character.Name;
+            character.Description = request.Description ?? character.Description;
+            character.Age = request.Age ?? character.Age;
+            character.Inventory = request.Inventory ?? character.Inventory;
+            character.Religion = request.Religion ?? character.Religion;
+            character.Religion = request.Religion ?? character.Religion;
+            character.Relationship = request.Relationship ?? character.Relationship;
+            character.Notes = request.Notes ?? character.Notes;
+            character.Profession = request.Profession ?? character.Profession;
+            character.IconUrl = request.IconUrl ?? character.IconUrl;
+
+            await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId(), token);
 
             return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
         }
