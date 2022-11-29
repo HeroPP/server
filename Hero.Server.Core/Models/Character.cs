@@ -23,7 +23,6 @@
             this.Name = character.Name;
             this.Description = character.Description;
             this.Skilltrees = character.Skilltrees;
-            this.Race = character.Race;
             this.RaceId = character.RaceId;
             this.Age = character.Age;
             this.Inventory = character.Inventory;
