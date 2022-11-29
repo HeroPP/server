@@ -15,12 +15,14 @@ namespace Hero.Server.Controllers
     public class CharactersController : HeroControllerBase
     {
         private readonly ICharacterRepository repository;
+        private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public CharactersController(ICharacterRepository repository, IMapper mapper, ILogger<CharactersController> logger)
+        public CharactersController(ICharacterRepository repository, IUserRepository userRepository, IMapper mapper, ILogger<CharactersController> logger)
             : base(logger)
         {
             this.repository = repository;
+            this.userRepository = userRepository;
             this.mapper = mapper;
         }
 
@@ -43,7 +45,16 @@ namespace Hero.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCharacterOverviewsAsync(CancellationToken token)
         {
-            List<Character> characters = await this.repository.GetCharactersAsync(this.HttpContext.User.IsInRole(RoleNames.Administrator) ? null : this.HttpContext.User.GetUserId(), token);
+            List<Character> characters;
+            if (this.HttpContext.User.IsInRole(RoleNames.Administrator))
+            {
+               await this.userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+                characters = await this.repository.GetCharactersAsync(null, token);
+            }
+            else
+            {
+                characters = await this.repository.GetCharactersAsync(this.HttpContext.User.GetUserId(), token);
+            }
 
             return this.Ok(characters.Select(character => this.mapper.Map<CharacterOverviewResponse>(character)).ToList());
         }
