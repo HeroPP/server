@@ -48,9 +48,19 @@ namespace Hero.Server.Controllers
         {
             await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
 
-            List<Attribute> abilities = await this.repository.GetAllAttributesAsync();
+            List<Attribute> attributes = await this.repository.GetAllAttributesAsync();
 
-            return this.Ok(abilities.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
+            return this.Ok(attributes.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
+        }
+
+        [HttpGet("global")]
+        public async Task<IActionResult> GetAllGlobalAttributesAsync()
+        {
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
+            List<Attribute> attributes = await this.repository.GetAllGlobalAttributesAsync();
+
+            return this.Ok(attributes.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
         }
 
         [HttpDelete("{id}")]

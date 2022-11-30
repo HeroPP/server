@@ -106,6 +106,18 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
+        public async Task<List<Attribute>> GetAllGlobalAttributesAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.context.Attributes.Where(a => a.GroupId == new Guid()).ToListAsync(cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw new HeroException("An error occured while getting a list of attributes.");
+            }
+        }
+
         public async Task UpdateAttributeAsync(Guid id, Attribute updatedAttribute, CancellationToken cancellationToken = default)
         {
             try
