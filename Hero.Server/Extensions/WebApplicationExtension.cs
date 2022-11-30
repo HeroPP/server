@@ -14,7 +14,11 @@ namespace Hero.Server.Extensions
                 IAttributeRepository repository = scope.ServiceProvider.GetRequiredService<IAttributeRepository>();
 
                 builder.Apply(new Guid());
-                await repository.CreateIfNotExistsAsync(GlobalAttribute.Health);
+
+                foreach (Core.Models.Attribute attribute in GlobalAttribute.Attributes)
+                {
+                    await repository.CreateIfNotExistsAsync(attribute);
+                }
             }
         }
     }

@@ -46,6 +46,8 @@ namespace Hero.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAttributesAsync()
         {
+            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+
             List<Attribute> abilities = await this.repository.GetAllAttributesAsync();
 
             return this.Ok(abilities.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
