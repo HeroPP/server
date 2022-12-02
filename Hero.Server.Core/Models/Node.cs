@@ -33,5 +33,6 @@
     public class SkilltreeNode : Node
     {
         public bool IsUnlocked { get; set; }
+        public DateTime? UnlockedAt { get; set; }
     }
 }

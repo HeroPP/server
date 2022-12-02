@@ -18,6 +18,7 @@
     public class SkilltreeNodeResponse : NodeResponse
     {
         public bool IsUnlocked { get; set; }
+        public DateTime? UnlockedAt { get; set; }
     }
 
     public class BlueprintNodeResponse : NodeResponse
