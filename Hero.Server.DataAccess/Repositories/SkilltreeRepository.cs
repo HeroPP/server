@@ -28,6 +28,7 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 return await this.context.Skilltrees
                     .Include(tree => tree.Nodes)
+                    .Include(tree => tree.Character)
                     .Where(c => null == characterId || c.CharacterId == characterId)
                     .ToListAsync(cancellationToken);
             }
