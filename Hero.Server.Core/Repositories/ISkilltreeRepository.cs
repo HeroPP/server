@@ -12,5 +12,6 @@ namespace Hero.Server.Core.Repositories
         Task UnlockNode(Guid skilltreeId, Guid nodeId, CancellationToken token = default);
         Task<int> GetSkillpoints(Guid skilltreeId, CancellationToken token = default);
         Task ResetSkilltreeAsync(Guid skilltreeId, CancellationToken cancellationToken = default);
+        Task ResetNode(Guid skilltreeId, Guid nodeId, CancellationToken token = default);
     }
 }

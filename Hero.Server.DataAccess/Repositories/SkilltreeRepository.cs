@@ -175,6 +175,40 @@ namespace Hero.Server.DataAccess.Repositories
                 }
 
                 node.IsUnlocked = true;
+                node.UnlockedAt = DateTime.UtcNow;
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while unlocking node.");
+            }
+        }
+
+        public async Task ResetNode(Guid skilltreeId, Guid nodeId, CancellationToken token = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(skilltreeId, token);
+
+                SkilltreeNode? node = skilltree!.Nodes.SingleOrDefault(node => nodeId == node.Id);
+
+                if (null == node)
+                {
+                    throw new ObjectNotFoundException($"The node (id: {nodeId}) you're trying to unlock does not exist.");
+                }
+
+                skilltree.GetAllNodesToReset(nodeId).ForEach(node =>
+                {
+                    node.IsUnlocked = false;
+                    node.UnlockedAt = null;
+                });
 
                 await this.context.SaveChangesAsync();
             }
@@ -201,7 +235,11 @@ namespace Hero.Server.DataAccess.Repositories
                     throw new ObjectNotFoundException($"The skilltree (id: {skilltreeId}) you're trying to reset does not exist.");
                 }
 
-                skilltree.Nodes.ForEach(node => node.IsUnlocked = false);
+                skilltree.Nodes.ForEach(node =>
+                {
+                    node.IsUnlocked = false;
+                    node.UnlockedAt = null;
+                });
 
                 await this.context.SaveChangesAsync();
             }

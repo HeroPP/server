@@ -85,9 +85,16 @@ namespace Hero.Server.Controllers
         }
 
         [HttpPost("{skilltreeId}/nodes/{nodeId}/unlock")]
-        public async Task<IActionResult> UnlockNode(Guid skilltreeId, Guid nodeId, CancellationToken token)
+        public async Task<IActionResult> UnlockNodeAsync(Guid skilltreeId, Guid nodeId, CancellationToken token)
         {
             await this.repository.UnlockNode(skilltreeId, nodeId, token);
+            return this.Ok();
+        }
+
+        [HttpPost("{skilltreeId}/nodes/{nodeId}/reset")]
+        public async Task<IActionResult> ResetNodeAsync(Guid skilltreeId, Guid nodeId, CancellationToken token)
+        {
+            await this.repository.ResetNode(skilltreeId, nodeId, token);
             return this.Ok();
         }
 
