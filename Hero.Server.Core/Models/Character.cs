@@ -18,6 +18,13 @@
         public Race Race { get; set; }
         public Guid? RaceId { get; set; }
 
+        public bool IsPublic { get; set; }
+        public bool? ShareSkilltree { get; set; }
+        public bool? ShareNotes { get; set; }
+        public bool? ShareInventory { get; set; }
+        public bool? ShareAbilities { get; set; }
+        public bool? ShareAttributes { get; set; }
+
         public void Update(Character character)
         {
             this.Name = character.Name;

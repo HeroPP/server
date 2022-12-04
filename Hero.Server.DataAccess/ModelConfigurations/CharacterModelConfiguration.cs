@@ -15,6 +15,12 @@ namespace Hero.Server.Core.ModelConfigurations
             builder.Property(c => c.Name).IsRequired();
             builder.Property(c => c.Name).HasMaxLength(100);
 
+            builder.Property(c => c.Profession).HasMaxLength(100);
+            builder.Property(c => c.Religion).HasMaxLength(100);
+            builder.Property(c => c.Relationship).HasMaxLength(100);
+
+            builder.Property(c => c.IsPublic).HasDefaultValue(false);
+
             builder
                 .HasMany(charakter => charakter.Skilltrees)
                 .WithOne(tree => tree.Character)
@@ -25,9 +31,6 @@ namespace Hero.Server.Core.ModelConfigurations
                 .WithMany()
                 .HasForeignKey(character => character.RaceId)
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.Property(c => c.Profession).HasMaxLength(100);
-            builder.Property(c => c.Religion).HasMaxLength(100);
-            builder.Property(c => c.Relationship).HasMaxLength(100);
         }
     }
 }

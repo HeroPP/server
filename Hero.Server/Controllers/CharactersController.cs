@@ -63,7 +63,8 @@ namespace Hero.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCharacterAsync(Guid id, CancellationToken token)
         {
-            await this.repository.DeleteCharacterAsync(id, this.HttpContext.User.GetUserId(), token);
+            await this.repository.EnsureIsOwner(id, this.HttpContext.User.GetUserId());
+            await this.repository.DeleteCharacterAsync(id, token);
 
             return this.Ok();
         }
@@ -73,7 +74,8 @@ namespace Hero.Server.Controllers
         {
             Character character = this.mapper.Map<Character>(request);
 
-            await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId(), token);
+            await this.repository.EnsureIsOwner(id, this.HttpContext.User.GetUserId());
+            await this.repository.UpdateCharacterAsync(id, character, token);
 
             return this.Ok();
         }
@@ -91,6 +93,8 @@ namespace Hero.Server.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateInventoryAsync(Guid id, [FromBody] CharacterUpdateRequest request, CancellationToken token)
         {
+            await this.repository.EnsureIsOwner(id, this.HttpContext.User.GetUserId());
+
             Character? character = await this.repository.GetCharacterByIdAsync(id, token);
 
             if (null == character)
@@ -109,7 +113,14 @@ namespace Hero.Server.Controllers
             character.Profession = request.Profession ?? character.Profession;
             character.IconUrl = request.IconUrl ?? character.IconUrl;
 
-            await this.repository.UpdateCharacterAsync(id, character, this.HttpContext.User.GetUserId(), token);
+            character.IsPublic = request.IsPublic ?? character.IsPublic;
+            character.ShareAbilities = request.ShareAbilities ?? character.ShareAbilities;
+            character.ShareAttributes = request.ShareAttributes ?? character.ShareAttributes;
+            character.ShareSkilltree = request.ShareSkilltree ?? character.ShareSkilltree;
+            character.ShareNotes = request.ShareNotes ?? character.ShareNotes;
+            character.ShareInventory = request.ShareInventory ?? character.ShareInventory;
+
+            await this.repository.UpdateCharacterAsync(id, character, token);
 
             return this.Ok(this.mapper.Map<CreateCharacterResponse>(character));
         }

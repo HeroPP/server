@@ -5,6 +5,7 @@ namespace Hero.Server.Messages.Responses
     public class CharacterDetailResponse
     {
         public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
         public string? IconUrl { get; set; }
@@ -16,6 +17,13 @@ namespace Hero.Server.Messages.Responses
         public string? Profession { get; set; }
         public Guid RaceId { get; set; }
         public RaceResponse Race { get; set; }
+
+        public bool IsPublic { get; set; }
+        public bool? ShareSkilltree { get; set; }
+        public bool? ShareNotes { get; set; }
+        public bool? ShareInventory { get; set; }
+        public bool? ShareAbilities { get; set; }
+        public bool? ShareAttributes { get; set; }
 
         // The full trees are only needed to generate the attribute values, but should not be send over to the client to reduce overhead.
         [JsonIgnore]
@@ -29,11 +37,18 @@ namespace Hero.Server.Messages.Responses
 
         private List<AbilityResponse> GetUnlockedAbilities()
         {
-            return this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked && null != node.Skill.Ability).Select(node => node.Skill.Ability)).ToList();
+            return this.ShareAbilities ?? false
+                ? this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked && null != node.Skill.Ability).Select(node => node.Skill.Ability)).ToList() 
+                : new();
         }
 
         private List<AttributeValueResponse> GroupAttributes()
         {
+            if (this.ShareAttributes ?? false)
+            {
+                return new();
+            }
+
             IEnumerable<AttributeValueResponse> skilltreeAttributes = 
                 this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked).SelectMany(node => node.Skill.Attributes)).ToList();
 
