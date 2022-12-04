@@ -19,10 +19,10 @@ namespace Hero.Server
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
             this.CreateMap<Character, CharacterDetailResponse>()
-                .ForMember(dst => dst.FullSkilltrees, src => src.MapFrom(character => character.ShareSkilltree ?? false ? character.Skilltrees : new()))
-                .ForMember(dst => dst.Notes, src => src.MapFrom(character => character.ShareNotes ?? false ? character.Skilltrees : null))
-                .ForMember(dst => dst.Notes, src => src.MapFrom(character => character.ShareInventory ?? false ? character.Inventory : null))
-                .ForMember(dst => dst.Notes, src => src.MapFrom(character => character.ShareInventory ?? false ? character.Inventory : null));
+                .ForMember(dst => dst.FullSkilltrees, src => src.MapFrom(character => character.Skilltrees))
+                .ForMember(dst => dst.Skilltrees, src => src.MapFrom(character => character.ShareSkilltree ?? false ? character.Skilltrees : new()))
+                .ForMember(dst => dst.Inventory, src => src.MapFrom(character => character.ShareInventory ?? false ? character.Inventory : null))
+                .ForMember(dst => dst.Notes, src => src.MapFrom(character => character.ShareNotes ?? false ? character.Notes : null));
 
             this.CreateMap<Ability, AbilityResponse>();
             this.CreateMap<AbilityRequest, Ability>();

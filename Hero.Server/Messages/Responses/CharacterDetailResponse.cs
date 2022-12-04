@@ -44,7 +44,7 @@ namespace Hero.Server.Messages.Responses
 
         private List<AttributeValueResponse> GroupAttributes()
         {
-            if (this.ShareAttributes ?? false)
+            if (!this.ShareAttributes ?? false)
             {
                 return new();
             }
