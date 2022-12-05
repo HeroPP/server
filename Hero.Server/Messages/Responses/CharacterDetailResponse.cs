@@ -2,6 +2,8 @@
 
 namespace Hero.Server.Messages.Responses
 {
+    public class SharedCharacterDetailResponse : CharacterDetailResponse { }
+
     public class CharacterDetailResponse
     {
         public Guid Id { get; set; }

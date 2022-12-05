@@ -37,7 +37,11 @@ namespace Hero.Server.Controllers
 
             if (character != null)
             {
-                return this.Ok(this.mapper.Map<CharacterDetailResponse>(character));
+                CharacterDetailResponse response = this.HttpContext.User.GetUserId() == character.UserId 
+                    ? this.mapper.Map<CharacterDetailResponse>(character) 
+                    : this.mapper.Map<SharedCharacterDetailResponse>(character);
+
+                return this.Ok(response);
             }
 
             return this.NotFound();
