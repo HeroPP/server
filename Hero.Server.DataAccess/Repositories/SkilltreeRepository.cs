@@ -22,6 +22,16 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
+        public async Task EnsureIsOwner(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        {
+            Skilltree? skilltree = await this.GetSkilltreeByIdAsync(id, cancellationToken);
+
+            if (userId != skilltree?.Character?.UserId)
+            {
+                throw new CharacterAccessViolationException("This action can't be done.");
+            }
+        }
+
         public async Task<List<Skilltree>> FilterSkilltrees(Guid? characterId, CancellationToken cancellationToken = default)
         {
             try

@@ -2,7 +2,18 @@
 
 namespace Hero.Server.Messages.Responses
 {
-    public class SharedCharacterDetailResponse : CharacterDetailResponse { }
+    public class SharedCharacterDetailResponse : CharacterDetailResponse 
+    {
+        protected override List<AbilityResponse> GetUnlockedAbilities()
+        {
+            return this.ShareAbilities ?? false ? base.GetUnlockedAbilities() : new();
+        }
+
+        protected override List<AttributeValueResponse> GroupAttributes()
+        {
+            return this.ShareAttributes ?? false ? base.GroupAttributes() : new();
+        }
+    }
 
     public class CharacterDetailResponse
     {
@@ -37,20 +48,13 @@ namespace Hero.Server.Messages.Responses
 
         public List<AbilityResponse> UnlockedAbilities => this.GetUnlockedAbilities();
 
-        private List<AbilityResponse> GetUnlockedAbilities()
+        protected virtual List<AbilityResponse> GetUnlockedAbilities()
         {
-            return this.ShareAbilities ?? false
-                ? this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked && null != node.Skill.Ability).Select(node => node.Skill.Ability)).ToList() 
-                : new();
+            return this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked && null != node.Skill.Ability).Select(node => node.Skill.Ability)).ToList();
         }
 
-        private List<AttributeValueResponse> GroupAttributes()
+        protected virtual List<AttributeValueResponse> GroupAttributes()
         {
-            if (!this.ShareAttributes ?? false)
-            {
-                return new();
-            }
-
             IEnumerable<AttributeValueResponse> skilltreeAttributes = 
                 this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked).SelectMany(node => node.Skill.Attributes)).ToList();
 

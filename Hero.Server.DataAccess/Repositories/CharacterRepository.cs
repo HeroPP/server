@@ -58,7 +58,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 return await this.context
                     .Characters
-                    .Where(c => c.UserId == userId)
+                    .Where(c => c.UserId == userId || c.IsPublic)
                     .ToListAsync(cancellationToken);
             }
             catch (Exception ex)
