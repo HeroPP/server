@@ -25,6 +25,15 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
+        public async Task EnsureIsOwner(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        {
+            Character? character = await this.context.Characters.SingleOrDefaultAsync(c => c.Id == id);
+            if (null == character || character.UserId != userId)
+            {
+                throw new CharacterAccessViolationException("You are not the owner of this character and therefore cannot edit it in any way.");
+            }
+        }
+
         public async Task<Character?> GetCharacterByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
@@ -49,7 +58,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 return await this.context
                     .Characters
-                    .Where(c => c.UserId == userId)
+                    .Where(c => c.UserId == userId || c.IsPublic)
                     .ToListAsync(cancellationToken);
             }
             catch (Exception ex)
@@ -93,13 +102,13 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteCharacterAsync(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteCharacterAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
                 Character? existing = await this.GetCharacterByIdAsync(id, cancellationToken);
 
-                if(null == existing || userId != existing.UserId)
+                if(null == existing)
                 {
                     this.logger.LogCharacterDoesNotExist(id);
                     return;
@@ -114,13 +123,13 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdateCharacterAsync(Guid id, Character updatedCharacter, Guid userId, CancellationToken cancellationToken = default)
+        public async Task UpdateCharacterAsync(Guid id, Character updatedCharacter, CancellationToken cancellationToken = default)
         {
             try
             {
                 Character? existing = await this.GetCharacterByIdAsync(id, cancellationToken);
 
-                if (null == existing || userId != existing.UserId)
+                if (null == existing)
                 {
                     throw new ObjectNotFoundException($"The character (id: {id}) you're trying to update does not exist.");
                 }

@@ -3,10 +3,7 @@
 using Hero.Server.Core.Models;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
-using JCurth.Core.Extensions;
-using System.Linq;
-using System.Text.Json;
-using System.Xml.Linq;
+
 using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server
@@ -18,8 +15,15 @@ namespace Hero.Server
             this.CreateMap<CharacterRequest, Character>();
             this.CreateMap<Character, CreateCharacterResponse>();
             this.CreateMap<Character, CharacterOverviewResponse>();
+
             this.CreateMap<Character, CharacterDetailResponse>()
                 .ForMember(dst => dst.FullSkilltrees, src => src.MapFrom(character => character.Skilltrees));
+
+            this.CreateMap<Character, SharedCharacterDetailResponse>()
+                .ForMember(dst => dst.FullSkilltrees, src => src.MapFrom(character => character.Skilltrees))
+                .ForMember(dst => dst.Skilltrees, src => src.MapFrom(character => character.ShareSkilltree ?? false ? character.Skilltrees : new()))
+                .ForMember(dst => dst.Inventory, src => src.MapFrom(character => character.ShareInventory ?? false ? character.Inventory : null))
+                .ForMember(dst => dst.Notes, src => src.MapFrom(character => character.ShareNotes ?? false ? character.Notes : null));
 
             this.CreateMap<Ability, AbilityResponse>();
             this.CreateMap<AbilityRequest, Ability>();

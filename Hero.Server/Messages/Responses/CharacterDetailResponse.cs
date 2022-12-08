@@ -2,9 +2,23 @@
 
 namespace Hero.Server.Messages.Responses
 {
+    public class SharedCharacterDetailResponse : CharacterDetailResponse 
+    {
+        protected override List<AbilityResponse> GetUnlockedAbilities()
+        {
+            return this.ShareAbilities ?? false ? base.GetUnlockedAbilities() : new();
+        }
+
+        protected override List<AttributeValueResponse> GroupAttributes()
+        {
+            return this.ShareAttributes ?? false ? base.GroupAttributes() : new();
+        }
+    }
+
     public class CharacterDetailResponse
     {
         public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
         public string? IconUrl { get; set; }
@@ -17,6 +31,13 @@ namespace Hero.Server.Messages.Responses
         public Guid RaceId { get; set; }
         public RaceResponse Race { get; set; }
 
+        public bool IsPublic { get; set; }
+        public bool? ShareSkilltree { get; set; }
+        public bool? ShareNotes { get; set; }
+        public bool? ShareInventory { get; set; }
+        public bool? ShareAbilities { get; set; }
+        public bool? ShareAttributes { get; set; }
+
         // The full trees are only needed to generate the attribute values, but should not be send over to the client to reduce overhead.
         [JsonIgnore]
         public List<SkilltreeResponse> FullSkilltrees { get; set; } = new();
@@ -27,12 +48,12 @@ namespace Hero.Server.Messages.Responses
 
         public List<AbilityResponse> UnlockedAbilities => this.GetUnlockedAbilities();
 
-        private List<AbilityResponse> GetUnlockedAbilities()
+        protected virtual List<AbilityResponse> GetUnlockedAbilities()
         {
             return this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked && null != node.Skill.Ability).Select(node => node.Skill.Ability)).ToList();
         }
 
-        private List<AttributeValueResponse> GroupAttributes()
+        protected virtual List<AttributeValueResponse> GroupAttributes()
         {
             IEnumerable<AttributeValueResponse> skilltreeAttributes = 
                 this.FullSkilltrees.Where(s => s.IsActiveTree).SelectMany(tree => tree.Nodes.Where(node => node.IsUnlocked).SelectMany(node => node.Skill.Attributes)).ToList();

@@ -76,8 +76,6 @@ namespace Hero.Server.Controllers
         [HttpPost, Authorize(Roles = RoleNames.Administrator)]
         public async Task<IActionResult> CreateSkilltreeAsync([FromBody] SkilltreeRequest request)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
-
             Skilltree tree = this.mapper.Map<Skilltree>(request);
             await this.repository.CreateSkilltreeAsync(tree);
 
@@ -87,6 +85,7 @@ namespace Hero.Server.Controllers
         [HttpPost("{skilltreeId}/nodes/{nodeId}/unlock")]
         public async Task<IActionResult> UnlockNodeAsync(Guid skilltreeId, Guid nodeId, CancellationToken token)
         {
+            await this.repository.EnsureIsOwner(skilltreeId, this.HttpContext.User.GetUserId(), token);
             await this.repository.UnlockNode(skilltreeId, nodeId, token);
             return this.Ok();
         }
@@ -94,12 +93,13 @@ namespace Hero.Server.Controllers
         [HttpPost("{skilltreeId}/nodes/{nodeId}/reset")]
         public async Task<IActionResult> ResetNodeAsync(Guid skilltreeId, Guid nodeId, CancellationToken token)
         {
+            await this.repository.EnsureIsOwner(skilltreeId, this.HttpContext.User.GetUserId(), token);
             await this.repository.ResetNode(skilltreeId, nodeId, token);
             return this.Ok();
         }
 
         [HttpPost("{id}/reset"), Authorize(Roles = RoleNames.Administrator)]
-        public async Task<IActionResult> UnlockNode(Guid id, CancellationToken token)
+        public async Task<IActionResult> ResetSkilltreeAsync(Guid id, CancellationToken token)
         {
             await this.repository.ResetSkilltreeAsync(id, token);
             return this.Ok();
