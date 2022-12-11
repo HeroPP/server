@@ -1,4 +1,5 @@
 ﻿using Hero.Server.Core.Models;
+using Hero.Server.Core.Models.Storyline;
 
 using Microsoft.EntityFrameworkCore;
 using Attribute = Hero.Server.Core.Models.Attribute;
@@ -29,6 +30,8 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<AttributeRace> AttributeRaces { get; set; }
         public DbSet<AttributeSkill> AttributeSkills { get; set; }
 
+        public DbSet<StoryEntry> StoryEntries { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema(HeroDbResources.Schema);
@@ -42,6 +45,8 @@ namespace Hero.Server.DataAccess.Database
             builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
             builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
             builder.Entity<Blueprint>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
+            builder.Entity<StoryEntry>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
+            builder.Entity<StoryBookPage>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Hero.Server.Core.Models
+﻿using Hero.Server.Core.Models.Storyline;
+
+namespace Hero.Server.Core.Models
 {
     public class Group
     {
@@ -14,5 +16,6 @@
         public List<Character> Characters { get; set; }
         public List<Skilltree> Skilltrees { get; set; }
 
+        public List<StoryEntry> StoryEntries { get; set; }
     }
 }
