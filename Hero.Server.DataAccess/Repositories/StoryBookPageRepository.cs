@@ -1,0 +1,159 @@
+﻿using Hero.Server.Core.Exceptions;
+using Hero.Server.Core.Logging;
+using Hero.Server.Core.Models.Storyline;
+using Hero.Server.Core.Repositories;
+using Hero.Server.DataAccess.Database;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+
+namespace Hero.Server.DataAccess.Repositories
+{
+    public class StoryBookPageRepository : IStoryBookPageRepository
+    {
+        private readonly HeroDbContext context;
+        private readonly IStoryEntryRepository entryRepository;
+        private readonly IGroupContext group;
+        private readonly ILogger<StoryBookPageRepository> logger;
+
+        public StoryBookPageRepository(HeroDbContext context, IStoryEntryRepository entryRepository, IGroupContext group, ILogger<StoryBookPageRepository> logger)
+        {
+            this.context = context;
+            this.entryRepository = entryRepository;
+            this.group = group;
+            this.logger = logger;
+        }
+
+        private async Task<StoryBookPage?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.context.StoryBookPages.SingleOrDefaultAsync(page => page.Id == id, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while fetching all story entries.");
+            }
+        }
+
+        public async Task CreateAsync(Guid bookId, StoryBookPage page, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                StoryEntry? existing = await this.entryRepository.GetByIdAsync(bookId, cancellationToken);
+                StoryBook? book = existing as StoryBook;
+                if (null == existing && !(existing is StoryBook))
+                {
+                    throw new ObjectNotFoundException($"The story entry you're trying to update does not exist.");
+                }
+
+                book!.Pages.Add(page);
+                page.GroupId = this.group.Id;
+
+                await this.context.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while creating page.");
+            }
+        }
+
+        public async Task UpdateAsync(Guid id, StoryBookPage page, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                StoryBookPage? existing = await this.GetByIdAsync(id, cancellationToken);
+
+                if (null == existing)
+                {
+                    throw new ObjectNotFoundException($"The book page you're trying to update does not exist.");
+                }
+
+                existing.Update(page);
+                await this.context.SaveChangesAsync(cancellationToken);
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating page.");
+            }
+        }
+
+        private async Task MovePosition(int lowerBound, int upperBound, int direction)
+        {
+            List<StoryBookPage> entriesInBounds = await this.context.StoryBookPages.Where(e => e.PageNumber > lowerBound && e.PageNumber < upperBound).ToListAsync();
+
+            foreach (StoryBookPage entry in entriesInBounds)
+            {
+                entry.PageNumber += direction;
+            }
+        }
+
+        public async Task UpdatePositionAsync(Guid id, int newPosition, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                StoryBookPage? existing = await this.GetByIdAsync(id, cancellationToken);
+
+                if (null == existing)
+                {
+                    throw new ObjectNotFoundException($"The story entry you're trying to update does not exist.");
+                }
+
+                int oldPosition = existing.PageNumber;
+                existing.PageNumber = newPosition;
+
+                await this.MovePosition(Math.Min(oldPosition, newPosition), Math.Max(oldPosition, newPosition), oldPosition > newPosition ? 1 : -1);
+
+                await this.context.SaveChangesAsync(cancellationToken);
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating page number.");
+            }
+        }
+
+        public async Task DeleteAsync(Guid id, int newPosition, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                StoryBookPage? existing = await this.GetByIdAsync(id, cancellationToken);
+
+                if (null == existing)
+                {
+                    throw new ObjectNotFoundException($"The story entry you're trying to update does not exist.");
+                }
+
+                int oldPosition = existing.PageNumber;
+                existing.PageNumber = newPosition;
+
+                await this.MovePosition(Math.Min(oldPosition, newPosition), Math.Max(oldPosition, newPosition), oldPosition > newPosition ? 1 : -1);
+
+                await this.context.SaveChangesAsync(cancellationToken);
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while deleting page.");
+            }
+        }
+    }
+}

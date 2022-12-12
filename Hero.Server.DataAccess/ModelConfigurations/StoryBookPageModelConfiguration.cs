@@ -11,7 +11,9 @@ namespace Hero.Server.DataAccess.ModelConfigurations
         {
             builder.ToTable("StoryBookPage");
 
-            builder.HasKey(x => new { x.BookId, x.PageNumber });
+            builder.HasKey(x => x.Id);
+
+            builder.HasIndex(x => new { x.BookId, x.PageNumber }).IsUnique();
 
             builder.Property(page => page.PageNumber).ValueGeneratedOnAdd();
 

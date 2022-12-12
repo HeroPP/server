@@ -32,6 +32,8 @@ namespace Hero.Server.DataAccess.Extensions
             services.AddTransient<IKeycloakService, KeycloakService>();
             services.AddTransient<IRaceRepository, RaceRepository>();
             services.AddTransient<IBlueprintRepository, BlueprintRepository>();
+            services.AddTransient<IStoryEntryRepository, StoryEntryRepository>();
+            services.AddTransient<IStoryBookPageRepository, StoryBookPageRepository>();
 
             return services;
         }

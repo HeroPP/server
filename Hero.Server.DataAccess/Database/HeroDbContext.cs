@@ -31,6 +31,7 @@ namespace Hero.Server.DataAccess.Database
         public DbSet<AttributeSkill> AttributeSkills { get; set; }
 
         public DbSet<StoryEntry> StoryEntries { get; set; }
+        public DbSet<StoryBookPage> StoryBookPages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

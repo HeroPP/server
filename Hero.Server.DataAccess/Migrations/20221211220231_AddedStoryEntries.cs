@@ -21,7 +21,7 @@ namespace Hero.Server.DataAccess.Migrations
                     IconUrl = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
                     IsUnlocked = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    UpdatedAt = table.Column<bool>(type: "boolean", nullable: false, defaultValueSql: "now"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "now"),
                     Order = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     EntryType = table.Column<string>(type: "text", nullable: false),

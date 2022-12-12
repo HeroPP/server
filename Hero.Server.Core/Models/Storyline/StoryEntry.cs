@@ -10,7 +10,16 @@
         public string? Description { get; set; }
 
         public bool IsUnlocked { get; set; }
-        public bool UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public int Order { get; set; }
+
+        public virtual void Update(StoryEntry updated)
+        {
+            this.Title = updated.Title;
+            this.IconUrl = updated.IconUrl;
+            this.Description = updated.Description;
+            this.IsUnlocked = updated.IsUnlocked;
+            this.UpdatedAt = DateTime.UtcNow;
+        }
     }
 }
