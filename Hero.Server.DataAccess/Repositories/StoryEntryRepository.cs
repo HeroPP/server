@@ -22,11 +22,11 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        public async Task<List<StoryEntry>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<List<StoryEntry>> GetAllAsync(bool unlockedOnly = false, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await this.context.StoryEntries.ToListAsync(cancellationToken);
+                return await this.context.StoryEntries.Where(entry => !unlockedOnly || entry.IsUnlocked).ToListAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -35,12 +35,12 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<StoryEntry?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<StoryEntry?> GetByIdAsync(Guid id, bool unlockedOnly = false, CancellationToken cancellationToken = default)
         {
             try
             {
                 return await this.context.StoryEntries
-                    .Include(entry => ((StoryBook)entry).Pages)
+                    .Include(entry => ((StoryBook)entry).Pages.Where(page => !unlockedOnly || page.IsWritten))
                     .FirstOrDefaultAsync(entry =>  entry.Id == id, cancellationToken);
             }
             catch (Exception ex)
@@ -70,7 +70,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                StoryEntry? existing = await this.GetByIdAsync(id, cancellationToken);
+                StoryEntry? existing = await this.GetByIdAsync(id, cancellationToken: cancellationToken);
 
                 if (null == existing)
                 {
@@ -106,7 +106,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                StoryEntry? existing = await this.GetByIdAsync(id, cancellationToken);
+                StoryEntry? existing = await this.GetByIdAsync(id, cancellationToken: cancellationToken);
 
                 if (null == existing)
                 {
@@ -132,21 +132,18 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteAsync(Guid id, int newPosition, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                StoryEntry? existing = await this.GetByIdAsync(id, cancellationToken);
+                StoryEntry? existing = await this.GetByIdAsync(id, cancellationToken: cancellationToken);
 
                 if (null == existing)
                 {
-                    throw new ObjectNotFoundException($"The story entry you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The story entry you're trying to delete does not exist.");
                 }
 
-                int oldPosition = existing.Order;
-                existing.Order = newPosition;
-
-                await this.MovePosition(Math.Min(oldPosition, newPosition), Math.Max(oldPosition, newPosition), oldPosition > newPosition ? 1 : -1);
+                this.context.StoryEntries.Remove(existing);
 
                 await this.context.SaveChangesAsync(cancellationToken);
             }

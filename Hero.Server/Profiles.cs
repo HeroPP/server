@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using Hero.Server.Core.Models;
+using Hero.Server.Core.Models.Storyline;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
@@ -65,6 +66,16 @@ namespace Hero.Server
 
             this.CreateMap<User, UserResponse>();
             this.CreateMap<Group, GroupResponse>();
+
+            this.CreateMap<StoryEntry, StoryEntryOverviewResponse>()
+                .ForMember(dst => dst.Type, src => src.MapFrom(entry => entry.GetType().Name));
+
+            this.CreateMap<StoryEntryRequest, StoryImage>();
+            this.CreateMap<StoryEntryRequest, StoryBook>();
+
+            this.CreateMap<StoryEntry, StoryEntryResponse>();
+            this.CreateMap<StoryImage, StoryImageResponse>();
+            this.CreateMap<StoryBookPage, StoryBookResponse>();
         }
     }
 }

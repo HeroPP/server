@@ -41,7 +41,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                StoryEntry? existing = await this.entryRepository.GetByIdAsync(bookId, cancellationToken);
+                StoryEntry? existing = await this.entryRepository.GetByIdAsync(bookId, cancellationToken: cancellationToken);
                 StoryBook? book = existing as StoryBook;
                 if (null == existing && !(existing is StoryBook))
                 {
@@ -126,7 +126,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteAsync(Guid id, int newPosition, CancellationToken cancellationToken = default)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -134,13 +134,10 @@ namespace Hero.Server.DataAccess.Repositories
 
                 if (null == existing)
                 {
-                    throw new ObjectNotFoundException($"The story entry you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The story entry you're trying to delete does not exist.");
                 }
 
-                int oldPosition = existing.PageNumber;
-                existing.PageNumber = newPosition;
-
-                await this.MovePosition(Math.Min(oldPosition, newPosition), Math.Max(oldPosition, newPosition), oldPosition > newPosition ? 1 : -1);
+                this.context.StoryBookPages.Remove(existing);
 
                 await this.context.SaveChangesAsync(cancellationToken);
             }
