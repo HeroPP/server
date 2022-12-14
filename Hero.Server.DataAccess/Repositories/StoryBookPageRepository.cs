@@ -88,7 +88,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         private async Task MovePosition(int lowerBound, int upperBound, int direction)
         {
-            List<StoryBookPage> entriesInBounds = await this.context.StoryBookPages.Where(e => e.PageNumber > lowerBound && e.PageNumber < upperBound).ToListAsync();
+            List<StoryBookPage> entriesInBounds = await this.context.StoryBookPages.Where(e => e.PageNumber > lowerBound - (direction > 0 ? direction : 0) && e.PageNumber < upperBound - (direction < 0 ? direction : 0)).ToListAsync();
 
             foreach (StoryBookPage entry in entriesInBounds)
             {

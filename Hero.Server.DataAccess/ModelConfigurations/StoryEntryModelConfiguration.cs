@@ -26,7 +26,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .HasDefaultValue(false);
 
             builder.Property(image => image.UpdatedAt)
-                .HasDefaultValueSql("now");
+                .HasDefaultValueSql("now()");
 
 
             builder.Property(image => image.Order)

@@ -29,7 +29,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .HasDefaultValue(false);
 
             builder.Property(image => image.UpdatedAt)
-                .HasDefaultValueSql("now");
+                .HasDefaultValueSql("now()");
 
             builder.HasOne(page => page.Group)
                 .WithMany()

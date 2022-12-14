@@ -20,7 +20,7 @@ namespace Hero.Server.DataAccess.Migrations
                 table: "StoryEntries",
                 type: "timestamp with time zone",
                 nullable: false,
-                defaultValueSql: "now",
+                defaultValueSql: "now()",
                 oldClrType: typeof(bool),
                 oldType: "boolean",
                 oldDefaultValueSql: "now");

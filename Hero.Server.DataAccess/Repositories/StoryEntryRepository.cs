@@ -94,7 +94,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         private async Task MovePosition(int lowerBound, int upperBound, int direction)
         {
-            List<StoryEntry> entriesInBounds = await this.context.StoryEntries.Where(e => e.Order > lowerBound && e.Order < upperBound).ToListAsync();
+            List<StoryEntry> entriesInBounds = await this.context.StoryEntries.Where(e => e.Order > lowerBound - (direction > 0 ? direction : 0) && e.Order < upperBound - (direction < 0 ? direction : 0)).ToListAsync();
 
             foreach (StoryEntry entry in entriesInBounds)
             {
@@ -114,9 +114,10 @@ namespace Hero.Server.DataAccess.Repositories
                 }
 
                 int oldPosition = existing.Order;
-                existing.Order = newPosition;
 
                 await this.MovePosition(Math.Min(oldPosition, newPosition), Math.Max(oldPosition, newPosition), oldPosition > newPosition ? 1 : -1);
+
+                existing.Order = newPosition;
 
                 await this.context.SaveChangesAsync(cancellationToken);
             }
