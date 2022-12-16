@@ -294,5 +294,32 @@ namespace Hero.Server.DataAccess.Repositories
                 throw new HeroException("An error occured while getting remaining skillpoints.");
             }
         }
+
+        public async Task SwitchSkilltreeActiveStateAsync(Guid id, bool state, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                Skilltree? skilltree = await this.GetSkilltreeByIdAsync(id, cancellationToken);
+
+                if (null == skilltree)
+                {
+                    throw new ObjectNotFoundException($"The skilltree (id: {id}) you're trying to get does not exist.");
+                }
+
+                skilltree.IsActiveTree = state;
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating the skilltree active state.");
+            }
+        }
     }
 }

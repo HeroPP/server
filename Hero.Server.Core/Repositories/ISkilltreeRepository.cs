@@ -14,5 +14,6 @@ namespace Hero.Server.Core.Repositories
         Task ResetSkilltreeAsync(Guid skilltreeId, CancellationToken cancellationToken = default);
         Task ResetNode(Guid skilltreeId, Guid nodeId, CancellationToken token = default);
         Task EnsureIsOwner(Guid id, Guid userId, CancellationToken cancellationToken = default);
+        Task SwitchSkilltreeActiveStateAsync(Guid id, bool state, CancellationToken cancellationToken = default);
     }
 }

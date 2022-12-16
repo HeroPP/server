@@ -105,6 +105,13 @@ namespace Hero.Server.Controllers
             return this.Ok();
         }
 
+        [HttpPost("{id}/active"), Authorize(Roles = RoleNames.Administrator)]
+        public async Task<IActionResult> SwitchActiveStateForSkilltreeAsync(Guid id, [FromBody] ChangeStateRequest request, CancellationToken cancellationToken)
+        {
+            await this.repository.SwitchSkilltreeActiveStateAsync(id, request.State, cancellationToken);
+            return this.Ok();
+        }
+
         [HttpGet("{id}/skillpoints")]
         public async Task<IActionResult> GetSkillpointsBySkilltreeIdAsync(Guid id, CancellationToken token)
         {
