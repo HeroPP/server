@@ -10,6 +10,8 @@
 
         public bool IsUnlocked { get; set; }
         public int Order { get; set; }
+
+        public string Type { get; set; }
     }
 
     public class StoryImageResponse : StoryEntryResponse

@@ -73,7 +73,9 @@ namespace Hero.Server
             this.CreateMap<StoryEntryRequest, StoryImage>();
             this.CreateMap<StoryEntryRequest, StoryBook>();
 
-            this.CreateMap<StoryEntry, StoryEntryResponse>();
+            this.CreateMap<StoryEntry, StoryEntryResponse>()
+                .IncludeAllDerived()
+                .ForMember(dst => dst.Type, src => src.MapFrom(entry => entry.GetType().Name));
             this.CreateMap<StoryImage, StoryImageResponse>();
             this.CreateMap<StoryBookPage, StoryBookResponse>();
         }

@@ -133,6 +133,33 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
+        public async Task UnlockAsync(Guid id, bool isUnlocked, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                StoryEntry? entry = await this.GetByIdAsync(id, false, cancellationToken);
+
+                if (null == entry)
+                {
+                    throw new ObjectNotFoundException($"The story entry (id: {id}) you're trying to get does not exist.");
+                }
+
+                entry.IsUnlocked = isUnlocked;
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating the story entry unlocked state.");
+            }
+        }
+
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             try

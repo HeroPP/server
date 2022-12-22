@@ -87,6 +87,13 @@ namespace Hero.Server.Controllers
             return this.Ok();
         }
 
+        [HttpPost("{id}/unlock"), Authorize(Roles = RoleNames.Administrator)]
+        public async Task<IActionResult> SwitchActiveStateForSkilltreeAsync(Guid id, [FromBody] ChangeStateRequest request, CancellationToken cancellationToken)
+        {
+            await this.storyEntryRepository.UnlockAsync(id, request.State, cancellationToken);
+            return this.Ok();
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateStoryEntryAsync(Guid id, [FromBody] StoryEntryRequest request, CancellationToken cancellationToken = default)
         {
