@@ -2,6 +2,7 @@
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Requests;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,7 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [HttpGet, Authorize(Roles = RoleNames.Administrator)]
+        [HttpGet, IsGroupAdmin]
         public async Task<IActionResult> GetGroupAdminInfo(CancellationToken token)
         {
             Group group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
@@ -41,7 +42,7 @@ namespace Hero.Server.Controllers
             return this.Ok(new { Id = group.Id, Name = group.Name, Owner = group.Owner.Id, Description = group.Description });
         }
         
-        [HttpGet("users"), Authorize(Roles = RoleNames.Administrator)]
+        [HttpGet("users"), IsGroupAdmin]
         public async Task<IActionResult> GetAllUsersInGroup(CancellationToken token)
         {
             //List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId(), token);

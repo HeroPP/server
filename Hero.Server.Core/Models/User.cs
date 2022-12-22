@@ -3,6 +3,7 @@
     public class User
     {
         public string Id { get; set; }
+
         public Guid? GroupId { get; set; }
 
         public List<Character> Characters { get; set; }

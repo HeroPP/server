@@ -225,16 +225,6 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 await this.EvaluateInvitationCode(groupId, invitationCode, cancellationToken);
 
-                await this.service.Initialize(options);
-                if (this.mappings.Groups.ContainsKey("Member"))
-                {
-                    await this.service.Groups.AddUser(this.mappings.Groups["Member"].Id, userId.ToString());
-                }
-                else
-                {
-                    throw new HeroException("Groupmapping is not setup, could not join members group.");
-                }
-
                 User? user = await this.userRepository.GetUserByIdAsync(userId);
 
                 if (null != user)
