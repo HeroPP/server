@@ -14,5 +14,7 @@ namespace Hero.Server.Core.Repositories
         Task<Group?> GetGroupByUserId(Guid userId, CancellationToken cancellationToken = default);
         Task<Group> GetGroupByInviteCode(string invitationCode, CancellationToken cancellationToken = default);
         Task<UserInfo> GetGroupOwner(Group group, CancellationToken cancellationToken = default);
+        void EnsureIsMemberOrOwner(Guid userId);
+        void EnsureIsOwner(Guid userId);
     }
 }

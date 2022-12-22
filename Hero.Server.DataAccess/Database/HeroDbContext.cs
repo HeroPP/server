@@ -34,14 +34,17 @@ namespace Hero.Server.DataAccess.Database
             builder.HasDefaultSchema(HeroDbResources.Schema);
             builder.ApplyConfigurationsFromAssembly(typeof(HeroDbContext).Assembly);
 
-            builder.Entity<Group>().HasQueryFilter(g => g.Id == this.CurrentGroup.Id);
-            builder.Entity<Character>().HasQueryFilter(c => c.GroupId == this.CurrentGroup.Id);
-            builder.Entity<Ability>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id);
-            builder.Entity<Skill>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
-            builder.Entity<Skilltree>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
-            builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
-            builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
-            builder.Entity<Blueprint>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
+            if (this.CurrentGroup.Id != Guid.Empty)
+            {
+                builder.Entity<Group>().HasQueryFilter(g => g.Id == this.CurrentGroup.Id);
+                builder.Entity<Character>().HasQueryFilter(c => c.GroupId == this.CurrentGroup.Id);
+                builder.Entity<Ability>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id);
+                builder.Entity<Skill>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
+                builder.Entity<Skilltree>().HasQueryFilter(s => s.GroupId == this.CurrentGroup.Id);
+                builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
+                builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
+                builder.Entity<Blueprint>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
+            }
         }
     }
 }

@@ -45,10 +45,30 @@ namespace Hero.Server.DataAccess.Repositories
 
         private async Task EvaluateInvitationCode(Guid groupId, string invitationCode, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.IgnoreQueryFilters().SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
+            Group? group = await this.context.Groups.SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new GroupAccessForbiddenException("The provided invite code is invalid");
+            }
+        }
+
+        public void EnsureIsMemberOrOwner(Guid userId)
+        {
+            Group? group = this.context.Groups.FirstOrDefault(g => g.OwnerId == userId || g.Members.Any(u => u.Id == userId));
+
+            if (null == group)
+            {
+                throw new GroupAccessForbiddenException("You are no member of this group");
+            }
+        }
+
+        public void EnsureIsOwner(Guid userId)
+        {
+            Group? group = this.context.Groups.FirstOrDefault(g => g.OwnerId == userId);
+
+            if (null == group)
+            {
+                throw new GroupAccessForbiddenException("You are no admin of this group");
             }
         }
 
@@ -70,7 +90,7 @@ namespace Hero.Server.DataAccess.Repositories
         {
             try
             {
-                User? user = await this.context.Users.Include(u => u.OwnedGroup).IgnoreQueryFilters().SingleOrDefaultAsync(u => u.Id == userId);
+                User? user = await this.context.Users.Include(u => u.OwnedGroup).SingleOrDefaultAsync(u => u.Id == userId);
 
                 if (null == user?.OwnedGroup)
                 {
@@ -123,7 +143,6 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 Group? group = await this.context.Groups
                     .Include(group => group.Owner)
-                    .IgnoreQueryFilters()
                     .SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
 
                 if (null == group)
@@ -151,7 +170,6 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 Group? group = await this.context.Groups
                     .Include(group => group.Members)
-                    .IgnoreQueryFilters()
                     .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
 
                 if (null == group)

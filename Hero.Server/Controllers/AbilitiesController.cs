@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 
-using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
@@ -8,7 +7,6 @@ using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers

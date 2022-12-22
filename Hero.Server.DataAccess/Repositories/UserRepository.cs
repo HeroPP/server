@@ -63,7 +63,6 @@ namespace Hero.Server.DataAccess.Repositories
                 return await this.context.Users
                     .Include(u => u.OwnedGroup)
                     .Include(g => g.Group)
-                    .IgnoreQueryFilters()
                     .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
             }
             catch (Exception ex)
