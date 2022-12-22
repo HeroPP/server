@@ -4,9 +4,9 @@ namespace Hero.Server.Core.Repositories
 {
     public interface IUserRepository
     {
-        Task<User> CreateUserIfNotExistAsync(Guid id, CancellationToken cancellationToken = default);
-        Task EnsureIsOwner(Guid userId, CancellationToken cancellationToken = default);
-        Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default);
-        Task<List<User>> GetUsersByIdAsync(List<Guid> ids, CancellationToken cancellationToken = default);
+        Task<User> CreateUserIfNotExistAsync(string id, CancellationToken cancellationToken = default);
+        Task EnsureIsOwner(string userId, CancellationToken cancellationToken = default);
+        Task<User?> GetUserByIdAsync(string id, CancellationToken cancellationToken = default);
+        Task<List<User>> GetUsersByIdAsync(List<string> ids, CancellationToken cancellationToken = default);
     }
 }

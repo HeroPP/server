@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221222123733_UserIdAsStringForFirebase")]
+    partial class UserIdAsStringForFirebase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,8 +264,6 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.HasIndex("RaceId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Characters", "Hero");
                 });
 
@@ -291,9 +291,6 @@ namespace Hero.Server.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OwnerId")
-                        .IsUnique();
 
                     b.ToTable("Groups", "Hero");
                 });
@@ -449,8 +446,6 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
-
                     b.ToTable("Users", "Hero");
                 });
 
@@ -531,24 +526,7 @@ namespace Hero.Server.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.HasOne("Hero.Server.Core.Models.User", null)
-                        .WithMany("Characters")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
                     b.Navigation("Race");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.User", "Owner")
-                        .WithOne("OwnedGroup")
-                        .HasForeignKey("Hero.Server.Core.Models.Group", "OwnerId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Skill", b =>
@@ -599,16 +577,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Navigation("Skill");
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.Group", "Group")
-                        .WithMany("Members")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Group");
-                });
-
             modelBuilder.Entity("Hero.Server.Core.Models.Attribute", b =>
                 {
                     b.Navigation("AttributeRaces");
@@ -632,8 +600,6 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.Navigation("Characters");
 
-                    b.Navigation("Members");
-
                     b.Navigation("Skills");
 
                     b.Navigation("Skilltrees");
@@ -652,14 +618,6 @@ namespace Hero.Server.DataAccess.Migrations
             modelBuilder.Entity("Hero.Server.Core.Models.Skilltree", b =>
                 {
                     b.Navigation("Nodes");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
-                {
-                    b.Navigation("Characters");
-
-                    b.Navigation("OwnedGroup")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

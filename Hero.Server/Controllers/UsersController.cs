@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
@@ -26,7 +26,6 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [Authorize]
         [HttpGet()]
         public async Task<IActionResult> GetUser()
     {

@@ -52,7 +52,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public void EnsureIsMemberOrOwner(Guid userId)
+        public void EnsureIsMemberOrOwner(string userId)
         {
             Group? group = this.context.Groups.FirstOrDefault(g => g.OwnerId == userId || g.Members.Any(u => u.Id == userId));
 
@@ -62,7 +62,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public void EnsureIsOwner(Guid userId)
+        public void EnsureIsOwner(string userId)
         {
             Group? group = this.context.Groups.FirstOrDefault(g => g.OwnerId == userId);
 
@@ -72,7 +72,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<Group?> GetGroupByUserId(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Group?> GetGroupByUserId(string userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<Group> GetGroupByOwnerId(Guid userId, CancellationToken cancellationToken = default)
+        public async Task<Group> GetGroupByOwnerId(string userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -111,31 +111,31 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<Core.Models.UserInfo> GetGroupOwner(Group group, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                await this.service.Initialize(this.options);
-                JCurth.Keycloak.Models.UserInfo? userInfo = await this.service.Users.GetUserById(group.OwnerId);
+        //public async Task<Core.Models.UserInfo> GetGroupOwner(Group group, CancellationToken cancellationToken = default)
+        //{
+        //    try
+        //    {
+        //        await this.service.Initialize(this.options);
+        //        JCurth.Keycloak.Models.UserInfo? userInfo = await this.service.Users.GetUserById(group.OwnerId);
 
-                if (null == userInfo)
-                {
-                    throw new ObjectNotFoundException($"The group owner of group '{group.Name}' could not be determined.");
-                }
+        //        if (null == userInfo)
+        //        {
+        //            throw new ObjectNotFoundException($"The group owner of group '{group.Name}' could not be determined.");
+        //        }
 
-                return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
-            }
-            catch (HeroException ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw new HeroException("An error occured while getting group owner.");
-            }
-        }
+        //        return new Core.Models.UserInfo() { Id = userInfo.Id, Email = userInfo.Email, Firstname = userInfo.Firstname, Lastname = userInfo.Lastname, Username = userInfo.Username };
+        //    }
+        //    catch (HeroException ex)
+        //    {
+        //        this.logger.LogUnknownErrorOccured(ex);
+        //        throw;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this.logger.LogUnknownErrorOccured(ex);
+        //        throw new HeroException("An error occured while getting group owner.");
+        //    }
+        //}
 
         public async Task<Group> GetGroupByInviteCode(string invitationCode, CancellationToken cancellationToken = default)
         {
@@ -164,37 +164,37 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(Guid userId, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                Group? group = await this.context.Groups
-                    .Include(group => group.Members)
-                    .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
+        //public async Task<List<Core.Models.UserInfo>> GetAllUsersInGroupAsync(string userId, CancellationToken cancellationToken = default)
+        //{
+        //    try
+        //    {
+        //        Group? group = await this.context.Groups
+        //            .Include(group => group.Members)
+        //            .Where(group => group.OwnerId == userId).SingleOrDefaultAsync(cancellationToken);
 
-                if (null == group)
-                {
-                    throw new GroupAccessForbiddenException("You are no admin of any group, you should create one.");
-                }
+        //        if (null == group)
+        //        {
+        //            throw new GroupAccessForbiddenException("You are no admin of any group, you should create one.");
+        //        }
 
-                await this.service.Initialize(options);
-                List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Users.GetUsersById(group!.Members.Select(u => u.Id).ToList());
+        //        await this.service.Initialize(options);
+        //        List<JCurth.Keycloak.Models.UserInfo> userInfos = await this.service.Users.GetUsersById(group!.Members.Select(u => u.Id).ToList());
 
-                return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
-            }
-            catch (HeroException ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw new HeroException("An error occured while getting all users in group.");
-            }
-        }
+        //        return userInfos.Select(u => new Core.Models.UserInfo() { Id = u.Id, Email = u.Email, Firstname = u.Firstname, Lastname = u.Lastname, Username = u.Username }).ToList();
+        //    }
+        //    catch (HeroException ex)
+        //    {
+        //        this.logger.LogUnknownErrorOccured(ex);
+        //        throw;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        this.logger.LogUnknownErrorOccured(ex);
+        //        throw new HeroException("An error occured while getting all users in group.");
+        //    }
+        //}
 
-        public async Task<string> CreateGroup(string groupName, string? groupDescription, Guid ownerId, CancellationToken cancellationToken = default)
+        public async Task<string> CreateGroup(string groupName, string? groupDescription, string ownerId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -219,30 +219,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<string> GenerateInviteCode(Guid groupId, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                Group? group = await this.GetGroupByOwnerId(groupId);
-
-                group.InviteCode = this.GenerateInvitationCode();
-                await this.context.SaveChangesAsync(cancellationToken);
-
-                return group.InviteCode;
-            }
-            catch (HeroException ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw;
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogUnknownErrorOccured(ex);
-                throw new HeroException("An error occured while generating the invite code.");
-            }
-        }
-
-        public async Task JoinGroup(Guid groupId, Guid userId, string invitationCode, CancellationToken cancellationToken = default)
+        public async Task JoinGroup(Guid groupId, string userId, string invitationCode, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -279,7 +256,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task LeaveGroup(Guid userId, CancellationToken cancellationToken = default)
+        public async Task LeaveGroup(string userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -315,7 +292,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteGroup(Guid groupId, Guid userId, CancellationToken cancellationToken = default)
+        public async Task DeleteGroup(Guid groupId, string userId, CancellationToken cancellationToken = default)
         {
             try
             {

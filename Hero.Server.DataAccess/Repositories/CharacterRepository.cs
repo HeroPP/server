@@ -25,7 +25,7 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        public async Task EnsureIsOwner(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task EnsureIsOwner(Guid id, string userId, CancellationToken cancellationToken = default)
         {
             Character? character = await this.context.Characters.SingleOrDefaultAsync(c => c.Id == id);
             if (null == character || character.UserId != userId)
@@ -47,7 +47,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<List<Character>> GetCharactersAsync(Guid? userId, CancellationToken cancellationToken = default)
+        public async Task<List<Character>> GetCharactersAsync(string? userId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task CreateCharacterAsync(Character character, Guid userId, CancellationToken cancellationToken = default)
+        public async Task CreateCharacterAsync(Character character, string userId, CancellationToken cancellationToken = default)
         {
             try
             {

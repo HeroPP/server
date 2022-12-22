@@ -34,8 +34,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.ApplyGroupContext();
-
 await app.MigrateDatabaseAsync();
 await app.EnsureGlobalAttributesExists();
 

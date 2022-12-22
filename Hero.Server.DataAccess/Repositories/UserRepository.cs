@@ -23,7 +23,7 @@ namespace Hero.Server.DataAccess.Repositories
         }
 
 
-        public async Task EnsureIsOwner(Guid userId, CancellationToken cancellationToken = default)
+        public async Task EnsureIsOwner(string userId, CancellationToken cancellationToken = default)
         {
             User? user = await this.GetUserByIdAsync(userId, cancellationToken);
             if (null == user?.OwnedGroup || user.OwnedGroup.Id != this.group.Id)
@@ -32,7 +32,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<User> CreateUserIfNotExistAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<User> CreateUserIfNotExistAsync(string id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<User?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<User?> GetUserByIdAsync(string id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<List<User>> GetUsersByIdAsync(List<Guid> ids, CancellationToken cancellationToken = default)
+        public async Task<List<User>> GetUsersByIdAsync(List<string> ids, CancellationToken cancellationToken = default)
         {
             try
             {

@@ -16,7 +16,7 @@ namespace Hero.Server.Identity
             return result;
         }
 
-        public static Guid GetUserId(this ClaimsPrincipal principal)
+        public static string GetUserId(this ClaimsPrincipal principal)
         {
             Claim userIdClaim = principal.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier) ?? principal.FindFirst(c => c.Type == "sub");
             if (userIdClaim != null && !String.IsNullOrEmpty(userIdClaim.Value))

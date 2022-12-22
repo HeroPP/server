@@ -35,17 +35,18 @@ namespace Hero.Server.Controllers
         public async Task<IActionResult> GetGroupInfo(string code, CancellationToken token)
         {
             Group group = await this.repository.GetGroupByInviteCode(code, token);
-            UserInfo user = await this.repository.GetGroupOwner(group, token);
+            // ToDo: Move User information to user model
+            //UserInfo user = await this.repository.GetGroupOwner(group, token);
 
-            return this.Ok(new { Id = group.Id, Name = group.Name, Owner = user.Username, Description = group.Description });
+            return this.Ok(new { Id = group.Id, Name = group.Name, Owner = group.Owner.Id, Description = group.Description });
         }
         
         [HttpGet("users"), Authorize(Roles = RoleNames.Administrator)]
         public async Task<IActionResult> GetAllUsersInGroup(CancellationToken token)
         {
-            List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId(), token);
+            //List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId(), token);
 
-            return this.Ok(users);
+            return this.Ok(new List<UserInfo>());
         }
 
         [HttpPost]

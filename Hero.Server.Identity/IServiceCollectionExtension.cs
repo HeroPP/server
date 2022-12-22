@@ -78,15 +78,14 @@ namespace Hero.Server.Identity
         {
             return services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
-                options.Authority = AuthenticationDefaults.Issuer;
+                options.Authority = "https://securetoken.google.com/kalinar-app";
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    AuthenticationType = JwtBearerDefaults.AuthenticationScheme,
-                    ValidateAudience = false,
                     ValidateIssuer = true,
-                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "https://securetoken.google.com/kalinar-app",
+                    ValidateAudience = true,
+                    ValidAudience = "kalinar-app",
                     ValidateLifetime = true,
-                    ValidIssuer = AuthenticationDefaults.Issuer
                 };
                 configureOptions?.Invoke(options);
             });
