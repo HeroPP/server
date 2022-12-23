@@ -7,7 +7,7 @@
         public Guid? GroupId { get; set; }
 
         public List<Character> Characters { get; set; }
-        public Group OwnedGroup { get; set; }
+        public Group? OwnedGroup { get; set; }
         public Group? Group { get; set; }
     }
 }
