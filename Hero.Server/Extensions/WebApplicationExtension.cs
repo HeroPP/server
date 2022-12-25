@@ -1,4 +1,8 @@
-﻿using Hero.Server.Core;
+﻿using FirebaseAdmin;
+
+using Google.Apis.Auth.OAuth2;
+
+using Hero.Server.Core;
 using Hero.Server.Core.Database;
 using Hero.Server.Core.Repositories;
 
@@ -20,6 +24,11 @@ namespace Hero.Server.Extensions
                     await repository.CreateIfNotExistsAsync(attribute);
                 }
             }
+        }
+
+        public static void InitializeFirebase(this WebApplication app)
+        {
+            FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.GetApplicationDefault() });
         }
     }
 }

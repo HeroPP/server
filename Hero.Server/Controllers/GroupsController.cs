@@ -1,4 +1,8 @@
-﻿using Hero.Server.Core.Logging;
+﻿using FirebaseAdmin.Auth;
+
+using Google.Api.Gax.Rest;
+
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
@@ -29,25 +33,42 @@ namespace Hero.Server.Controllers
         {
             Group group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
 
-            return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://kalinar.app/invite?code={group.InviteCode}" });
+            return this.Ok(new { Id = group.Id, OwnerId = group.OwnerId, Name = group.Name, Code = $"https://kalinar.app/invite?code={group.InviteCode}" });
         }
 
         [HttpGet("{code}")]
         public async Task<IActionResult> GetGroupInfo(string code, CancellationToken token)
         {
             Group group = await this.repository.GetGroupByInviteCode(code, token);
-            // ToDo: Move User information to user model
-            //UserInfo user = await this.repository.GetGroupOwner(group, token);
 
-            return this.Ok(new { Id = group.Id, Name = group.Name, Owner = group.Owner.Id, Description = group.Description });
+            UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(group.OwnerId);
+
+            return this.Ok(new { Id = group.Id, Name = group.Name, Owner = String.IsNullOrEmpty(user.DisplayName) ? user.Email : user.DisplayName, Description = group.Description });
         }
         
         [HttpGet("users"), IsGroupAdmin]
         public async Task<IActionResult> GetAllUsersInGroup(CancellationToken token)
         {
-            //List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId(), token);
+            Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId());
+            List<UserInfo> users = new();
 
-            return this.Ok(new List<UserInfo>());
+            foreach (User member in group.Members ?? new())
+            {
+                if (Guid.TryParse(member.Id, out _))
+                {
+                    continue;
+                }
+
+                UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(member.Id);
+                users.Add(new()
+                {
+                    Id = user.Uid,
+                    Email = user.Email,
+                    Username = user.DisplayName,
+                });
+            }
+
+            return this.Ok(users);
         }
 
         [HttpPost]

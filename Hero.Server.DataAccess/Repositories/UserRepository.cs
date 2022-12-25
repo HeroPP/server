@@ -4,7 +4,6 @@ using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Database;
 
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -61,6 +60,7 @@ namespace Hero.Server.DataAccess.Repositories
                 return await this.context.Users
                     .Include(u => u.OwnedGroup)
                     .Include(g => g.Group)
+                    .Include(u => u.Characters)
                     .FirstOrDefaultAsync(item => id == item.Id, cancellationToken);
             }
             catch (Exception ex)

@@ -1,18 +1,8 @@
-using Hero.Server.Core.Configuration;
 using Hero.Server.DataAccess.Extensions;
 using Hero.Server.Extensions;
 using Hero.Server.Identity;
 
-using JCurth.Keycloak;
-
-using Microsoft.AspNetCore.Diagnostics;
-
-using static System.Net.Mime.MediaTypeNames;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-builder.Services.Configure<KeycloakOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
-builder.Services.Configure<MappingOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
 
 builder.Services.AddJwtBearerAuthentication();
 builder.Services.AddDataAccessLayer(builder.Configuration.GetConnectionString("Default"));
@@ -39,4 +29,5 @@ await app.EnsureGlobalAttributesExists();
 
 app.UseExceptionHandler("/error");
 
+app.InitializeFirebase();
 app.Run();

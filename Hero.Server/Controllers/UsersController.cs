@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using FirebaseAdmin.Auth;
+
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
@@ -29,7 +31,7 @@ namespace Hero.Server.Controllers
 
         [HttpGet()]
         public async Task<IActionResult> GetUser()
-    {
+        {
             User? user = await this.repository.GetUserByIdAsync(this.HttpContext.User.GetUserId());
                 
             if (null == user)
