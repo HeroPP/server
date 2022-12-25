@@ -28,7 +28,10 @@ namespace Hero.Server.Extensions
 
         public static void InitializeFirebase(this WebApplication app)
         {
-            FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.GetApplicationDefault() });
+            if (File.Exists("/resources/credentials.json"))
+            {
+                FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.GetApplicationDefault() });
+            }
         }
     }
 }

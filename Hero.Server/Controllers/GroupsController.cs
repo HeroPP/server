@@ -1,6 +1,5 @@
-﻿using FirebaseAdmin.Auth;
-
-using Google.Api.Gax.Rest;
+﻿using FirebaseAdmin;
+using FirebaseAdmin.Auth;
 
 using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
@@ -52,20 +51,23 @@ namespace Hero.Server.Controllers
             Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId());
             List<UserInfo> users = new();
 
-            foreach (User member in group.Members ?? new())
+            if (FirebaseApp.DefaultInstance != null)
             {
-                if (Guid.TryParse(member.Id, out _))
+                foreach (User member in group.Members ?? new())
                 {
-                    continue;
-                }
+                    if (Guid.TryParse(member.Id, out _))
+                    {
+                        continue;
+                    }
 
-                UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(member.Id);
-                users.Add(new()
-                {
-                    Id = user.Uid,
-                    Email = user.Email,
-                    Username = user.DisplayName,
-                });
+                    UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(member.Id);
+                    users.Add(new()
+                    {
+                        Id = user.Uid,
+                        Email = user.Email,
+                        Username = user.DisplayName,
+                    });
+                }
             }
 
             return this.Ok(users);
