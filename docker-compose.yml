@@ -12,5 +12,3 @@ services:
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/resources/credentials.json
       - ConnectionStrings__Default=${ConnectionStrings__Default}
-      - Services__Keycloak__Username=mail@jonascurth.de
-      - Services__Keycloak__Password=pCR8EP2jUTxk8L
