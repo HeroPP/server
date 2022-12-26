@@ -63,6 +63,14 @@ namespace Hero.Server.Controllers
             return this.Ok(attributes.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
         }
 
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetAllExistingCategoriesAsync(CancellationToken cancellationToken)
+        {
+            List<string> categories = await this.repository.GetAllCategoriesAsync(cancellationToken);
+
+            return this.Ok(new { Categories = categories });
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAttributeAsync(Guid id)
         {
