@@ -68,7 +68,7 @@ namespace Hero.Server.Controllers
         {
             List<string> categories = await this.repository.GetAllCategoriesAsync(query, cancellationToken);
 
-            return this.Ok(new { Categories = categories });
+            return this.Ok(categories);
         }
 
         [HttpDelete("{id}")]
