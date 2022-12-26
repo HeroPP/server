@@ -10,6 +10,5 @@ services:
       context: .
       dockerfile: Hero.Server/Dockerfile
     environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/resources/credentials.json
       - ConnectionStrings__Default=${ConnectionStrings__Default}
-      - Services__Keycloak__Username=${Services__Keycloak__Username}
-      - Services__Keycloak__Password=${Services__Keycloak__Password}

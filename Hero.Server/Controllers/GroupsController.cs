@@ -1,7 +1,11 @@
-﻿using Hero.Server.Core.Logging;
+﻿using FirebaseAdmin;
+using FirebaseAdmin.Auth;
+
+using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Requests;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,27 +27,48 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [HttpGet, Authorize(Roles = RoleNames.Administrator)]
+        [HttpGet, IsGroupAdmin]
         public async Task<IActionResult> GetGroupAdminInfo(CancellationToken token)
         {
             Group group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId(), token);
 
-            return this.Ok(new { Id = group.Id, Name = group.Name, Code = $"https://kalinar.app/invite?code={group.InviteCode}" });
+            return this.Ok(new { Id = group.Id, OwnerId = group.OwnerId, Name = group.Name, Code = $"https://kalinar.app/invite?code={group.InviteCode}" });
         }
 
         [HttpGet("{code}")]
         public async Task<IActionResult> GetGroupInfo(string code, CancellationToken token)
         {
             Group group = await this.repository.GetGroupByInviteCode(code, token);
-            UserInfo user = await this.repository.GetGroupOwner(group, token);
 
-            return this.Ok(new { Id = group.Id, Name = group.Name, Owner = user.Username, Description = group.Description });
+            UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(group.OwnerId);
+
+            return this.Ok(new { Id = group.Id, Name = group.Name, Owner = String.IsNullOrEmpty(user.DisplayName) ? user.Email : user.DisplayName, Description = group.Description });
         }
         
-        [HttpGet("users"), Authorize(Roles = RoleNames.Administrator)]
+        [HttpGet("users"), IsGroupAdmin]
         public async Task<IActionResult> GetAllUsersInGroup(CancellationToken token)
         {
-            List<UserInfo> users = await this.repository.GetAllUsersInGroupAsync(this.HttpContext.User.GetUserId(), token);
+            Group? group = await this.repository.GetGroupByOwnerId(this.HttpContext.User.GetUserId());
+            List<UserInfo> users = new();
+
+            if (FirebaseApp.DefaultInstance != null)
+            {
+                foreach (User member in group.Members ?? new())
+                {
+                    if (Guid.TryParse(member.Id, out _))
+                    {
+                        continue;
+                    }
+
+                    UserRecord user = await FirebaseAuth.DefaultInstance.GetUserAsync(member.Id);
+                    users.Add(new()
+                    {
+                        Id = user.Uid,
+                        Email = user.Email,
+                        Username = user.DisplayName,
+                    });
+                }
+            }
 
             return this.Ok(users);
         }

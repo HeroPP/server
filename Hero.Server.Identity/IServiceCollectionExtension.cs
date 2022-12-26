@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Hero.Server.Identity.Attributes;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
+using System.Reflection;
 using System.Text.Json;
 
 namespace Hero.Server.Identity
@@ -15,17 +19,23 @@ namespace Hero.Server.Identity
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (operation.Parameters == null)
+            if (context.MethodInfo.GetCustomAttribute(typeof(IsGroupMemberAttribute)) is IsGroupMemberAttribute isGroupMember 
+                || context.MethodInfo.GetCustomAttribute(typeof(IsGroupAdminAttribute)) is IsGroupAdminAttribute isGroupAdmin)
             {
-                operation.Parameters = new List<OpenApiParameter>();
-            }
+                OpenApiParameter? existingParam = operation.Parameters.FirstOrDefault(p =>
+                p.In == ParameterLocation.Header && p.Name == "x-kalinar-group");
+                if (existingParam != null) // remove description from [FromHeader] argument attribute
+                {
+                    operation.Parameters.Remove(existingParam);
+                }
 
-            operation.Parameters.Add(new OpenApiParameter
-            {
-                Name = "Group",
-                In = ParameterLocation.Header,
-                Required = false
-            });
+                operation.Parameters.Add(new OpenApiParameter
+                {
+                    Name = "x-kalinar-group",
+                    In = ParameterLocation.Header,
+                    Required = true
+                });
+            }
         }
     }
 
@@ -68,15 +78,14 @@ namespace Hero.Server.Identity
         {
             return services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
-                options.Authority = AuthenticationDefaults.Issuer;
+                options.Authority = "https://securetoken.google.com/kalinar-app";
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    AuthenticationType = JwtBearerDefaults.AuthenticationScheme,
-                    ValidateAudience = false,
                     ValidateIssuer = true,
-                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "https://securetoken.google.com/kalinar-app",
+                    ValidateAudience = true,
+                    ValidAudience = "kalinar-app",
                     ValidateLifetime = true,
-                    ValidIssuer = AuthenticationDefaults.Issuer
                 };
                 configureOptions?.Invoke(options);
             });

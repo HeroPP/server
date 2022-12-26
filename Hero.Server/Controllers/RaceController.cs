@@ -3,6 +3,7 @@ using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.DataAccess.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
@@ -11,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Authorize(Roles = RoleNames.User), Route("api/[controller]")]
+    [ApiController, Authorize, Route("api/[controller]")]
     public class RacesController : HeroControllerBase
     {
         private readonly IRaceRepository repository;
@@ -29,7 +30,7 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), IsGroupMember]
         public async Task<IActionResult> GetRaceByIdAsync(Guid id)
         {
             Race? race = await this.repository.GetRaceByIdAsync(id);
@@ -41,7 +42,7 @@ namespace Hero.Server.Controllers
             return this.NotFound();
         }
 
-        [HttpGet]
+        [HttpGet, IsGroupMember]
         public async Task<IActionResult> GetAllRacesAsync()
         {
             List<Race> races = await this.repository.GetAllRacesAsync();
@@ -49,20 +50,20 @@ namespace Hero.Server.Controllers
             return this.Ok(races.Select(race => this.mapper.Map<RaceResponse>(race)).ToList());
         }
 
-        [HttpDelete("{id}"), Authorize(Roles = RoleNames.User)]
+        [HttpDelete("{id}"), IsGroupAdmin]
         public async Task<IActionResult> DeleteRaceAsync(Guid id)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             await this.repository.DeleteRaceAsync(id);
 
             return this.Ok();
         }
 
-        [HttpPut("{id}"), Authorize(Roles = RoleNames.User)]
+        [HttpPut("{id}"), IsGroupAdmin]
         public async Task<IActionResult> UpdateRaceAsync(Guid id, [FromBody] RaceRequest request)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             Race race = this.mapper.Map<Race>(request);
             await this.repository.UpdateRaceAsync(id, race);
@@ -70,10 +71,10 @@ namespace Hero.Server.Controllers
             return this.Ok(this.mapper.Map<RaceResponse>(race));
         }
 
-        [HttpPost, Authorize(Roles = RoleNames.User)]
+        [HttpPost, IsGroupAdmin]
         public async Task<IActionResult> CreateRaceAsync([FromBody] RaceRequest request)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             Race race = this.mapper.Map<Race>(request);
 
