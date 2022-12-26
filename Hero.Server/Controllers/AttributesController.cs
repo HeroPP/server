@@ -64,9 +64,9 @@ namespace Hero.Server.Controllers
         }
 
         [HttpGet("categories")]
-        public async Task<IActionResult> GetAllExistingCategoriesAsync(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllExistingCategoriesAsync([FromQuery]string? query, CancellationToken cancellationToken)
         {
-            List<string> categories = await this.repository.GetAllCategoriesAsync(cancellationToken);
+            List<string> categories = await this.repository.GetAllCategoriesAsync(query, cancellationToken);
 
             return this.Ok(new { Categories = categories });
         }

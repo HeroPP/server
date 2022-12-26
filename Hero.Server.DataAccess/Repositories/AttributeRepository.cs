@@ -36,11 +36,14 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken = default)
+        public async Task<List<string>> GetAllCategoriesAsync(string? query, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await this.context.Attributes.Where(a => !string.IsNullOrEmpty(a.Category)).Select(a => a.Category).Distinct().ToListAsync();
+                List<string> allCategories = await this.context.Attributes.Where(a => !string.IsNullOrEmpty(a.Category)).Select(a => a.Category).Distinct().ToListAsync();
+                return string.IsNullOrEmpty(query) 
+                    ? allCategories 
+                    : allCategories.Where(c => c.Contains(query, StringComparison.InvariantCultureIgnoreCase)).ToList();
             }
             catch (Exception ex)
             {
