@@ -19,6 +19,7 @@
             this.Name = attribute.Name;
             this.IconData = attribute.IconData;
             this.Description = attribute.Description;
+            this.Category = attribute.Category;
             this.StepSize = attribute.StepSize;
             this.MinValue = attribute.MinValue;
             this.MaxValue = attribute.MaxValue;
