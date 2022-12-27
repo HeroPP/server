@@ -2,6 +2,7 @@
 
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
@@ -12,7 +13,7 @@ using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Authorize(Roles = RoleNames.Administrator), Route("api/[controller]")]
+    [ApiController, Authorize, Route("api/[controller]")]
     public class AttributesController : HeroControllerBase
     {
         private readonly IAttributeRepository repository;
@@ -30,7 +31,7 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), IsGroupAdmin]
         public async Task<IActionResult> GetAttributeByIdAsync(Guid id)
         {
             Attribute? attribute = await this.repository.GetAttributeByIdAsync(id);
@@ -43,27 +44,28 @@ namespace Hero.Server.Controllers
             return this.NotFound();
         }
 
-        [HttpGet]
+        [HttpGet, IsGroupAdmin]
         public async Task<IActionResult> GetAllAttributesAsync()
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             List<Attribute> attributes = await this.repository.GetAllAttributesAsync();
 
             return this.Ok(attributes.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
         }
 
-        [HttpGet("global")]
+        [HttpGet("global"), IsGroupAdmin]
         public async Task<IActionResult> GetAllGlobalAttributesAsync()
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             List<Attribute> attributes = await this.repository.GetAllGlobalAttributesAsync();
 
             return this.Ok(attributes.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
         }
 
-        [HttpGet("categories")]
+        
+        [HttpGet("categories"), IsGroupAdmin]
         public async Task<IActionResult> GetAllExistingCategoriesAsync([FromQuery]string? query, CancellationToken cancellationToken)
         {
             List<string> categories = await this.repository.GetAllCategoriesAsync(query, cancellationToken);
@@ -71,20 +73,20 @@ namespace Hero.Server.Controllers
             return this.Ok(categories);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), IsGroupAdmin]
         public async Task<IActionResult> DeleteAttributeAsync(Guid id)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             await this.repository.DeleteAttributeAsync(id);
 
             return this.Ok();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), IsGroupAdmin]
         public async Task<IActionResult> UpdateAttributeAsync(Guid id, [FromBody] AttributeRequest request)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             Attribute attribute = this.mapper.Map<Attribute>(request);
             await this.repository.UpdateAttributeAsync(id, attribute);
@@ -92,10 +94,10 @@ namespace Hero.Server.Controllers
             return this.Ok(this.mapper.Map<AttributeResponse>(attribute));
         }
 
-        [HttpPost]
+        [HttpPost, IsGroupAdmin]
         public async Task<IActionResult> CreateAttributeAsync([FromBody] AttributeRequest request)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             Attribute attribute = this.mapper.Map<Attribute>(request);
             await this.repository.CreateAttributeAsync(attribute);

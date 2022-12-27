@@ -22,7 +22,7 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        public async Task EnsureIsOwner(Guid id, Guid userId, CancellationToken cancellationToken = default)
+        public async Task EnsureIsOwner(Guid id, string userId, CancellationToken cancellationToken = default)
         {
             Skilltree? skilltree = await this.GetSkilltreeByIdAsync(id, cancellationToken);
 

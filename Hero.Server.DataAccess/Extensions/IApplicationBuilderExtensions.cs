@@ -1,6 +1,5 @@
 ﻿
 using Hero.Server.DataAccess.Database;
-using Hero.Server.DataAccess.Middlewares;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +15,6 @@ namespace Hero.Server.DataAccess.Extensions
             await context.Database.MigrateAsync();
 
             return builder;
-        }
-
-        public static void ApplyGroupContext(this IApplicationBuilder app)
-        {
-            app.UseMiddleware<GroupContextMiddleware>();
         }
     }
 }
