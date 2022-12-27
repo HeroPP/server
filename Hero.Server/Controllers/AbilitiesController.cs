@@ -1,19 +1,18 @@
 ﻿using AutoMapper;
 
-using Hero.Server.Core.Logging;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Authorize(Roles = RoleNames.Administrator), Route("api/[controller]")]
+    [ApiController, Authorize, Route("api/[controller]")]
     public class AbilitiesController : HeroControllerBase
     {
         private readonly IAbilityRepository repository;
@@ -31,48 +30,48 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [HttpGet("{name}")]
+        [HttpGet("{name}"), IsGroupAdmin]
         public async Task<IActionResult> GetAbilityByIdAsync(string name, CancellationToken token)
         {
             Ability ability = await this.repository.GetAbilityByNameAsync(name, token);
             return this.Ok(this.mapper.Map<AbilityResponse>(ability));
         }
 
-        [HttpGet]
+        [HttpGet, IsGroupAdmin]
         public async Task<IActionResult> GetAllAbilitiesAsync(CancellationToken token)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId(), token);
             List<Ability> abilities = await this.repository.GetAllAbilitiesAsync(token);
 
             return this.Ok(abilities.Select(ability => this.mapper.Map<AbilityResponse>(ability)).ToList());
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), IsGroupAdmin]
         public async Task<IActionResult> DeleteAbilityAsync(Guid id, CancellationToken token)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId(), token);
             await this.repository.DeleteAbilityAsync(id, token);
             return this.Ok();
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), IsGroupAdmin]
         public async Task<IActionResult> UpdateAbilityAsync(Guid id, [FromBody] AbilityRequest request, CancellationToken token)
         {
             Ability ability = this.mapper.Map<Ability>(request);
 
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId(), token);
 
             await this.repository.UpdateAbilityAsync(id, ability, token);
 
             return this.Ok(this.mapper.Map<AbilityResponse>(ability));
         }
 
-        [HttpPost]
+        [HttpPost, IsGroupAdmin]
         public async Task<IActionResult> CreateAbilityAsync([FromBody] AbilityRequest request, CancellationToken token)
         {
             Ability ability = this.mapper.Map<Ability>(request);
 
-            await userRepository.EnsureIsOwner(HttpContext.User.GetUserId(), token);
+            await userRepository.IsOwner(HttpContext.User.GetUserId(), token);
             await this.repository.CreateAbilityAsync(ability, token);
 
             return this.Ok(this.mapper.Map<AbilityResponse>(ability));

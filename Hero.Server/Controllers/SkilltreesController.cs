@@ -4,6 +4,7 @@ using Hero.Server.Core.Exceptions;
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Requests;
 using Hero.Server.Messages.Responses;
 
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hero.Server.Controllers
 {
-    [ApiController, Authorize(Roles = RoleNames.User), Route("api/[controller]")]
+    [ApiController, Authorize, Route("api/[controller]")]
     public class SkilltreesController : HeroControllerBase
     {
         private readonly ISkilltreeRepository repository;
@@ -30,7 +31,7 @@ namespace Hero.Server.Controllers
         [Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), IsGroupMember]
         public async Task<IActionResult> GetSkilltreeByIdAsync(Guid id)
         {
             Skilltree? tree = await this.repository.GetSkilltreeByIdAsync(id);
@@ -42,30 +43,30 @@ namespace Hero.Server.Controllers
             return this.NotFound();
         }
 
-        [HttpGet]
+        [HttpGet, IsGroupMember]
         public async Task<IActionResult> GetSkilltreeOverviewsAsync(CancellationToken token)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId(), token);
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId(), token);
 
             List<Skilltree> trees = await this.repository.FilterSkilltrees(null, token);
 
             return this.Ok(trees.Select(skilltrees => this.mapper.Map<SkilltreeOverviewResponse>(skilltrees)).ToList());
         }
 
-        [HttpDelete("{id}"), Authorize(Roles = RoleNames.Administrator)]
+        [HttpDelete("{id}"), IsGroupAdmin]
         public async Task<IActionResult> DeleteSkilltreeAsync(Guid id)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             await this.repository.DeleteSkilltreeAsync(id);
 
             return this.Ok();
         }
 
-        [HttpPut("{id}"), Authorize(Roles = RoleNames.Administrator)]
+        [HttpPut("{id}"), IsGroupAdmin]
         public async Task<IActionResult> UpdateSkilltreeAsync(Guid id, [FromBody] SkilltreeRequest request)
         {
-            await userRepository.EnsureIsOwner(this.HttpContext.User.GetUserId());
+            await userRepository.IsOwner(this.HttpContext.User.GetUserId());
 
             Skilltree tree = this.mapper.Map<Skilltree>(request);
             await this.repository.UpdateSkilltreeAsync(id, tree);
@@ -73,7 +74,7 @@ namespace Hero.Server.Controllers
             return this.Ok();
         }
 
-        [HttpPost, Authorize(Roles = RoleNames.Administrator)]
+        [HttpPost, IsGroupAdmin]
         public async Task<IActionResult> CreateSkilltreeAsync([FromBody] SkilltreeRequest request)
         {
             Skilltree tree = this.mapper.Map<Skilltree>(request);
@@ -82,7 +83,7 @@ namespace Hero.Server.Controllers
             return this.Ok(this.mapper.Map<SkilltreeResponse>(tree));
         }
 
-        [HttpPost("{skilltreeId}/nodes/{nodeId}/unlock")]
+        [HttpPost("{skilltreeId}/nodes/{nodeId}/unlock"), IsGroupMember]
         public async Task<IActionResult> UnlockNodeAsync(Guid skilltreeId, Guid nodeId, CancellationToken token)
         {
             await this.repository.EnsureIsOwner(skilltreeId, this.HttpContext.User.GetUserId(), token);
@@ -90,7 +91,7 @@ namespace Hero.Server.Controllers
             return this.Ok();
         }
 
-        [HttpPost("{skilltreeId}/nodes/{nodeId}/reset")]
+        [HttpPost("{skilltreeId}/nodes/{nodeId}/reset"), IsGroupMember]
         public async Task<IActionResult> ResetNodeAsync(Guid skilltreeId, Guid nodeId, CancellationToken token)
         {
             await this.repository.EnsureIsOwner(skilltreeId, this.HttpContext.User.GetUserId(), token);
@@ -98,21 +99,21 @@ namespace Hero.Server.Controllers
             return this.Ok();
         }
 
-        [HttpPost("{id}/reset"), Authorize(Roles = RoleNames.Administrator)]
+        [HttpPost("{id}/reset"), IsGroupMember]
         public async Task<IActionResult> ResetSkilltreeAsync(Guid id, CancellationToken token)
         {
             await this.repository.ResetSkilltreeAsync(id, token);
             return this.Ok();
         }
 
-        [HttpPost("{id}/active"), Authorize(Roles = RoleNames.Administrator)]
+        [HttpPost("{id}/active"), IsGroupAdmin]
         public async Task<IActionResult> SwitchActiveStateForSkilltreeAsync(Guid id, [FromBody] ChangeStateRequest request, CancellationToken cancellationToken)
         {
             await this.repository.SwitchSkilltreeActiveStateAsync(id, request.State, cancellationToken);
             return this.Ok();
         }
 
-        [HttpGet("{id}/skillpoints")]
+        [HttpGet("{id}/skillpoints"), IsGroupMember]
         public async Task<IActionResult> GetSkillpointsBySkilltreeIdAsync(Guid id, CancellationToken token)
         {
             int currentSkillpoints= await this.repository.GetSkillpoints(id, token);

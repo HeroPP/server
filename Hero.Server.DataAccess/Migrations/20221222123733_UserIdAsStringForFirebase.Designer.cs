@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221222123733_UserIdAsStringForFirebase")]
+    partial class UserIdAsStringForFirebase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,8 +264,6 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.HasIndex("RaceId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Characters", "Hero");
                 });
 
@@ -291,9 +291,6 @@ namespace Hero.Server.DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OwnerId")
-                        .IsUnique();
 
                     b.ToTable("Groups", "Hero");
                 });
@@ -439,102 +436,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.ToTable("SkilltreeNodes", "Hero");
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryBookPage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("BookId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsWritten")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<int>("PageNumber")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PageNumber"));
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("now");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("BookId", "PageNumber")
-                        .IsUnique();
-
-                    b.ToTable("StoryBookPage", "Hero");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EntryType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("IconUrl")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsUnlocked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<int>("Order")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Order"));
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("now");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("StoryEntries", "Hero");
-
-                    b.HasDiscriminator<string>("EntryType").HasValue("StoryEntry");
-                });
-
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
                 {
                     b.Property<string>("Id")
@@ -545,27 +446,7 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId");
-
                     b.ToTable("Users", "Hero");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryBook", b =>
-                {
-                    b.HasBaseType("Hero.Server.Core.Models.Storyline.StoryEntry");
-
-                    b.HasDiscriminator().HasValue("Book");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryImage", b =>
-                {
-                    b.HasBaseType("Hero.Server.Core.Models.Storyline.StoryEntry");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("Image");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Ability", b =>
@@ -645,24 +526,7 @@ namespace Hero.Server.DataAccess.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.HasOne("Hero.Server.Core.Models.User", null)
-                        .WithMany("Characters")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
                     b.Navigation("Race");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Group", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.User", "Owner")
-                        .WithOne("OwnedGroup")
-                        .HasForeignKey("Hero.Server.Core.Models.Group", "OwnerId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Skill", b =>
@@ -713,42 +577,6 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Navigation("Skill");
                 });
 
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryBookPage", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.Storyline.StoryBook", null)
-                        .WithMany("Pages")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hero.Server.Core.Models.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryEntry", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.Group", null)
-                        .WithMany("StoryEntries")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
-                {
-                    b.HasOne("Hero.Server.Core.Models.Group", "Group")
-                        .WithMany("Members")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Group");
-                });
-
             modelBuilder.Entity("Hero.Server.Core.Models.Attribute", b =>
                 {
                     b.Navigation("AttributeRaces");
@@ -772,13 +600,9 @@ namespace Hero.Server.DataAccess.Migrations
 
                     b.Navigation("Characters");
 
-                    b.Navigation("Members");
-
                     b.Navigation("Skills");
 
                     b.Navigation("Skilltrees");
-
-                    b.Navigation("StoryEntries");
                 });
 
             modelBuilder.Entity("Hero.Server.Core.Models.Race", b =>
@@ -794,19 +618,6 @@ namespace Hero.Server.DataAccess.Migrations
             modelBuilder.Entity("Hero.Server.Core.Models.Skilltree", b =>
                 {
                     b.Navigation("Nodes");
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
-                {
-                    b.Navigation("Characters");
-
-                    b.Navigation("OwnedGroup")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Hero.Server.Core.Models.Storyline.StoryBook", b =>
-                {
-                    b.Navigation("Pages");
                 });
 #pragma warning restore 612, 618
         }

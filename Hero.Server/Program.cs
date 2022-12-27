@@ -1,15 +1,8 @@
-using Hero.Server.Core.Configuration;
 using Hero.Server.DataAccess.Extensions;
 using Hero.Server.Extensions;
 using Hero.Server.Identity;
 
-using JCurth.Keycloak;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-builder.Services.Configure<KeycloakOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
-builder.Services.Configure<MappingOptions>(options => builder.Configuration.GetSection("Services:Keycloak").Bind(options));
-builder.Services.Configure<MinioOptions>(options => builder.Configuration.GetSection("Services:Minio").Bind(options));
 
 builder.Services.AddJwtBearerAuthentication();
 builder.Services.AddDataAccessLayer(builder.Configuration.GetConnectionString("Default"));
@@ -31,11 +24,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.ApplyGroupContext();
-
 await app.MigrateDatabaseAsync();
 await app.EnsureGlobalAttributesExists();
 
 app.UseExceptionHandler("/error");
 
+app.InitializeFirebase();
 app.Run();

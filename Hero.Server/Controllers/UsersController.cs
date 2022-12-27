@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 
+using FirebaseAdmin.Auth;
+
 using Hero.Server.Core.Models;
 using Hero.Server.Core.Repositories;
 using Hero.Server.Identity;
+using Hero.Server.Identity.Attributes;
 using Hero.Server.Messages.Responses;
 
 using Microsoft.AspNetCore.Authorization;
@@ -26,10 +29,9 @@ namespace Hero.Server.Controllers
         [ApiExplorerSettings(IgnoreApi = true), NonAction, Route("/error")]
         public IActionResult HandleError() => this.HandleErrors();
 
-        [Authorize]
         [HttpGet()]
         public async Task<IActionResult> GetUser()
-    {
+        {
             User? user = await this.repository.GetUserByIdAsync(this.HttpContext.User.GetUserId());
                 
             if (null == user)
@@ -40,13 +42,11 @@ namespace Hero.Server.Controllers
             return this.Ok(new {Id = user.Id, Group = this.mapper.Map<GroupResponse>(user.OwnedGroup ?? user.Group)}); 
         }
 
-        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateUser()
         {
             await repository.CreateUserIfNotExistAsync(this.HttpContext.User.GetUserId());
             return this.Ok(); 
         }
-
     }
 }
