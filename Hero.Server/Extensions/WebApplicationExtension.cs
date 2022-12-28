@@ -28,7 +28,7 @@ namespace Hero.Server.Extensions
 
         public static void InitializeFirebase(this WebApplication app)
         {
-            if (File.Exists("/resources/credentials.json"))
+            if (File.Exists(Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")))
             {
                 FirebaseApp.Create(new AppOptions() { Credential = GoogleCredential.GetApplicationDefault() });
             }

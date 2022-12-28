@@ -1,8 +1,11 @@
+using Hero.Server.Core.Configuration;
 using Hero.Server.DataAccess.Extensions;
 using Hero.Server.Extensions;
 using Hero.Server.Identity;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<MinioOptions>(options => builder.Configuration.GetSection("Services:Minio").Bind(options));
 
 builder.Services.AddJwtBearerAuthentication();
 builder.Services.AddDataAccessLayer(builder.Configuration.GetConnectionString("Default"));
