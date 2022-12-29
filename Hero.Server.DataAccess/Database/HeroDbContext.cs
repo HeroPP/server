@@ -34,7 +34,7 @@ namespace Hero.Server.DataAccess.Database
             builder.HasDefaultSchema(HeroDbResources.Schema);
             builder.ApplyConfigurationsFromAssembly(typeof(HeroDbContext).Assembly);
 
-            if (this.CurrentGroup != null && this.CurrentGroup.Id != Guid.Empty)
+            //if (this.CurrentGroup != null && this.CurrentGroup.Id != Guid.Empty)
             {
                 builder.Entity<Group>().HasQueryFilter(g => g.Id == this.CurrentGroup.Id);
                 builder.Entity<Character>().HasQueryFilter(c => c.GroupId == this.CurrentGroup.Id);

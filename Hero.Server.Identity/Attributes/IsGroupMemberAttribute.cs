@@ -1,5 +1,6 @@
 ﻿using Hero.Server.Core.Database;
 using Hero.Server.Core.Repositories;
+using Hero.Server.DataAccess.Database;
 using Hero.Server.Identity;
 
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -14,7 +15,7 @@ namespace Hero.Server.Identity.Attributes
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.HttpContext.Request.Headers.TryGetValue("x-kalinar-group", out StringValues value))
+            if (context.HttpContext.Request.Headers.TryGetValue(IGroupContext.Header, out StringValues value))
             {
                 string? groupString = value.FirstOrDefault();
                 if (!groupString.IsNullOrEmpty() && Guid.TryParse(value.FirstOrDefault(), out Guid groupId))
