@@ -103,6 +103,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 Group? group = await this.context.Groups
+                    .IgnoreQueryFilters()
                     .Include(group => group.Owner)
                     .SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
 

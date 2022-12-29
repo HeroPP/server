@@ -58,6 +58,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 return await this.context.Users
+                    .IgnoreQueryFilters()
                     .Include(u => u.OwnedGroup)
                     .Include(g => g.Group)
                     .Include(u => u.Characters)
