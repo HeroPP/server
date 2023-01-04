@@ -36,6 +36,22 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
+        public async Task<List<string>> GetAllCategoriesAsync(string? query, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                List<string> allCategories = await this.context.Attributes.Where(a => !string.IsNullOrEmpty(a.Category)).Select(a => a.Category).Distinct().ToListAsync();
+                return string.IsNullOrEmpty(query) 
+                    ? allCategories 
+                    : allCategories.Where(c => c.Contains(query, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while getting categories.");
+            }
+        }
+
         // This method should only be used for global attributes and never should be used inside a controller, because it ignores every group constraints.
         public async Task CreateIfNotExistsAsync(Attribute attribute, CancellationToken cancellationToken = default)
         {

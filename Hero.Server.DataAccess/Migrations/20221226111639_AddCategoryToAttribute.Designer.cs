@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Hero.Server.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hero.Server.DataAccess.Migrations
 {
     [DbContext(typeof(HeroDbContext))]
-    partial class HeroDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221226111639_AddCategoryToAttribute")]
+    partial class AddCategoryToAttribute
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -256,9 +258,8 @@ namespace Hero.Server.DataAccess.Migrations
                     b.Property<bool?>("ShareSkilltree")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -290,9 +291,8 @@ namespace Hero.Server.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<string>("OwnerId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -445,8 +445,9 @@ namespace Hero.Server.DataAccess.Migrations
 
             modelBuilder.Entity("Hero.Server.Core.Models.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("GroupId")
                         .HasColumnType("uuid");
