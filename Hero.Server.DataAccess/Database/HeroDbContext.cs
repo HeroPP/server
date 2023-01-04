@@ -42,8 +42,6 @@ namespace Hero.Server.DataAccess.Database
             builder.Entity<Attribute>().HasQueryFilter(a => a.GroupId == this.CurrentGroup.Id || a.GroupId == new Guid());
             builder.Entity<Race>().HasQueryFilter(r => r.GroupId == this.CurrentGroup.Id);
             builder.Entity<Blueprint>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
-            builder.Entity<StoryBookPage>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
-            builder.Entity<StoryEntry>().HasQueryFilter(b => b.GroupId == this.CurrentGroup.Id);
         }
     }
 }
