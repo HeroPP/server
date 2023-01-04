@@ -6,7 +6,6 @@ using Hero.Server.DataAccess.Database;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Hero.Server.DataAccess.Repositories
 {
@@ -32,7 +31,7 @@ namespace Hero.Server.DataAccess.Repositories
 
         private async Task EvaluateInvitationCode(Guid groupId, string invitationCode, CancellationToken cancellationToken = default)
         {
-            Group? group = await this.context.Groups.SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
+            Group? group = await this.context.Groups.IgnoreQueryFilters().SingleOrDefaultAsync(group =>  groupId == group.Id, cancellationToken);
             if (group == null || String.IsNullOrEmpty(invitationCode) || !String.Equals(group.InviteCode, invitationCode, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new GroupAccessForbiddenException("The provided invite code is invalid");
@@ -103,6 +102,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 Group? group = await this.context.Groups
+                    .IgnoreQueryFilters()
                     .Include(group => group.Owner)
                     .SingleOrDefaultAsync(group => EF.Functions.ILike(group.InviteCode, invitationCode), cancellationToken);
 

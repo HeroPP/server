@@ -7,6 +7,7 @@
         public string Name { get; set; }
         public string? IconData { get; set; }
         public string? Description { get; set; }
+        public string? Category { get; set; }
         public double StepSize { get; set; }
         public double MinValue { get; set; }
         public double MaxValue { get; set; }
@@ -18,6 +19,7 @@
             this.Name = attribute.Name;
             this.IconData = attribute.IconData;
             this.Description = attribute.Description;
+            this.Category = attribute.Category;
             this.StepSize = attribute.StepSize;
             this.MinValue = attribute.MinValue;
             this.MaxValue = attribute.MaxValue;

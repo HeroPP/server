@@ -64,6 +64,15 @@ namespace Hero.Server.Controllers
             return this.Ok(attributes.Select(attribute => this.mapper.Map<AttributeResponse>(attribute)).ToList());
         }
 
+        
+        [HttpGet("categories"), IsGroupAdmin]
+        public async Task<IActionResult> GetAllExistingCategoriesAsync([FromQuery]string? query, CancellationToken cancellationToken)
+        {
+            List<string> categories = await this.repository.GetAllCategoriesAsync(query, cancellationToken);
+
+            return this.Ok(categories);
+        }
+
         [HttpDelete("{id}"), IsGroupAdmin]
         public async Task<IActionResult> DeleteAttributeAsync(Guid id)
         {

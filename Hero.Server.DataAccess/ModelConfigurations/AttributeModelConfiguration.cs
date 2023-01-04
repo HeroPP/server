@@ -1,7 +1,6 @@
-﻿using Hero.Server.Core.Models;
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Attribute = Hero.Server.Core.Models.Attribute;
 
 namespace Hero.Server.DataAccess.ModelConfigurations
@@ -16,6 +15,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
             builder.Property(c => c.StepSize).IsRequired();
             builder.Property(c => c.MaxValue).IsRequired();
             builder.Property(c => c.MinValue).IsRequired();
+            builder.Property(a => a.Category).HasMaxLength(128);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Hero.Server.Identity.Attributes;
+﻿using Hero.Server.DataAccess.Database;
+using Hero.Server.Identity.Attributes;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,7 +24,7 @@ namespace Hero.Server.Identity
                 || context.MethodInfo.GetCustomAttribute(typeof(IsGroupAdminAttribute)) is IsGroupAdminAttribute isGroupAdmin)
             {
                 OpenApiParameter? existingParam = operation.Parameters.FirstOrDefault(p =>
-                p.In == ParameterLocation.Header && p.Name == "x-kalinar-group");
+                p.In == ParameterLocation.Header && p.Name == IGroupContext.Header);
                 if (existingParam != null) // remove description from [FromHeader] argument attribute
                 {
                     operation.Parameters.Remove(existingParam);
@@ -31,7 +32,7 @@ namespace Hero.Server.Identity
 
                 operation.Parameters.Add(new OpenApiParameter
                 {
-                    Name = "x-kalinar-group",
+                    Name = IGroupContext.Header,
                     In = ParameterLocation.Header,
                     Required = true
                 });
