@@ -29,8 +29,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
                 .HasDefaultValueSql("now()");
 
 
-            builder.Property(image => image.Order)
-                .ValueGeneratedOnAdd();
+            builder.Property(image => image.Order);
         }
     }
 

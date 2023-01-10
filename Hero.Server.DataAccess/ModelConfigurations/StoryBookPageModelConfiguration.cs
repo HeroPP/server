@@ -13,9 +13,7 @@ namespace Hero.Server.DataAccess.ModelConfigurations
 
             builder.HasKey(x => x.Id);
 
-            builder.HasIndex(x => new { x.BookId, x.PageNumber }).IsUnique();
-
-            builder.Property(page => page.PageNumber).ValueGeneratedOnAdd();
+            builder.Property(page => page.PageNumber);
 
             builder.Property(page => page.Title).IsRequired().HasMaxLength(256);
 

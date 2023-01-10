@@ -17,14 +17,12 @@ namespace Hero.Server.Controllers
     public class StoryController : HeroControllerBase
     {
         private readonly IStoryEntryRepository storyEntryRepository;
-        private readonly IStoryBookPageRepository bookPageRepository;
         private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
 
-        public StoryController(IStoryEntryRepository storyEntryRepository, IStoryBookPageRepository bookPageRepository, IUserRepository userRepository, IMapper mapper, ILogger<StoryController> logger) : base(logger)
+        public StoryController(IStoryEntryRepository storyEntryRepository, IUserRepository userRepository, IMapper mapper, ILogger<StoryController> logger) : base(logger)
         {
             this.storyEntryRepository = storyEntryRepository;
-            this.bookPageRepository = bookPageRepository;
             this.userRepository = userRepository;
             this.mapper = mapper;
         }
@@ -62,11 +60,12 @@ namespace Hero.Server.Controllers
         [HttpGet("{id}"), IsGroupMember]
         public async Task<IActionResult> GetStoryEntryByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            StoryEntry? entry = await this.storyEntryRepository.GetByIdAsync(id, !this.HttpContext.User.IsInRole(RoleNames.Administrator), cancellationToken);
+            StoryEntry? entry = await this.storyEntryRepository.GetByIdAsync(id, !await this.userRepository.IsOwner(this.HttpContext.User.GetUserId()), cancellationToken);
 
             if (null != entry)
             {
-                return this.Ok(this.mapper.Map<StoryEntryResponse>(entry));
+                StoryEntryResponse value = this.mapper.Map<StoryEntryResponse>(entry);
+                return this.Ok(value);
             }
 
             return this.NotFound();

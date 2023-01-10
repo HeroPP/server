@@ -55,6 +55,7 @@ namespace Hero.Server.DataAccess.Repositories
             try
             {
                 entry.GroupId = this.group.Id;
+                entry.Order = await this.context.StoryEntries.CountAsync();
 
                 await this.context.StoryEntries.AddAsync(entry);
                 await this.context.SaveChangesAsync(cancellationToken);

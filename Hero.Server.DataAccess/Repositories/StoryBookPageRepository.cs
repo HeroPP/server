@@ -24,16 +24,16 @@ namespace Hero.Server.DataAccess.Repositories
             this.logger = logger;
         }
 
-        private async Task<StoryBookPage?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        private async Task<StoryBookPage?> GetByIdAsync(Guid bookId, Guid id, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await this.context.StoryBookPages.SingleOrDefaultAsync(page => page.Id == id, cancellationToken);
+                return await this.context.StoryBookPages.SingleOrDefaultAsync(page => page.BookId == bookId && page.Id == id, cancellationToken);
             }
             catch (Exception ex)
             {
                 this.logger.LogUnknownErrorOccured(ex);
-                throw new HeroException("An error occured while fetching all story entries.");
+                throw new HeroException("An error occured while fetching page.");
             }
         }
 
@@ -50,6 +50,7 @@ namespace Hero.Server.DataAccess.Repositories
 
                 book!.Pages.Add(page);
                 page.GroupId = this.group.Id;
+                page.PageNumber = await this.context.StoryBookPages.CountAsync();
 
                 await this.context.SaveChangesAsync(cancellationToken);
             }
@@ -60,11 +61,11 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdateAsync(Guid id, StoryBookPage page, CancellationToken cancellationToken = default)
+        public async Task UpdateAsync(Guid bookId, Guid id, StoryBookPage page, CancellationToken cancellationToken = default)
         {
             try
             {
-                StoryBookPage? existing = await this.GetByIdAsync(id, cancellationToken);
+                StoryBookPage? existing = await this.GetByIdAsync(bookId, id, cancellationToken);
 
                 if (null == existing)
                 {
@@ -96,15 +97,15 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task UpdatePositionAsync(Guid id, int newPosition, CancellationToken cancellationToken = default)
+        public async Task UpdatePositionAsync(Guid bookId, Guid id, int newPosition, CancellationToken cancellationToken = default)
         {
             try
             {
-                StoryBookPage? existing = await this.GetByIdAsync(id, cancellationToken);
+                StoryBookPage? existing = await this.GetByIdAsync(bookId, id, cancellationToken);
 
                 if (null == existing)
                 {
-                    throw new ObjectNotFoundException($"The story entry you're trying to update does not exist.");
+                    throw new ObjectNotFoundException($"The book page you're trying to update does not exist.");
                 }
 
                 int oldPosition = existing.PageNumber;
@@ -126,11 +127,38 @@ namespace Hero.Server.DataAccess.Repositories
             }
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task UnlockAsync(Guid id, Guid pageId, bool isUnlocked, CancellationToken cancellationToken = default)
         {
             try
             {
-                StoryBookPage? existing = await this.GetByIdAsync(id, cancellationToken);
+                StoryBookPage? page = await this.GetByIdAsync(id, pageId, cancellationToken);
+
+                if (null == page)
+                {
+                    throw new ObjectNotFoundException($"The book page you're trying to update does not exist.");
+                }
+
+                page.IsWritten = isUnlocked;
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (HeroException ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while updating the book state written state.");
+            }
+        }
+
+        public async Task DeleteAsync(Guid bookId, Guid id, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                StoryBookPage? existing = await this.GetByIdAsync(bookId, id, cancellationToken);
 
                 if (null == existing)
                 {
@@ -150,6 +178,22 @@ namespace Hero.Server.DataAccess.Repositories
             {
                 this.logger.LogUnknownErrorOccured(ex);
                 throw new HeroException("An error occured while deleting page.");
+            }
+        }
+
+        public async Task<List<StoryBookPage>> GetAllAsync(Guid bookId, bool writtenOnly, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                return await this.context.StoryBookPages
+                    .Where(page => page.BookId == bookId)
+                    .Where(page => !writtenOnly || page.IsWritten)
+                    .ToListAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogUnknownErrorOccured(ex);
+                throw new HeroException("An error occured while fetching all book pages.");
             }
         }
     }
